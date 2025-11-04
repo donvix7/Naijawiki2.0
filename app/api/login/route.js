@@ -12,4 +12,6 @@ export async function POST(req, res) {
   }
   req.session.userId = user._id;
   res.redirect("/");
+
+      return NextResponse.json( );
 }

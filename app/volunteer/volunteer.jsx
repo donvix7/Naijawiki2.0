@@ -1,3 +1,4 @@
+import CustomFooter from '@/components/customFooter'
 import CustomNavbar from '@/components/navBar'
 import React from 'react'
 
