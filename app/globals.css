@@ -465,16 +465,6 @@ aside {
             display: block;
           }
         }
-        aside {
-          width: 250px;
-          background: white;
-          border-right: 1px solid #e5e7eb;
-          height: 100vh;
-          position: sticky;
-          top: 0;
-          padding: 1rem 0;
-          overflow-y: auto;
-        }
         
         .sidebar-header {
           padding: 0 1.5rem 1.5rem;
