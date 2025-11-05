@@ -1,19 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+import AdminSideBar from '@/components/adminSideBar'
+import React from 'react'
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Word | NaijaLingo Admin</title>
-    <link rel="stylesheet" href="../../style.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
-</head>
-
-<body className="bg-gray-50">
-    <custom-admin-navbar></custom-admin-navbar>
+const page = () => {
+  return (
+    <div>
+        <AdminNavbar/>
     <div className="flex">
-        <custom-admin-sidebar></custom-admin-sidebar>
+    <AdminSideBar/>
         <main className="flex-1 p-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-secondary">Edit Word</h1>
@@ -35,7 +28,7 @@
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Word/Phrase*</label>
                             <input type="text" value="Wahala" required
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"/>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Language*</label>
@@ -85,12 +78,12 @@
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Created By</label>
                                 <input type="text" value="admin@example.com" readonly
-                                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50">
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"/>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Last Updated</label>
                                 <input type="text" value="2 days ago" readonly
-                                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50">
+                                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"/>
                             </div>
                         </div>
                     </div>
@@ -105,11 +98,9 @@
                 </form>
             </div>
         </main>
+    </div>   
     </div>
-    <script src="../../components/admin-navbar.js"></script>
-    <script src="../../components/admin-sidebar.js"></script>
-    <script src="../../script.js"></script>
-    <script>feather.replace();</script>
-</body>
+  )
+}
 
-</html>
+export default page

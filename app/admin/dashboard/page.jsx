@@ -1,11 +1,13 @@
+import AdminNavbar from '@/components/adminNavbar'
+import AdminSideBar from '@/components/adminSideBar'
 import React from 'react'
 
 const page = () => {
   return (
     <div>
-        <custom-admin-navbar></custom-admin-navbar>
+        <AdminNavbar/>
     <div className="flex">
-        <custom-admin-sidebar></custom-admin-sidebar>
+        <AdminSideBar/>
         <main className="flex-1 p-8">
             <h1 className="text-3xl font-bold text-secondary mb-6">Admin Dashboard</h1>
 {          //  <!-- Stats Cards -->

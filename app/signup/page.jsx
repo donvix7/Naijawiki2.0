@@ -1,8 +1,30 @@
+"use client";
 import CustomFooter from '@/components/customFooter'
 import CustomNavbar from '@/components/navBar'
-import React from 'react'
+import React, { useState } from 'react'
 
-const signup = () => {
+const page = () => {
+
+    const {firstName, setFirstName} = useState("");
+    const {lastName, setLastName} = useState("");
+    const {email, setEmail} = useState("");
+    const {password, setPassword} = useState("");
+    const {confirm, setConfirm} = useState("");
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const res = await fetch("https://naijawiki.postman.co/workspace/Xunna-Workspace~3fa9916e-ba1c-43bc-84d2-e742c456cfde/request/36930238-910c0802-e01e-43b4-9bbb-ecb1cd937ac9?action=share&source=copy-link&creator=36818929",
+             { method: "POST",
+            headers: {
+                "content-type": "application/json"
+            },
+            body: JSON.stringify({firstName,lastName,email, password})
+       } 
+        )
+
+    }
+    
   return (
     <div>
 
@@ -13,17 +35,22 @@ const signup = () => {
                 <h1 className="text-3xl font-bold text-secondary mb-2">Create Account</h1>
                 <p className="text-gray-600">Join our community of language enthusiasts</p>
             </div>
-            <form className="space-y-6">
+            <form className="space-y-6"
+            onSubmit = {handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="first-name" className="block text-sm font-medium text-gray-700 mb-1">First Name*</label>
                         <input type="text" id="first-name" required
+                        onChange = {(e) => setFirstName(e.target.value)}
+                        value = {firstName}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                             placeholder="John"></input>
                     </div>
                     <div>
                         <label htmlFor="last-name" className="block text-sm font-medium text-gray-700 mb-1">Last Name*</label>
                         <input type="text" id="last-name" required
+                        onChange = {(e) => setLastName(e.target.value)}
+                        value = {lastName}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                             placeholder="Doe"></input>
                     </div>
@@ -31,12 +58,16 @@ const signup = () => {
                 <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
                     <input type="email" id="email" required
+                    onChange = {(e) => setEmail(e.target.value)}
+                        value = {email}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                         placeholder="your@email.com"></input>
                 </div>
                 <div>
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password*</label>
                     <input type="password" id="password" required
+                    onChange = {(e) => setPassword(e.target.value)}
+                        value = {password}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                         placeholder="••••••••"></input>
                     <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
@@ -45,6 +76,8 @@ const signup = () => {
                     <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1">Confirm
                         Password*</label>
                     <input type="password" id="confirm-password" required
+                    onChange = {(e) => setConfirm(e.target.value)}
+                        value = {confirm}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                         placeholder="••••••••"></input>
                 </div>
@@ -90,6 +123,6 @@ const signup = () => {
 <CustomFooter/>    
       </div>
   )
-}
+  }
 
-export default signup
+export default page

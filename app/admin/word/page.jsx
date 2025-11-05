@@ -1,11 +1,12 @@
+import AdminNavbar from '@/components/adminNavbar'
 import React from 'react'
 
 const page = () => {
   return (
     <div>
-        <custom-admin-navbar></custom-admin-navbar>
+        <AdminNavbar/>
     <div className="flex">
-        <custom-admin-sidebar></custom-admin-sidebar>
+    <AdminSideBar/>
         <main className="flex-1 p-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-secondary">Manage Words</h1>

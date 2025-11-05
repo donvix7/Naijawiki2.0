@@ -1,3 +1,4 @@
+import AdminNavbar from '@/components/adminNavbar'
 import AdminSideBar from '@/components/adminSideBar'
 import React from 'react'
 

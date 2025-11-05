@@ -1,11 +1,12 @@
 'use client';
+import { Feather, FeatherIcon, LucideFeather } from "lucide-react";
 import { useState, useEffect } from "react";
-import feather from "feather-icons";
-
+import feather from "feather-icons"
 const CustomNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
+     console.log(menuOpen);
     feather.replace(); // Initialize Feather icons
   }, [menuOpen]);
 

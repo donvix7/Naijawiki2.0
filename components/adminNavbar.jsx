@@ -17,10 +17,10 @@ const AdminNavbar = () => {
           <div className="dropdown">
             <div className="user-avatar">AD</div>
             <div className="dropdown-content">
-              <a href="/admin/profile.html" className="dropdown-item">
+              <a href="/admin/profile" className="dropdown-item">
                 <i data-feather="user"></i> Profile
               </a>
-              <a href="/admin/settings.html" className="dropdown-item">
+              <a href="/admin/settings" className="dropdown-item">
                 <i data-feather="settings"></i> Settings
               </a>
               <a href="/logout" className="dropdown-item">

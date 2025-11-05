@@ -17,10 +17,10 @@ const ModeratorNavbar = () => {
           <div className="dropdown">
             <div className="user-avatar">MO</div>
             <div className="dropdown-content">
-              <a href="/moderator/profile.html" className="dropdown-item">
+              <a href="/moderator/profile" className="dropdown-item">
                 <i data-feather="user"></i> Profile
               </a>
-              <a href="/moderator/settings.html" className="dropdown-item">
+              <a href="/moderator/settings" className="dropdown-item">
                 <i data-feather="settings"></i> Settings
               </a>
               <a href="/logout" className="dropdown-item">

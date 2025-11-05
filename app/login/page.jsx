@@ -1,10 +1,42 @@
+"use client";
 import CustomFooter from '@/components/customFooter'
 import CustomNavbar from '@/components/navBar'
-import React from 'react'
+import React, { useState } from 'react'
 
 export default function Login (){
+
+    const {email, setEmail} = useState("");
+    const {password, setPassword} = useState("");
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log(email,password);
+
+    try{
+        const res = await fetch("https://naijawiki.postman.co/workspace/Xunna-Workspace~3fa9916e-ba1c-43bc-84d2-e742c456cfde/request/36930238-910c0802-e01e-43b4-9bbb-ecb1cd937ac9?action=share&source=copy-link&creator=36818929",
+        {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                body: JSON.stringify({email, password})
+            }
+
+        }
+    )
+    if(res.ok) {
+        console.log(res);
+    }
+    else {
+        console.log("res not ok");
+    }
+    }catch(error) {
+        console.log(error);
+
+    }
+   
+}
   return (
     <div>
+
         <CustomNavbar/>
 
     <main className="container mx-auto px-6 py-12">
@@ -13,16 +45,21 @@ export default function Login (){
                 <h1 className="text-3xl font-bold text-secondary mb-2">Welcome Back</h1>
                 <p className="text-gray-600">Login to your NaijaLingo account</p>
             </div>
-            <form className="space-y-6">
+            <form className="space-y-6"
+            onSubmit = {handleSubmit}>
                 <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
                     <input type="email" id="email" required
+                    onChange = {() => setEmail(e.target.value)}
+                    value = {email}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                         placeholder="your@email.com"></input>
                 </div>
                 <div>
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password*</label>
                     <input type="password" id="password" required
+                    onChange = {() => setPassword(e.target.value)}
+                    value = {password}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                         placeholder="••••••••"></input>
                 </div>
