@@ -1,3 +1,4 @@
+import ModeratorNavbar from '@/components/moderatorNavbar'
 import ModeratorSidebar from '@/components/moderatorSidebar'
 import React from 'react'
 
