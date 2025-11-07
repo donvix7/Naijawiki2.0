@@ -1,7 +1,37 @@
+"use client";
+import AdminNavbar from '@/components/adminNavbar'
 import AdminSideBar from '@/components/adminSideBar'
-import React from 'react'
+import React, { useState } from 'react'
 
 const page = () => {
+    
+const [time, setTime] = useState("");
+const [word, setWord] = useState("");
+const [language, setLanguage] = useState("");
+const [meaning, setMeaning] = useState("");
+const [example, setExample] = useState("");
+const [status, setStatus] = useState("");
+const [category, setCategory] = useState("");
+const [creator, setCreator] = useState("");
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const res = await fetch("", {
+            method: "PUT",
+            headers: {
+               " Content-Type": "application/json"},
+            body: JSON.stringify({
+                word: word,
+                language: language,
+                meaning: meaning,
+                example: example,
+                category: category,
+                status: status,
+
+            })
+
+        })
+    }
   return (
     <div>
         <AdminNavbar/>
@@ -23,16 +53,19 @@ const page = () => {
                         <p className="text-gray-500 text-sm">Pidgin English</p>
                     </div>
                 </div>
-                <form className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Word/Phrase*</label>
-                            <input type="text" value="Wahala" required
+                            <input type="text"
+                            onChange = {(e) => setWord(e.target.value)}
+                             value={word} required
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"/>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Language*</label>
                             <select required
+                            onChange = {(e) => setLanguage(e.target.value)}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                                 <option value="pidgin" selected>Pidgin</option>
                                 <option value="yoruba">Yoruba</option>
@@ -44,17 +77,23 @@ const page = () => {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Meaning*</label>
                         <textarea rows="3" required
+                        onChange = {(e) => setMeaning(e.target.value)}
+                        value = {meaning}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">Trouble or problem</textarea>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Example Usage</label>
                         <textarea rows="2"
+                        onChange = {(e) => setExample(e.target.value)}
+                        value = {example}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">"No wahala" means "No problem"</textarea>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                             <select
+                            onChange = {(e) => setCategory(e.target.value)}
+
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                                 <option value="">Select Category</option>
                                 <option value="slang" selected>Slang</option>
@@ -65,6 +104,7 @@ const page = () => {
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Status*</label>
                             <select required
+                            onChange = {(e) => setStatus(e.target.value)}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                                 <option value="approved" selected>Approved</option>
                                 <option value="pending">Pending</option>
@@ -77,12 +117,15 @@ const page = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Created By</label>
-                                <input type="text" value="admin@example.com" readonly
+                                <input type="text" 
+                                onChange={(e) => setCreator(e.target.value)}
+                                value = {creator}
+                                readOnly
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"/>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Last Updated</label>
-                                <input type="text" value="2 days ago" readonly
+                                <input type="text" onChange = {(e) => setTime} value={time} readOnly
                                     className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"/>
                             </div>
                         </div>

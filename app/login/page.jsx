@@ -3,30 +3,51 @@ import CustomFooter from '@/components/customFooter'
 import CustomNavbar from '@/components/navBar'
 import React, { useState } from 'react'
 
-export default function Login (){
+export default function page (){
 
-    const {email, setEmail} = useState("");
-    const {password, setPassword} = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(email,password);
 
     try{
-        const res = await fetch("https://naijawiki.postman.co/workspace/Xunna-Workspace~3fa9916e-ba1c-43bc-84d2-e742c456cfde/request/36930238-910c0802-e01e-43b4-9bbb-ecb1cd937ac9?action=share&source=copy-link&creator=36818929",
+        const res = await fetch("http://wiki-server.giguild.com/api/auth/login",
         {
             method: "POST",
             headers: {
-                "content-type": "application/json",
-                body: JSON.stringify({email, password})
-            }
+                "Content-Type": "application/json",
+               
+            },
+             body: JSON.stringify({email, password})
 
         }
     )
-    if(res.ok) {
-        console.log(res);
-    }
-    else {
+    if(!res.ok) {
         console.log("res not ok");
+    }
+    return res.json()
+
+    const cookieStore = await cookies();
+    cookieStore.set({
+        name: "token",
+        value: data.token,
+        httpOnly: true,
+        secure: true,
+        sameSite: "strict",
+        path:"/",
+        maxAge: 60 * 60 * 24,
+    });
+    if (data.role === "admin") {redirect("/admin/dashboard")
+        return {success: true, message: data.message}
+   } if (data.role === "moderator") {redirect("/moderator/dashboard")
+        return {success: true, message: data.message}
+    }if (data.role === "creator") {redirect("/")
+        return {success: true, message: data.message}
+}
+    else {
+        alert("user not found");
+        return;
     }
     }catch(error) {
         console.log(error);
@@ -50,7 +71,7 @@ const handleSubmit = async (e) => {
                 <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
                     <input type="email" id="email" required
-                    onChange = {() => setEmail(e.target.value)}
+                    onChange = {(e) => setEmail(e.target.value)}
                     value = {email}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                         placeholder="your@email.com"></input>
@@ -58,7 +79,7 @@ const handleSubmit = async (e) => {
                 <div>
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password*</label>
                     <input type="password" id="password" required
-                    onChange = {() => setPassword(e.target.value)}
+                    onChange = {(e) => setPassword(e.target.value)}
                     value = {password}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                         placeholder="••••••••"></input>
@@ -74,7 +95,7 @@ const handleSubmit = async (e) => {
                 <button type="submit"
                     className="w-full bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
                     Login </button>
-                <div className="text-center text-sm text-gray-500"> Don't have an account? <a href="/signup.html"
+                <div className="text-center text-sm text-gray-500"> Don't have an account? <a href="/signup"
                         className="text-primary hover:underline">Sign up</a>
                 </div>
             </form>

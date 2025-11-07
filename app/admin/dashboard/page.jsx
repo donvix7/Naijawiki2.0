@@ -1,9 +1,26 @@
 import AdminNavbar from '@/components/adminNavbar'
 import AdminSideBar from '@/components/adminSideBar'
 import React from 'react'
+import feather from "feather-icons"
 
-const page = () => {
-  return (
+
+
+const getWords = async () => {
+     try {
+       const res = await fetch("http://wiki-server.giguild.com/api/user/word/list");
+
+        if (!res.ok) {
+            throw new Error("Network response was not ok")
+        }
+        return res.josn();
+    } catch (error) {
+        console.log(error)
+
+    }  
+}
+const page = async () => {
+    return (
+    //const {words} = await getWords();  return (
     <div>
         <AdminNavbar/>
     <div className="flex">
@@ -95,7 +112,7 @@ const page = () => {
                     <a href="/admin/words.html" className="text-primary hover:underline">View All</a>
                 </div>
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
+                    <table className="min-w-full divide-y-10px divide-gray-200">
                         <thead className="bg-gray-50">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Word</th>
@@ -220,11 +237,7 @@ const page = () => {
             </div>
         </main>
     </div>
-    <script src="../../components/admin-navbar.js"></script>
-    <script src="../../components/admin-sidebar.js"></script>
-    <script src="../../script.js"></script>
-    <script>feather.replace();</script>
-    </div>
+       </div>
   )
 }
 

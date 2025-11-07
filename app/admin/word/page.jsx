@@ -1,12 +1,28 @@
 import AdminNavbar from '@/components/adminNavbar'
+import AdminSidebar from '@/components/adminSideBar'
 import React from 'react'
 
-const page = () => {
+const getWords = async () => {
+     try {
+       const res = await fetch("http://wiki-server.giguild.com/api/words");
+        console.log(res);
+        if (!res.ok) {
+            throw new Error("Network response was not ok")
+        }
+        return res.json();
+    } catch (error) {
+        console.log(error)
+
+    }  
+}
+const page = async () => {
+    const words = await getWords();
+
   return (
     <div>
         <AdminNavbar/>
     <div className="flex">
-    <AdminSideBar/>
+    <AdminSidebar/>
         <main className="flex-1 p-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-secondary">Manage Words</h1>
@@ -58,8 +74,7 @@ const page = () => {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-{                          //  <!-- Sample data rows -->
-}                            <tr>
+                            <tr>
                                 <td className="px-6 py-4 whitespace-nowrap font-medium">Wahala</td>
                                 <td className="px-6 py-4 whitespace-nowrap">Pidgin</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -72,6 +87,7 @@ const page = () => {
                                     <a href="#" className="text-red-500 hover:underline">Delete</a>
                                 </td>
                             </tr>
+
                             <tr>
                                 <td className="px-6 py-4 whitespace-nowrap font-medium">Omo</td>
                                 <td className="px-6 py-4 whitespace-nowrap">Yoruba</td>
@@ -102,10 +118,6 @@ const page = () => {
             </div>
         </main>
     </div>
-    <script src="../../components/admin-navbar.js"></script>
-    <script src="../../components/admin-sidebar.js"></script>
-    <script src="../../script.js"></script>
-    <script>feather.replace();</script>
     </div>
   )
 }

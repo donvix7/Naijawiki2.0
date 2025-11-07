@@ -1,13 +1,35 @@
+"use client";
 import AdminNavbar from '@/components/adminNavbar'
-import AdminSideBar from '@/components/adminSideBar'
-import React from 'react'
+import AdminSidebar from '@/components/adminSideBar'
+import React, { useState } from 'react'
 
 const page = () => {
+    const [word, setWord] = useState("");
+        const [language, setLanguage] = useState("");
+        const [meaning, setMeaning] = useState("");
+        const [example, setExample] = useState("");
+        const [category, setCategory] = useState("");
+        const [status, setStatus] = useState("");
+    
+        const handleSubmit = async (e) => {
+            console.log(word, meaning);
+            e.preventDefault();
+    
+                const res = await fetch("http://wiki-server.giguild.com/api/words",
+                 { method: "POST",
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify({word, meaning})
+           } 
+            )
+    
+        }
   return (
     <div>
         <AdminNavbar/>
     <div className="flex">
-    <AdminSideBar/>
+    <AdminSidebar/>
         <main className="flex-1 p-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-secondary">Add New Word</h1>
@@ -15,16 +37,21 @@ const page = () => {
                     <i data-feather="arrow-left"></i> Back to Words </a>
             </div>
             <div className="bg-white rounded-xl shadow-sm p-6">
-                <form className="space-y-6">
+                <form className="space-y-6"
+                onSubmit = {handleSubmit}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Word/Phrase*</label>
                             <input type="text" required
+                            onChange = {(e) => setWord(e.target.value)}
+                            value = {word}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"/>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Language*</label>
                             <select required
+                            onChange = {(e) => setLanguage(e.target.value)}
+                            value = {language}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                                 <option value="">Select Language</option>
                                 <option>Pidgin</option>
@@ -38,17 +65,23 @@ const page = () => {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Meaning*</label>
                         <textarea rows="3" required
+                        onChange = {(e) => setMeaning(e.target.value)}
+                        value={meaning}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"></textarea>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Example Usage</label>
                         <textarea rows="2"
+                        onChange={(e) => setExample(e.target.value)}
+                        value={example}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"></textarea>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                             <select
+                            onChange={(e) => setCategory(e.target.value)}
+                            value={category}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                                 <option value="">Select Category</option>
                                 <option>Slang</option>
@@ -60,6 +93,8 @@ const page = () => {
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Status*</label>
                             <select required
+                            onChange={(e) => setStatus(e.target.value)} 
+                            value={status}
                                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                                 <option value="approved">Approved</option>
                                 <option value="pending">Pending</option>

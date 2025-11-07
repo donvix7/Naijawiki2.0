@@ -2,7 +2,21 @@ import ModeratorNavbar from '@/components/moderatorNavbar'
 import ModeratorSidebar from '@/components/moderatorSidebar'
 import React from 'react'
 
-const page = () => {
+const getWords = async () => {
+     try {
+       const res = await fetch("http://wiki-server.giguild.com/api/user/word/list");
+
+        if (!res.ok) {
+            throw new Error("Network response was not ok")
+        }
+        return res.josn();
+    } catch (error) {
+        console.log(error)
+
+    }  
+}
+const page = async() => {
+    //const {word} = await getWords();
   return (
     <div>
 

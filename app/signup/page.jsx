@@ -5,25 +5,48 @@ import React, { useState } from 'react'
 
 const page = () => {
 
-    const {firstName, setFirstName} = useState("");
-    const {lastName, setLastName} = useState("");
-    const {email, setEmail} = useState("");
-    const {password, setPassword} = useState("");
-    const {confirm, setConfirm} = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirm, setConfirm] = useState("");
+    const role = "creator";
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+  e.preventDefault();
 
-        const res = await fetch("https://naijawiki.postman.co/workspace/Xunna-Workspace~3fa9916e-ba1c-43bc-84d2-e742c456cfde/request/36930238-910c0802-e01e-43b4-9bbb-ecb1cd937ac9?action=share&source=copy-link&creator=36818929",
-             { method: "POST",
-            headers: {
-                "content-type": "application/json"
-            },
-            body: JSON.stringify({firstName,lastName,email, password})
-       } 
-        )
+  if (password !== confirm) {
+    // Display error in your UI
+    alert("password doesnt match")
+    return;
+  }
 
+  try {
+    const res = await fetch("http://wiki-server.giguild.com/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        password,
+        role,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      // Show error to user instead of just console log
+      console.log("res not ok");
+      return { success: false, message: data.message };
     }
+    return { success: true, message: data.message };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
     
   return (
     <div>

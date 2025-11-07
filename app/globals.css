@@ -18,6 +18,7 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    
   }
 }
 
@@ -307,7 +308,7 @@ aside {
         }
         
         a {
-          color: white;
+          color: grey;
           text-decoration: none;
           transition: color 0.3s;
           font-weight: 500;
@@ -329,7 +330,7 @@ aside {
           display: none;
           background: none;
           border: none;
-          color: white;
+          color: grey;
           cursor: pointer;
         }
         
@@ -408,13 +409,14 @@ aside {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: grey;
           font-weight: bold;
           cursor: pointer;
         }
         
         .dropdown {
           position: relative;
+
         }
         
         .dropdown-content {
@@ -456,7 +458,7 @@ aside {
           display: none;
           background: none;
           border: none;
-          color: white;
+          color: grey;
           cursor: pointer;
         }
         

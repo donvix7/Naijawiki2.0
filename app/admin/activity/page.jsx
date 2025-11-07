@@ -2,8 +2,21 @@ import AdminNavbar from '@/components/adminNavbar'
 import AdminSideBar from '@/components/adminSideBar'
 import React from 'react'
 
-const page = () => {
-  return (
+const getUsers = async () => {
+     try {
+       const res = await fetch("http://wiki-server.giguild.com/api/user/word/list");
+
+        if (!res.ok) {
+            throw new Error("Network response was not ok")
+        }
+        return res.josn();
+    } catch (error) {
+        console.log(error)
+
+    }  
+}
+const page = async () => { 
+     return (
     <div>
          <AdminNavbar/>
     <div className="flex">

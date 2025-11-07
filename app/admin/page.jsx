@@ -1,13 +1,32 @@
+
+"use client"
 import AdminNavbar from '@/components/adminNavbar'
-import AdminSideBar from '@/components/adminSideBar'
+import AdminSidebar from '@/components/adminSideBar';
 import React from 'react'
 
-const page = () => {
-  return (
+
+const getWords = async () => {
+     try {
+       const res = await fetch("http://wiki-server.giguild.com/api/user/word/list");
+
+        if (!res.ok) {
+            throw new Error("Network response was not ok")
+        }
+        return res.josn();
+    } catch (error) {
+        console.log(error)
+
+    }  
+}
+const page = async () => {
+
+    const {words} = await getWords();
+   
+    return (
     <div>
     <AdminNavbar/>
 <div className="flex">
-    <AdminSideBar/>
+    <AdminSidebar/>
         <main className="flex-1 p-8">
             <h1 className="text-3xl font-bold text-secondary mb-6">Admin Dashboard</h1>
 {         //   <!-- Stats Cards -->

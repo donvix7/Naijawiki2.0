@@ -1,9 +1,8 @@
-import React from 'react'
 
-const AdminSideBar = () => {
-  return (
+export default function AdminSidebar () {
+  return(
     <div>
-        <aside>
+    <aside>
         <div className="sidebar-header">
           <h2 className="sidebar-title">
             <i data-feather="settings"></i> Admin Panel
@@ -13,7 +12,7 @@ const AdminSideBar = () => {
         <div className="sidebar-menu">
           <div className="menu-group">
             <div className="menu-title">Main</div>
-            <a href="/admin/dashboard." className="menu-item">
+            <a href="/admin/dashboard" className="menu-item">
 <i data-feather="home"></i> Dashboard
             </a>
           </div>
@@ -53,7 +52,5 @@ const AdminSideBar = () => {
         </div>
       </aside>
     </div>
-  )
+  );
 }
-
-export default AdminSideBar
