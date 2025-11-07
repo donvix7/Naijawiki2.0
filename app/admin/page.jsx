@@ -20,7 +20,7 @@ const getWords = async () => {
 }
 const page = async () => {
 
-    const {words} = await getWords();
+    const words = await getWords();
    
     return (
     <div>
