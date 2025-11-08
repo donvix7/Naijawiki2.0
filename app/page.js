@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black flex-col">
+    <div className="flex min-h-screen  justify-center bg-zinc-50 font-sans dark:bg-black flex-col">
       <main>
         <CustomNavbar/>
                 <section className="bg-gradient-to-r from-primary to-accent py-20 text-white">
@@ -73,7 +73,7 @@ export default function Home() {
                             meanings, and pronunciations</p>
                         <div className="flex flex-col sm:flex-row justify-center gap-4">
                             <a href="/submit-word.html"
-                                className="bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-full transition-colors">
+                                className="bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-full transition-colors text-secondary">
                                 Contribute a Word </a>
                             <a href="/explore.html"
                                 className="bg-white hover:bg-gray-100 text-secondary font-bold py-3 px-6 rounded-full transition-colors">

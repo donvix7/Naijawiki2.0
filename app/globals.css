@@ -9,10 +9,6 @@
   --accent: #b91c1c;
   --neutral: #1c1917;
 }
-* {
-  --primary: white;
-  --secondary: black;
-}
 
 @theme inline {
   --color-background: var(--background);
@@ -232,9 +228,9 @@ footer {
         .footer-container {
           max-width: 1200px;
           margin: 0 auto;
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 2rem;
+          
+          display:flex;
+          flex-direction: row;
         }
         
         .footer-logo {
@@ -313,7 +309,7 @@ footer {
         
         @media (max-width: 768px) {
           .footer-container {
-            grid-template-columns: 1fr;
+          flex-direction: column;
           }
         }
 

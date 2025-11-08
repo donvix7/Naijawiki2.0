@@ -8,7 +8,7 @@ const CustomFooter = () => {
   const year = new Date().getFullYear();
   return (
     <div>
-      <footer className="bg-[var(--neutral)] text-white py-12 px-8 mt-auto">
+      <footer className="bg-[var(--neutral)] text-white py-12 px-8 mt-auto flex flex-col border-2px solid red">
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {/* About Section */}
         <div className="footer-about w-100vw md:w-auto">
