@@ -23,7 +23,7 @@ export default function page() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 {             //   <!-- Language Filter -->
 }                <div>
-                    <label for="language" className="block text-sm font-medium text-gray-700 mb-1">Language</label>
+                    <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">Language</label>
                     <select id="language"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                         <option value="">All Languages</option>
@@ -36,7 +36,7 @@ export default function page() {
                 </div>
 {            //    <!-- Category Filter -->
 }                <div>
-                    <label for="category" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                     <select id="category"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                         <option value="">All Categories</option>
@@ -48,7 +48,7 @@ export default function page() {
                 </div>
 {             //   <!-- Status Filter -->
 }                <div>
-                    <label for="status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <select id="status"
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
                         <option value="">All Statuses</option>
@@ -59,7 +59,7 @@ export default function page() {
                 </div>
 {              //  <!-- Search -->
 }                <div>
-                    <label for="search" className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                    <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">Search</label>
                     <div className="relative">
                         <input type="text" id="search" placeholder="Search words..."
                             className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"/>
@@ -134,7 +134,7 @@ export default function page() {
 }            <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
                 <div className="p-6">
                     <div className="flex justify-between items-start">
-                        <h3 className="text-2xl font-bold text-secondary">Nne</h3>
+                        <h3 className="text-2xl font-bold text-black">Nne</h3>
                         <span className="bg-accent text-white px-3 py-1 rounded-full text-sm">Igbo</span>
                     </div>
                     <p className="mt-2 text-gray-600">Term of endearment meaning "mother"</p>

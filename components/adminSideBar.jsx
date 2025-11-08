@@ -1,7 +1,7 @@
 
 export default function AdminSidebar () {
   return(
-    <div>
+    <div className= "moderator">
     <aside>
         <div className="sidebar-header">
           <h2 className="sidebar-title">

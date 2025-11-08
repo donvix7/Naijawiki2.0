@@ -2,8 +2,8 @@ import React from 'react'
 
 const AdminNavbar = () => {
   return (
-    <div>
-        <nav>
+    <div className="admin">
+        <nav >
         <a href="/admin/" className="logo">
 <i data-feather="book-open" className="logo-icon"></i>
           NaijaLingo Admin

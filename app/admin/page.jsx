@@ -1,5 +1,4 @@
 
-"use client"
 import AdminNavbar from '@/components/adminNavbar'
 import AdminSidebar from '@/components/adminSideBar';
 import React from 'react'
@@ -98,11 +97,7 @@ const page = async () => {
             </div>
         </main>
     </div>
-    <script src="../components/admin-navbar.js"></script>
-    <script src="../components/admin-sidebar.js"></script>
-    <script src="../script.js"></script>
-    <script>feather.replace();</script>
-    </div>
+     </div>
   )
 }
 

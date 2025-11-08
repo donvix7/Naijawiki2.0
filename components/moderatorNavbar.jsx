@@ -2,7 +2,7 @@ import React from 'react'
 
 const ModeratorNavbar = () => {
   return (
-    <div>
+    <div className ="moderator">
         <nav>
         <a href="/moderator/" className="logo">
 <i data-feather="book-open" className="logo-icon"></i>
