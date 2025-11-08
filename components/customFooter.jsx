@@ -51,11 +51,11 @@ const CustomFooter = () => {
         <div className="footer-links">
           <h3 className="text-[var(--primary)] text-xl mb-4">Explore</h3>
           <ul className="space-y-2">
-            <li><a href="/explore.html" className="hover:text-[var(--primary)] text-gray-300">All Words</a></li>
-            <li><a href="/explore.html?language=pidgin" className="hover:text-[var(--primary)] text-gray-300">Pidgin English</a></li>
-            <li><a href="/explore.html?language=yoruba" className="hover:text-[var(--primary)] text-gray-300">Yoruba</a></li>
-            <li><a href="/explore.html?language=igbo" className="hover:text-[var(--primary)] text-gray-300">Igbo</a></li>
-            <li><a href="/explore.html?language=hausa" className="hover:text-[var(--primary)] text-gray-300">Hausa</a></li>
+            <li><a href="/explore" className="hover:text-[var(--primary)] text-gray-300">All Words</a></li>
+            <li><a href="/explore?language=pidgin" className="hover:text-[var(--primary)] text-gray-300">Pidgin English</a></li>
+            <li><a href="/explore?language=yoruba" className="hover:text-[var(--primary)] text-gray-300">Yoruba</a></li>
+            <li><a href="/explore?language=igbo" className="hover:text-[var(--primary)] text-gray-300">Igbo</a></li>
+            <li><a href="/explore?language=hausa" className="hover:text-[var(--primary)] text-gray-300">Hausa</a></li>
           </ul>
         </div>
 
@@ -63,11 +63,11 @@ const CustomFooter = () => {
         <div className="footer-links">
           <h3 className="text-[var(--primary)] text-xl mb-4">Community</h3>
           <ul className="space-y-2">
-            <li><a href="/submit-word.html" className="hover:text-[var(--primary)] text-gray-300">Contribute a Word</a></li>
-            <li><a href="/about.html" className="hover:text-[var(--primary)] text-gray-300">About Us</a></li>
-            <li><a href="/blog.html" className="hover:text-[var(--primary)] text-gray-300">Blog</a></li>
-            <li><a href="/events.html" className="hover:text-[var(--primary)] text-gray-300">Events</a></li>
-            <li><a href="/volunteer.html" className="hover:text-[var(--primary)] text-gray-300">Volunteer</a></li>
+            <li><a href="/submit-word" className="hover:text-[var(--primary)] text-gray-300">Contribute a Word</a></li>
+            <li><a href="/about" className="hover:text-[var(--primary)] text-gray-300">About Us</a></li>
+            <li><a href="/blog" className="hover:text-[var(--primary)] text-gray-300">Blog</a></li>
+            <li><a href="/events" className="hover:text-[var(--primary)] text-gray-300">Events</a></li>
+            <li><a href="/volunteer" className="hover:text-[var(--primary)] text-gray-300">Volunteer</a></li>
           </ul>
         </div>
 
@@ -75,11 +75,11 @@ const CustomFooter = () => {
         <div className="footer-links">
           <h3 className="text-[var(--primary)] text-xl mb-4">Support</h3>
           <ul className="space-y-2">
-            <li><a href="/help.html" className="hover:text-[var(--primary)] text-gray-300">Help Center</a></li>
-            <li><a href="/contact.html" className="hover:text-[var(--primary)] text-gray-300">Contact Us</a></li>
-            <li><a href="/privacy.html" className="hover:text-[var(--primary)] text-gray-300">Privacy Policy</a></li>
-            <li><a href="/terms.html" className="hover:text-[var(--primary)] text-gray-300">Terms of Use</a></li>
-            <li><a href="/donate.html" className="hover:text-[var(--primary)] text-gray-300">Donate</a></li>
+            <li><a href="/help" className="hover:text-[var(--primary)] text-gray-300">Help Center</a></li>
+            <li><a href="/contact" className="hover:text-[var(--primary)] text-gray-300">Contact Us</a></li>
+            <li><a href="/privacy" className="hover:text-[var(--primary)] text-gray-300">Privacy Policy</a></li>
+            <li><a href="/terms" className="hover:text-[var(--primary)] text-gray-300">Terms of Use</a></li>
+            <li><a href="/donate" className="hover:text-[var(--primary)] text-gray-300">Donate</a></li>
           </ul>
         </div>
       </div>

@@ -2,20 +2,31 @@ import AdminNavbar from '@/components/adminNavbar'
 import AdminSideBar from '@/components/adminSideBar'
 import React from 'react'
 
-const getUsers = async () => {
+const getWords = async () => {
      try {
-       const res = await fetch("http://wiki-server.giguild.com/api/user/word/list");
+       const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY0NGZlZDUzLTMzZTMtNDZkMC1hOGVjLWU1ODBiODUwYThmZCIsImVtYWlsIjoiamFuZXRzaW5AZ2lndWlsZC5jb20iLCJyb2xlIjoiY3JlYXRvciIsImlhdCI6MTc2MjU1Njk4OCwiZXhwIjoxNzYzMTYxNzg4fQ.xXBKYNL64f5ejQATUhm6s6ZVRCsEId8baaWMKuJWs5Q"
+
+       }});
 
         if (!res.ok) {
             throw new Error("Network response was not ok")
         }
-        return res.josn();
+        return res.json();
+    
     } catch (error) {
         console.log(error)
 
-    }  
+    }
 }
 const page = async () => { 
+
+    const word = await getWords();
+        console.log(word);
+
      return (
     <div>
          <AdminNavbar/>
@@ -79,12 +90,12 @@ const page = async () => {
                     </table>
                 </div>
                 <div className="mt-6 flex justify-between items-center">
-                    <div className="text-sm text-gray-500"> Showing <span className="font-medium">1</span> to <span
-                            className="font-medium">10</span> of <span className="font-medium">342</span> entries </div>
+                    <div className="text-sm text-gray-500"> Showing <span className="font-medium">{word.currentPage}</span> to <span
+                            className="font-medium">10</span> of <span className="font-medium">{word.count}</span> entries </div>
                     <div className="flex gap-2">
                         <button className="px-3 py-1 border rounded-md bg-white">Previous</button>
-                        <button className="px-3 py-1 border rounded-md bg-primary text-white">1</button>
-                        <button className="px-3 py-1 border rounded-md bg-white">2</button>
+                        <button className="px-3 py-1 border rounded-md bg-primary text-white">{word.currentPage}</button>
+                        <button className="px-3 py-1 border rounded-md bg-white">{word.currentPage + 1}</button>
                         <button className="px-3 py-1 border rounded-md bg-white">Next</button>
                     </div>
                 </div>

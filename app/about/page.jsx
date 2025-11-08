@@ -1,6 +1,7 @@
 import CustomFooter from '@/components/customFooter'
 import CustomNavbar from '@/components/navBar'
 import React from 'react'
+import feather from "feather-icons";
 
 const about = () => {
   return (
@@ -48,7 +49,7 @@ const about = () => {
                 <h2 className="text-2xl font-bold text-secondary mb-4">Join Our Community</h2>
                 <p className="text-gray-700 mb-4">We welcome contributors, volunteers, and language enthusiasts to help grow
                     this resource.</p>
-                <a href="/volunteer.html"
+                <a href="/volunteer"
                     className="inline-block bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
                     Become a Volunteer </a>
             </div>

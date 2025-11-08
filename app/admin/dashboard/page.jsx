@@ -1,26 +1,33 @@
 import AdminNavbar from '@/components/adminNavbar'
 import AdminSideBar from '@/components/adminSideBar'
 import React from 'react'
-import feather from "feather-icons"
 
 
 
 const getWords = async () => {
      try {
-       const res = await fetch("http://wiki-server.giguild.com/api/user/word/list");
+       const res = await fetch("http://wiki-server.giguild.com/api/user/word/list",{
+         method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImY0NGZlZDUzLTMzZTMtNDZkMC1hOGVjLWU1ODBiODUwYThmZCIsImVtYWlsIjoiamFuZXRzaW5AZ2lndWlsZC5jb20iLCJyb2xlIjoiY3JlYXRvciIsImlhdCI6MTc2MjU1Njk4OCwiZXhwIjoxNzYzMTYxNzg4fQ.xXBKYNL64f5ejQATUhm6s6ZVRCsEId8baaWMKuJWs5Q"
+
+       }
+       });
 
         if (!res.ok) {
             throw new Error("Network response was not ok")
         }
-        return res.josn();
+        return res.json();
     } catch (error) {
         console.log(error)
 
     }  
 }
 const page = async () => {
+            const word = await getWords();
+    console.log(word);
     return (
-    //const {words} = await getWords();  return (
     <div>
         <AdminNavbar/>
     <div className="flex">
@@ -42,7 +49,7 @@ const page = async () => {
                     <div className="flex justify-between items-center">
                         <div>
                             <p className="text-gray-500">Total Words</p>
-                            <h3 className="text-3xl font-bold">3,214</h3>
+                            <h3 className="text-3xl font-bold">{word.count}</h3>
                         </div>
                         <i data-feather="book" className="text-secondary text-2xl"></i>
                     </div>
@@ -134,7 +141,7 @@ const page = async () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">10 min ago</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <a href="/admin/words/edit.html"
+                                    <a href="/admin/words/edit"
                                         className="text-primary hover:underline mr-3">Review</a>
                                     <a href="#" className="text-red-500 hover:underline">Delete</a>
                                 </td>
@@ -148,7 +155,7 @@ const page = async () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">2 hours ago</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <a href="/admin/words/edit.html" className="text-primary hover:underline mr-3">View</a>
+                                    <a href="/admin/words/edit" className="text-primary hover:underline mr-3">View</a>
                                 </td>
                             </tr>
                         </tbody>
