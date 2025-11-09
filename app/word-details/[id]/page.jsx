@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import CustomNavbar from "@/components/CustomNavbar";
-import CustomFooter from "@/components/CustomFooter";
+import CustomNavbar from "@/components/navbar";
+import CustomFooter from "@/components/customFooter";
 import feather from "feather-icons";
 
 export default function WordDetails() {
