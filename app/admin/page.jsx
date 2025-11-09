@@ -70,7 +70,7 @@ const page = async () => {
 }            <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold">Recent Activity</h2>
-                    <a href="/admin/activity.html" className="text-primary hover:underline">View All</a>
+                    <a href="/admin/activity " className="text-primary hover:underline">View All</a>
                 </div>
                 <div className="space-y-4">
                     <div className="flex items-start gap-4 pb-4 border-b border-gray-100">

@@ -9,7 +9,7 @@ const CustomFooter = () => {
   return (
     <div>
       <footer className="bg-[var(--neutral)] text-white py-12 px-8 mt-auto flex flex-col border-2px solid red">
-      <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="container max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 ">
         {/* About Section */}
         <div className="footer-about w-100vw md:w-auto">
           <div className="footer-logo text-2xl font-bold flex items-center gap-2 mb-4">
@@ -48,7 +48,7 @@ const CustomFooter = () => {
         </div>
 
         {/* Explore Links */}
-        <div className="footer-links">
+        <div className="footer-links flex flex-col">
           <h3 className="text-[var(--primary)] text-xl mb-4">Explore</h3>
           <ul className="space-y-2">
             <li><a href="/explore" className="hover:text-[var(--primary)] text-gray-300">All Words</a></li>
@@ -60,7 +60,7 @@ const CustomFooter = () => {
         </div>
 
         {/* Community Links */}
-        <div className="footer-links">
+        <div className="footer-links flex flex-col">
           <h3 className="text-[var(--primary)] text-xl mb-4">Community</h3>
           <ul className="space-y-2">
             <li><a href="/submit-word" className="hover:text-[var(--primary)] text-gray-300">Contribute a Word</a></li>
@@ -72,7 +72,7 @@ const CustomFooter = () => {
         </div>
 
         {/* Support Links */}
-        <div className="footer-links">
+        <div className="footer-links flex flex-col">
           <h3 className="text-[var(--primary)] text-xl mb-4">Support</h3>
           <ul className="space-y-2">
             <li><a href="/help" className="hover:text-[var(--primary)] text-gray-300">Help Center</a></li>

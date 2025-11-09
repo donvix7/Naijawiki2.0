@@ -110,8 +110,8 @@ const page = () => {
                             className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"></input>
                     </div>
                     <div className="ml-3 text-sm">
-                        <label htmlFor="terms" className="text-gray-700"> I agree to the <a href="/terms.html"
-                                className="text-primary hover:underline">Terms of Service</a> and <a href="/privacy.html"
+                        <label htmlFor="terms" className="text-gray-700"> I agree to the <a href="/terms "
+                                className="text-primary hover:underline">Terms of Service</a> and <a href="/privacy "
                                 className="text-primary hover:underline">Privacy Policy</a>
                         </label>
                     </div>
@@ -119,7 +119,7 @@ const page = () => {
                 <button type="submit"
                     className="w-full bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
                     Create Account </button>
-                <div className="text-center text-sm text-gray-500"> Already have an account? <a href="/login.html"
+                <div className="text-center text-sm text-gray-500"> Already have an account? <a href="/login "
                         className="text-primary hover:underline">Login</a>
                 </div>
             </form>

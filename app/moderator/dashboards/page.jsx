@@ -62,7 +62,7 @@ const page = async() => {
             <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold">Words Needing Review</h2>
-                    <a href="/moderator/review.html" className="text-primary hover:underline">View All</a>
+                    <a href="/moderator/review " className="text-primary hover:underline">View All</a>
                 </div>
                 
                 <div className="space-y-4">
@@ -78,7 +78,7 @@ const page = async() => {
                             <button className="bg-red-100 text-red-800 px-3 py-1 rounded-md text-sm flex items-center gap-1">
                                 <i data-feather="x" className="w-4 h-4"></i> Reject
                             </button>
-                            <a href="/moderator/review-detail.html" className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm flex items-center gap-1">
+                            <a href="/moderator/review-detail " className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm flex items-center gap-1">
                                 <i data-feather="edit" className="w-4 h-4"></i> Edit
                             </a>
                         </div>
@@ -96,7 +96,7 @@ const page = async() => {
                             <button className="bg-red-100 text-red-800 px-3 py-1 rounded-md text-sm flex items-center gap-1">
                                 <i data-feather="x" className="w-4 h-4"></i> Reject
                             </button>
-                            <a href="/moderator/review-detail.html" className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm flex items-center gap-1">
+                            <a href="/moderator/review-detail " className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm flex items-center gap-1">
                                 <i data-feather="edit" className="w-4 h-4"></i> Edit
                             </a>
                         </div>

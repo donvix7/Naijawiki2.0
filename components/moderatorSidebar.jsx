@@ -20,17 +20,17 @@ const ModeratorSidebar = () => {
           
           <div className="menu-group">
             <div className="menu-title">Content Review</div>
-            <a href="/moderator/review.html" className="menu-item">
+            <a href="/moderator/review " className="menu-item">
               <i data-feather="check-circle"></i> Pending Review
               <span className="badge">24</span>
             </a>
-            <a href="/moderator/approved.html" className="menu-item">
+            <a href="/moderator/approved " className="menu-item">
               <i data-feather="thumbs-up"></i> Approved Words
             </a>
-            <a href="/moderator/rejected.html" className="menu-item">
+            <a href="/moderator/rejected " className="menu-item">
               <i data-feather="thumbs-down"></i> Rejected Words
             </a>
-            <a href="/moderator/flagged.html" className="menu-item">
+            <a href="/moderator/flagged " className="menu-item">
               <i data-feather="flag"></i> Flagged Content
               <span className="badge">5</span>
             </a>
@@ -38,10 +38,10 @@ const ModeratorSidebar = () => {
           
           <div className="menu-group">
             <div className="menu-title">Community</div>
-            <a href="/moderator/users.html" className="menu-item">
+            <a href="/moderator/users " className="menu-item">
               <i data-feather="users"></i> User Management
             </a>
-            <a href="/moderator/reports.html" className="menu-item">
+            <a href="/moderator/reports " className="menu-item">
               <i data-feather="alert-circle"></i> Reports
             </a>
           </div>

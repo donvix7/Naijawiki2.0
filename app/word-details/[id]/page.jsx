@@ -2,7 +2,7 @@ import CustomFooter from '@/components/customFooter'
 import CustomNavbar from '@/components/navBar';
 import React from 'react'
 
- const getTopicById = async(id) => {
+ const getWordById = async(id) => {
     try {
         const res = await fetch(`http://wiki-server.giguild.com/api/word/${id}`,{
             cache: "no-store",
@@ -20,7 +20,7 @@ import React from 'react'
  }
 export default async function  page(params) {
     const id = params;
-    const word = await getTopicById(id);
+    const word = await getWordById(id);
   return (
     <div>
 
@@ -28,14 +28,14 @@ export default async function  page(params) {
     <main className="container mx-auto px-6 py-12">
         <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-between mb-8">
-                <a href="/explore.html" className="text-primary hover:underline flex items-center gap-2">
+                <a href="/explore " className="text-primary hover:underline flex items-center gap-2">
                     <i data-feather="arrow-left"></i> Back to Explore </a>
                 <span className="bg-primary text-white px-3 py-1 rounded-full text-sm">Pidgin</span>
             </div>
             <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
                 <div className="p-8">
                     <div className="flex justify-between items-start mb-6">
-                        <h1 className="text-4xl font-bold text-secondary">Wahala</h1>
+                        <h1 className="text-4xl font-bold text-secondary">{word.word}</h1>
                         <button className="flex items-center gap-2 text-gray-500 hover:text-primary">
                             <i data-feather="bookmark"></i>
                             <span className="text-sm">Save</span>
@@ -44,12 +44,12 @@ export default async function  page(params) {
                     <div className="space-y-6">
                         <div>
                             <h2 className="text-xl font-bold text-secondary mb-2">Meaning</h2>
-                            <p className="text-gray-700">Trouble, problem, or difficulty.</p>
+                            <p className="text-gray-700">{word.meaning}</p>
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-secondary mb-2">Pronunciation</h2>
                             <div className="flex items-center gap-4">
-                                <span className="text-gray-700">/wah-hah-lah/</span>
+                                <span className="text-gray-700">{word.prononciation}</span>
                                 <button className="flex items-center gap-2 text-primary">
                                     <i data-feather="play-circle"></i>
                                     <span>Listen</span>
@@ -59,25 +59,23 @@ export default async function  page(params) {
                         <div>
                             <h2 className="text-xl font-bold text-secondary mb-2">Example Usage</h2>
                             <div className="bg-gray-50 p-4 rounded-lg">
-                                <p className="text-gray-700 mb-2">"No wahala, I go do am."</p>
+                                <p className="text-gray-700 mb-2">{word.example}</p>
                                 <p className="text-gray-500 text-sm">(Meaning: "No problem, I'll do it.")</p>
                             </div>
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-secondary mb-2">Cultural Context</h2>
-                            <p className="text-gray-700">"Wahala" is commonly used in everyday Nigerian Pidgin
-                                conversations. It can refer to any kind of trouble or problematic situation. The phrase
-                                "No wahala" is a popular response meaning everything is okay.</p>
+                            <p className="text-gray-700">{word.information}</p>
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-secondary mb-2">Related Words</h2>
                             <div className="flex flex-wrap gap-2">
-                                <a href="/word-detail.html"
-                                    className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">Trouble</a>
-                                <a href="/word-detail.html"
-                                    className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">Problem</a>
-                                <a href="/word-detail.html"
-                                    className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">Stress</a>
+                                <a href="/word-detail "
+                                    className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">{word.related}</a>
+                                <a href="/word-detail "
+                                    className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">{word.related}</a>
+                                <a href="/word-detail "
+                                    className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">{word.related}</a>
                             </div>
                         </div>
                     </div>
@@ -111,16 +109,22 @@ export default async function  page(params) {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Alternative Meaning</label>
                         <textarea
+                        onChange = {(e) => setAlternativeMeaning(e.target.value)}   
+                            value={alternativeMeaning}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"></textarea>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Example Usage</label>
                         <textarea
+                        onChange = {(e) => setExample(e.target.value)}
+                        value={example}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"></textarea>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Your Name (Optional)</label>
                         <input type="text"
+                        onChange = {(e) => setContributorName(e.target.value)}
+                        value = {contributorName}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"/>
                     </div>
                     <button type="submit"

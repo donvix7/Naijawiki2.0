@@ -11,7 +11,7 @@ const page = () => {
         <main className="flex-1 p-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-secondary">Review Word</h1>
-                <a href="/moderator/review.html" className="text-primary hover:underline flex items-center gap-2">
+                <a href="/moderator/review " className="text-primary hover:underline flex items-center gap-2">
                     <i data-feather="arrow-left"></i> Back to Review </a>
             </div>
             <div className="bg-white rounded-xl shadow-sm p-6">

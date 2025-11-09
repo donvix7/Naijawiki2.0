@@ -90,7 +90,7 @@ const handleSubmit = async (e) => {
                             className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"/>
                         <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">Remember me</label>
                     </div>
-                    <a href="/forgot-password.html" className="text-sm text-primary hover:underline">Forgot password?</a>
+                    <a href="/forgot-password " className="text-sm text-primary hover:underline">Forgot password?</a>
                 </div>
                 <button type="submit"
                     className="w-full bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">

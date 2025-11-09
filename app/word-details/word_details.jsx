@@ -8,7 +8,7 @@ const word_details = () => {
     <main className="container mx-auto px-6 py-12">
         <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-between mb-8">
-                <a href="/explore.html" className="text-primary hover:underline flex items-center gap-2">
+                <a href="/explore " className="text-primary hover:underline flex items-center gap-2">
                     <i data-feather="arrow-left"></i> Back to Explore </a>
                 <span className="bg-primary text-white px-3 py-1 rounded-full text-sm">Pidgin</span>
             </div>
@@ -52,11 +52,11 @@ const word_details = () => {
                         <div>
                             <h2 className="text-xl font-bold text-secondary mb-2">Related Words</h2>
                             <div className="flex flex-wrap gap-2">
-                                <a href="/word-detail.html"
+                                <a href="/word-detail "
                                     className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">Trouble</a>
-                                <a href="/word-detail.html"
+                                <a href="/word-detail "
                                     className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">Problem</a>
-                                <a href="/word-detail.html"
+                                <a href="/word-detail "
                                     className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">Stress</a>
                             </div>
                         </div>

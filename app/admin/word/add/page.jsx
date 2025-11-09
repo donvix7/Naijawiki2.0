@@ -18,9 +18,10 @@ const page = () => {
                 const res = await fetch("http://wiki-server.giguild.com/api/words",
                  { method: "POST",
                 headers: {
-                    "content-type": "application/json"
+                "Authorization" : "Bearer",
+                    "Content-Type": "application/json"
                 },
-                body: JSON.stringify({word, meaning})
+                body: JSON.stringify({word, meaning, language, example,status})
            } 
             )
     
@@ -33,7 +34,7 @@ const page = () => {
         <main className="flex-1 p-8">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-secondary">Add New Word</h1>
-                <a href="/admin/words.html" className="text-primary hover:underline flex items-center gap-2">
+                <a href="/admin/words " className="text-primary hover:underline flex items-center gap-2">
                     <i data-feather="arrow-left"></i> Back to Words </a>
             </div>
             <div className="bg-white rounded-xl shadow-sm p-6">

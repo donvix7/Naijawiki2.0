@@ -51,7 +51,7 @@ const page = () => {
                                         <button
                                             className="bg-red-100 text-red-800 px-3 py-1 rounded-md text-sm flex items-center gap-1">
                                             <i data-feather="x" className="w-4 h-4"></i> Reject </button>
-                                        <a href="/moderator/review-detail.html"
+                                        <a href="/moderator/review-detail "
                                             className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm flex items-center gap-1">
                                             <i data-feather="edit" className="w-4 h-4"></i> Edit </a>
                                     </div>

@@ -77,7 +77,7 @@ const page = async () => {
 }            <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold">Recent Activity</h2>
-                    <a href="/admin/activity.html" className="text-primary hover:underline">View All</a>
+                    <a href="/admin/activity " className="text-primary hover:underline">View All</a>
                 </div>
                 <div className="space-y-4">
                     <div className="flex items-start gap-4 pb-4 border-b border-gray-100">
@@ -116,7 +116,7 @@ const page = async () => {
 }            <div className="bg-white rounded-xl shadow-sm p-6">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold">Recent Word Submissions</h2>
-                    <a href="/admin/words.html" className="text-primary hover:underline">View All</a>
+                    <a href="/admin/words " className="text-primary hover:underline">View All</a>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y-10px divide-gray-200">
@@ -166,28 +166,28 @@ const page = async () => {
 }            <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
                 <h2 className="text-xl font-bold mb-6">Quick Actions</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <a href="/admin/words/add.html"
+                    <a href="/admin/words/add "
                         className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg flex flex-col items-center text-center">
                         <div className="bg-primary bg-opacity-10 p-3 rounded-full mb-2">
                             <i data-feather="plus" className="text-primary"></i>
                         </div>
                         <span className="font-medium">Add Word</span>
                     </a>
-                    <a href="/admin/users.html"
+                    <a href="/admin/users "
                         className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg flex flex-col items-center text-center">
                         <div className="bg-secondary bg-opacity-10 p-3 rounded-full mb-2">
                             <i data-feather="users" className="text-secondary"></i>
                         </div>
                         <span className="font-medium">Manage Users</span>
                     </a>
-                    <a href="/admin/words.html?status=pending"
+                    <a href="/admin/words ?status=pending"
                         className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg flex flex-col items-center text-center">
                         <div className="bg-accent bg-opacity-10 p-3 rounded-full mb-2">
                             <i data-feather="alert-circle" className="text-accent"></i>
                         </div>
                         <span className="font-medium">Review Words</span>
                     </a>
-                    <a href="/admin/settings.html"
+                    <a href="/admin/settings "
                         className="bg-gray-50 hover:bg-gray-100 p-4 rounded-lg flex flex-col items-center text-center">
                         <div className="bg-green-500 bg-opacity-10 p-3 rounded-full mb-2">
                             <i data-feather="settings" className="text-green-500"></i>

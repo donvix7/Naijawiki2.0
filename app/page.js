@@ -72,10 +72,10 @@ export default function Home() {
                         <p className="text-xl mb-8 max-w-2xl mx-auto">Help preserve Nigerian languages by contributing words,
                             meanings, and pronunciations</p>
                         <div className="flex flex-col sm:flex-row justify-center gap-4">
-                            <a href="/submit-word.html"
-                                className="bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-full transition-colors text-secondary">
+                            <a href="/submit-word"
+                                className="bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-full transition-colors text-secondarygit branch -M main">
                                 Contribute a Word </a>
-                            <a href="/explore.html"
+                            <a href="/explore "
                                 className="bg-white hover:bg-gray-100 text-secondary font-bold py-3 px-6 rounded-full transition-colors">
                                 Explore Words </a>
                         </div>
