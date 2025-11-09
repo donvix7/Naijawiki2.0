@@ -76,7 +76,7 @@ export default function Home() {
                                 className="bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-full transition-colors text-secondarygit branch -M main">
                                 Contribute a Word </a>
                             <a href="/explore "
-                                className="bg-white hover:bg-gray-100 text-secondary font-bold py-3 px-6 rounded-full transition-colors">
+                                className="bg-white hover:bg-gray-100 text-black font-bold py-3 px-6 rounded-full transition-colors">
                                 Explore Words </a>
                         </div>
                     </div>

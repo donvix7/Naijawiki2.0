@@ -17,7 +17,7 @@ const getWords = async () => {
     }  
 }
 export default async function page() {
-         words = await getWords();
+         var words = await getWords();
    
   return (
     <div>

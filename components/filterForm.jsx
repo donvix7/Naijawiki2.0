@@ -2,16 +2,16 @@
 import { useState, useEffect } from "react";
 import React from 'react'
 
-const FilterForm = (words) => {
+const FilterForm = ({words}) => {
      const [language, setLanguage] = useState("");
     const [category, setCategory] = useState("");
     const [status, setStatus] = useState("");
     const [search, setSearch] = useState("");
-    const [words, setWords] = useState([]);
     useEffect(() => {
-            setWords(words);
-    },[language, category, status, search]);
+    console.log(words);
+    console.log(language,category,status,search)
 
+    },[language, category, status, search]);
   return (
     <div>
         <main className="container mx-auto px-6 py-12">
@@ -85,16 +85,16 @@ const FilterForm = (words) => {
             </div>
         </div>
    
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">  
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">   
 
-        {words && words.map((word) => (
+        {words && words.filter((word) => word.language === language || word.category === category || word.status === status || word.word.toLowerCase().includes(search.toLowerCase())).map((word) => (
        <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
                 <div className="p-6">
                     <div className="flex justify-between items-start">
-                        <h3 className="text-2xl font-bold text-secondary">Wahala</h3>
+                        <h3 className="text-2xl font-bold text-secondary">{word.word}</h3>
                         <span className="bg-primary text-white px-3 py-1 rounded-full text-sm">Pidgin</span>
                     </div>
-                    <p className="mt-2 text-gray-600">Trouble or problem</p>
+                    <p className="mt-2 text-gray-600">{word.meaning}</p>
                     <div className="mt-4 flex items-center justify-between">
                         <button className="flex items-center text-primary">
                             <i data-feather="play-circle" className="mr-2"></i> Listen </button>

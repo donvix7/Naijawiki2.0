@@ -17,6 +17,7 @@ const SubmitWordForm = () => {
     
         const handleSubmit = async (e) => {
                     console.log(word);
+                    console.log(meaning, language, example, category, tags, information, prononciation, creatorName, creatorEmail, creatorOrigin);
                     e.preventDefault();
             
                      try {
@@ -174,6 +175,19 @@ const SubmitWordForm = () => {
     {                   // <!-- Submission -->
     }                    <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200">
                             <button type="reset"
+                            onClick = {() => {
+                                setWord("");
+                                setMeaning("");
+                                setLanguage("");
+                                setExample("");
+                                setCategory("");
+                                setTags("");
+                                setInformation("");
+                                setPrononciation("");
+                                setCreatorName("");
+                                setCreatorEmail("");
+                                setCreatorOrigin("");
+                            }}
 
                                 className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg transition-colors">
                                 Reset Form </button>

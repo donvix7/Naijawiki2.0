@@ -63,7 +63,7 @@ const handleSubmit = async (e) => {
     <main className="container mx-auto px-6 py-12">
         <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-8">
             <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-secondary mb-2">Welcome Back</h1>
+                <h1 className="text-3xl font-bold text-black mb-2">Welcome Back</h1>
                 <p className="text-gray-600">Login to your NaijaLingo account</p>
             </div>
             <form className="space-y-6"
@@ -90,13 +90,13 @@ const handleSubmit = async (e) => {
                             className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"/>
                         <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">Remember me</label>
                     </div>
-                    <a href="/forgot-password " className="text-sm text-primary hover:underline">Forgot password?</a>
+                    <a href="/forgot-password " className="text-sm outline text-primary hover:underline">Forgot password?</a>
                 </div>
                 <button type="submit"
-                    className="w-full bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                    className="w-full bg-primary btn-outline hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
                     Login </button>
                 <div className="text-center text-sm text-gray-500"> Don't have an account? <a href="/signup"
-                        className="text-primary hover:underline">Sign up</a>
+                        className="text-black hover:underline">Sign up</a>
                 </div>
             </form>
             <div className="mt-8">

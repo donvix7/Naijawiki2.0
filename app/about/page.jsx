@@ -35,7 +35,7 @@ const about = () => {
                         <div className="bg-primary/10 p-3 rounded-full w-16 h-16 flex items-center justify-center mb-3">
                             <i data-feather="book" className="text-primary"></i>
                         </div>
-                        <h3 className="font-bold">Chioma Okeke</h3>
+                        <h3 className="text-primary font-bold">Chioma Okeke</h3>
                         <p className="text-sm text-gray-600">Linguistics Director</p>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg">

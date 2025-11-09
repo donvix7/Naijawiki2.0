@@ -20,9 +20,10 @@ const CustomNavbar = () => {
        
         <button className="mobile-menu-btn"
         onClick={() => setMenuOpen(!menuOpen)}>
-          {
-            menuOpen ? <i data-feather="x"></i> : <i data-feather="menu"></i>
-          }
+        
+          
+            <i data-feather="menu"></i>
+          
         </button>
         
         <ul className= "flex ">
@@ -39,14 +40,12 @@ const CustomNavbar = () => {
         </div>
 
         {menuOpen ? (
-          <div>
-          <ul className= " ">
+          <div className="flex flex-col mobile-menu">
           <li><a href="/" className="active"><i data-feather="home"></i> Home</a></li>
           <li><a href="/explore"><i data-feather="compass"></i> Explore</a></li>
           <li><a href="/submit-word"><i data-feather="plus-circle"></i> Contribute</a></li>
           <li><a href="/about"><i data-feather="info"></i> About</a></li>
          
-        </ul>
         
         <div className="auth-buttons">
           <a href="/login" className="btn btn-outline">Log In</a>
@@ -58,9 +57,10 @@ const CustomNavbar = () => {
         <button className="mobile-menu-btn"
         onClick={() => setMenuOpen(!menuOpen)}>
         
-          {
-            menuOpen ? <i data-feather="x"></i> : <i data-feather="menu"></i>
-          }
+          
+             <i data-feather="x"></i> 
+
+           close
         </button>
         )}
 
