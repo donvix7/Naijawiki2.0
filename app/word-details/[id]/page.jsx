@@ -4,14 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import CustomNavbar from "@/components/CustomNavbar";
 import CustomFooter from "@/components/CustomFooter";
-import {
-  ArrowLeft,
-  Bookmark,
-  PlayCircle,
-  ThumbsUp,
-  ThumbsDown,
-  Flag,
-} from "react-feather";
+import feather from "feather-icons";
 
 export default function WordDetails() {
   const { id } = useParams();
@@ -44,7 +37,11 @@ export default function WordDetails() {
     if (id) fetchWord();
   }, [id]);
 
-  // Handle loading or error states
+  // Replace feather icons after mount or when word loads
+  useEffect(() => {
+    feather.replace();
+  }, [word]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen text-gray-500">
@@ -81,7 +78,7 @@ export default function WordDetails() {
               href="/explore"
               className="text-primary hover:underline flex items-center gap-2"
             >
-              <ArrowLeft size={18} /> Back to Explore
+              <i data-feather="arrow-left"></i> Back to Explore
             </a>
             <span className="bg-primary text-white px-3 py-1 rounded-full text-sm">
               {word.language || "Pidgin"}
@@ -96,7 +93,7 @@ export default function WordDetails() {
                   {word.word || "Unknown Word"}
                 </h1>
                 <button className="flex items-center gap-2 text-gray-500 hover:text-primary">
-                  <Bookmark size={18} />
+                  <i data-feather="bookmark"></i>
                   <span className="text-sm">Save</span>
                 </button>
               </div>
@@ -120,7 +117,7 @@ export default function WordDetails() {
                       {word.prononciation || "N/A"}
                     </span>
                     <button className="flex items-center gap-2 text-primary">
-                      <PlayCircle size={18} />
+                      <i data-feather="play-circle"></i>
                       <span>Listen</span>
                     </button>
                   </div>
@@ -183,15 +180,15 @@ export default function WordDetails() {
                 </div>
                 <div className="flex items-center gap-4">
                   <button className="flex items-center gap-2 text-gray-500 hover:text-green-600">
-                    <ThumbsUp size={18} />
+                    <i data-feather="thumbs-up"></i>
                     <span>{word.likes || 0}</span>
                   </button>
                   <button className="flex items-center gap-2 text-gray-500 hover:text-red-600">
-                    <ThumbsDown size={18} />
+                    <i data-feather="thumbs-down"></i>
                     <span>{word.dislikes || 0}</span>
                   </button>
                   <button className="flex items-center gap-2 text-gray-500 hover:text-blue-600">
-                    <Flag size={18} />
+                    <i data-feather="flag"></i>
                     <span>Report</span>
                   </button>
                 </div>
