@@ -1,71 +1,98 @@
-'use client';
-import { Feather, FeatherIcon, LucideFeather } from "lucide-react";
+"use client";
 import { useState, useEffect } from "react";
-import feather from "feather-icons"
+import { usePathname } from "next/navigation";
+import feather from "feather-icons";
+
+const links = [
+  { name: "Home", href: "/", icon: "home" },
+  { name: "Explore", href: "/explore", icon: "compass" },
+  { name: "Contribute", href: "/submit-word", icon: "plus-circle" },
+  { name: "About", href: "/about", icon: "info" },
+];
+
 const CustomNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-     console.log(menuOpen);
-    feather.replace(); // Initialize Feather icons
+    feather.replace(); // Refresh feather icons whenever menu state changes
   }, [menuOpen]);
 
   return (
-    <nav>
-        <a href="/" className="logo">
-          <i data-feather="book-open" className="logo-icon"></i>
+    <nav className="bg-white shadow-md sticky top-0 z-50">
+      <div className="container mx-auto flex justify-between items-center px-6 py-3">
+        {/* Logo */}
+        <a href="/" className="flex items-center gap-2 font-bold text-xl text-secondary">
+          <i data-feather="book-open"></i>
           NaijaWiki
         </a>
-        
-       
-        <button className="mobile-menu-btn"
-        onClick={() => setMenuOpen(!menuOpen)}>
-        
-          
-            <i data-feather="menu"></i>
-          
-        </button>
-        
-        <ul className= "flex ">
-          <li><a href="/" className="active"><i data-feather="home"></i> Home</a></li>
-          <li><a href="/explore"><i data-feather="compass"></i> Explore</a></li>
-          <li><a href="/submit-word"><i data-feather="plus-circle"></i> Contribute</a></li>
-          <li><a href="/about"><i data-feather="info"></i> About</a></li>
-         
+
+        {/* Desktop Links */}
+        <ul className="hidden md:flex gap-6 items-center">
+          {links.map((link) => (
+            <li key={link.href}>
+              <a
+                href={link.href}
+                className={`flex items-center gap-1 px-2 py-1 rounded hover:bg-primary/20 transition-colors ${
+                  pathname === link.href ? "bg-primary/20 font-semibold" : ""
+                }`}
+              >
+                <i data-feather={link.icon}></i>
+                {link.name}
+              </a>
+            </li>
+          ))}
         </ul>
-        
-        <div className="auth-buttons flex md:hidden">
-          <a href="/login" className="btn btn-outline">Log In</a>
-          <a href="/signup" className="btn btn-primary">Sign Up</a>
+
+        {/* Desktop Auth Buttons */}
+        <div className="hidden md:flex gap-2">
+          <a href="/login" className="btn btn-outline">
+            Log In
+          </a>
+          <a href="/signup" className="btn btn-primary">
+            Sign Up
+          </a>
         </div>
 
-        {menuOpen ? (
-          <div className="flex flex-col mobile-menu">
-          <li><a href="/" className="active"><i data-feather="home"></i> Home</a></li>
-          <li><a href="/explore"><i data-feather="compass"></i> Explore</a></li>
-          <li><a href="/submit-word"><i data-feather="plus-circle"></i> Contribute</a></li>
-          <li><a href="/about"><i data-feather="info"></i> About</a></li>
-         
-        
-        <div className="auth-buttons">
-          <a href="/login" className="btn btn-outline">Log In</a>
-          <a href="/signup" className="btn btn-primary">Sign Up</a>
-        </div>
-          </div>
-        ):(
-          
-        <button className="mobile-menu-btn"
-        onClick={() => setMenuOpen(!menuOpen)}>
-        
-          
-             <i data-feather="x"></i> 
-
-           close
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden text-gray-700 focus:outline-none"
+          onClick={() => setMenuOpen((prev) => !prev)}
+        >
+          <i data-feather={menuOpen ? "x" : "menu"}></i>
         </button>
-        )}
+      </div>
 
-      </nav>
-
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="md:hidden bg-neutral shadow-md border-t border-gray-200 flex flex-col gap-2 min-w-50">
+          <ul className="flex flex-col gap-2 px-6 py-4">
+            {links.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className={`flex items-center gap-2 px-3 py-2 rounded hover:bg-primary/20 transition-colors ${
+                    pathname === link.href ? "bg-primary/20 font-semibold" : ""
+                  }`}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <i data-feather={link.icon}></i>
+                  {link.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <div className="flex flex-col gap-2 px-6 pb-4">
+            <a href="/login" className="btn btn-outline">
+              Log In
+            </a>
+            <a href="/signup" className="btn btn-primary">
+              Sign Up
+            </a>
+          </div>
+        </div>
+      )}
+    </nav>
   );
 };
 
