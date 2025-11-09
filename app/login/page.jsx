@@ -1,5 +1,5 @@
 "use client";
-import CustomNavbar from '@/components/navbar';
+import CustomNavbar from '@/components/navBar';
 import CustomFooter from '@/components/customFooter';
 import React, { useState } from 'react';
 import Cookies from 'js-cookie';

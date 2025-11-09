@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import CustomNavbar from "@/components/navbar";
+import CustomNavbar from "@/components/navBar";
 import CustomFooter from "@/components/customFooter";
 import feather from "feather-icons";
 

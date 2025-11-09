@@ -2,7 +2,7 @@
 import AdminNavbar from '@/components/adminNavbar';
 import AdminSidebar from '@/components/adminSideBar';
 import React, { useState } from 'react';
-import { cookies } from 'next/headers';
+import Cookie from 'js-cookie';
 
 const page = () => {
   const [word, setWord] = useState("");
@@ -16,7 +16,7 @@ const page = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const tokenCookie = cookies().get('token');
+    const tokenCookie = Cookie().get('token');
     const token = tokenCookie ? tokenCookie.value : null;
 
     if (!token) {
