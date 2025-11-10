@@ -18,13 +18,13 @@ export default function Home() {
 
   // Fetch trending words from API
   useEffect(() => {
-  const fetchTrendingWords = async () => {
+  /*const fetchTrendingWords = async () => {
     const token = Cookies.get("token");
     if (!token) {
       setError("You must be logged in to fetch words.");
       setLoading(false);
       return;
-    }
+    }*/
 
     try {
       //http://wiki-server.giguild.com/api/user/word/list  for creator
