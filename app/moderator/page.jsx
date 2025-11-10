@@ -1,27 +1,22 @@
-import ModeratorNavbar from '@/components/moderatorNavbar';
-import ModeratorSidebar from '@/components/moderatorSidebar';
-import Cookies from 'js-cookie';
-import React from 'react';
+"use client";
 
-// Fetch moderator stats
-const getModeratorStats = async () => {
-        const token = Cookies.get('token'); // Get token from cookie
-  
-    try {
+import React, { useEffect, useState } from "react";
+import ModeratorNavbar from "@/components/moderatorNavbar";
+import ModeratorSidebar from "@/components/moderatorSidebar";
+import Cookies from "js-cookie";
+import feather from "feather-icons";
 
+const fetchModeratorStats = async () => {
+  const token = Cookies.get("token");
+  try {
     const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
-     
-        headers: {
+      headers: {
         "Content-Type": "application/json",
-        // Include auth token if required
-        
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
-      cache: 'no-store' // optional: always fetch fresh data
+      cache: "no-store",
     });
-
     if (!res.ok) throw new Error("Failed to fetch stats");
-
     return res.json();
   } catch (err) {
     console.error(err);
@@ -34,8 +29,21 @@ const getModeratorStats = async () => {
   }
 };
 
-const page = async () => {
-  const stats = await getModeratorStats();
+const ModeratorDashboard = () => {
+  const [stats, setStats] = useState({
+    pending: 0,
+    reviewed: 0,
+    flagged: 0,
+    wordsNeedingReview: [],
+  });
+
+  useEffect(() => {
+    fetchModeratorStats().then(setStats);
+  }, []);
+
+  useEffect(() => {
+    feather.replace();
+  }, [stats]);
 
   return (
     <div>
@@ -47,35 +55,21 @@ const page = async () => {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-primary">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-gray-500">Pending Words</p>
-                  <h3 className="text-3xl font-bold">{stats.pending}</h3>
+            {[
+              { label: "Pending Words", value: stats.pending, icon: "clock", color: "primary" },
+              { label: "Words Reviewed", value: stats.reviewed, icon: "check-circle", color: "secondary" },
+              { label: "Flagged Words", value: stats.flagged, icon: "flag", color: "accent" },
+            ].map((card, idx) => (
+              <div key={idx} className={`bg-white p-6 rounded-xl shadow-sm border-l-4 border-${card.color}`}>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-gray-500">{card.label}</p>
+                    <h3 className="text-3xl font-bold">{card.value}</h3>
+                  </div>
+                  <i data-feather={card.icon} className={`text-${card.color} text-2xl`}></i>
                 </div>
-                <i data-feather="clock" className="text-primary text-2xl"></i>
               </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-secondary">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-gray-500">Words Reviewed</p>
-                  <h3 className="text-3xl font-bold">{stats.reviewed}</h3>
-                </div>
-                <i data-feather="check-circle" className="text-secondary text-2xl"></i>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-accent">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-gray-500">Flagged Words</p>
-                  <h3 className="text-3xl font-bold">{stats.flagged}</h3>
-                </div>
-                <i data-feather="flag" className="text-accent text-2xl"></i>
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Words Needing Review */}
@@ -117,4 +111,4 @@ const page = async () => {
   );
 };
 
-export default page;
+export default ModeratorDashboard;

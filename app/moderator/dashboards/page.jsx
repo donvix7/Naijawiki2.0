@@ -1,111 +1,161 @@
-import ModeratorNavbar from '@/components/moderatorNavbar';
-import ModeratorSidebar from '@/components/moderatorSidebar';
-import React from 'react';
-import cookie from 'cookie';
+"use client";
 
-const getWords = async (token) => {
-  try {
-    const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
-      cache: "no-store",
-    });
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import CustomNavbar from "@/components/CustomNavbar";
+import CustomFooter from "@/components/CustomFooter";
+import feather from "feather-icons";
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch words");
-    }
+export default function WordDetails() {
+  const { id } = useParams();
+  const [word, setWord] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    return res.json();
-  } catch (error) {
-    console.log(error);
-    return [];
-  }
-};
+  const [alternativeMeaning, setAlternativeMeaning] = useState("");
+  const [example, setExample] = useState("");
+  const [contributorName, setContributorName] = useState("");
 
-const page = async ({ cookies }) => {
-  // Get token from cookie
-  const tokenCookie = cookies().get('token');
-  const token = tokenCookie ? tokenCookie.value : null;
+  // Fetch word data
+  useEffect(() => {
+    if (!id) return;
 
-  if (!token) {
-    return <p className="text-center mt-8 text-red-500">You must be logged in to view this page.</p>;
-  }
+    const fetchWord = async () => {
+      try {
+        const res = await fetch(`http://wiki-server.giguild.com/api/word/${id}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("Failed to fetch word data");
+        setWord(await res.json());
+      } catch (err) {
+        console.error(err);
+        setError("Unable to load word details. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const words = await getWords(token);
+    fetchWord();
+  }, [id]);
+
+  // Replace feather icons whenever word data changes
+  useEffect(() => {
+    feather.replace();
+  }, [word]);
+
+  if (loading) return <div className="flex items-center justify-center h-screen text-gray-500">Loading word details...</div>;
+  if (error) return <div className="flex items-center justify-center h-screen text-red-600">{error}</div>;
+  if (!word) return <div className="flex items-center justify-center h-screen text-gray-600">Word not found.</div>;
 
   return (
     <div>
-      <ModeratorNavbar />
-      <div className="flex">
-        <ModeratorSidebar />
-        <main className="flex-1 p-8">
-          <h1 className="text-3xl font-bold text-secondary mb-6">Moderator Dashboard</h1>
+      <CustomNavbar />
+      <main className="container mx-auto px-6 py-12">
+        <div className="max-w-4xl mx-auto">
+          {/* Back Button + Language */}
+          <div className="flex items-center justify-between mb-8">
+            <a href="/explore" className="text-primary hover:underline flex items-center gap-2">
+              <i data-feather="arrow-left"></i> Back to Explore
+            </a>
+            <span className="bg-primary text-white px-3 py-1 rounded-full text-sm">{word.language || "Pidgin"}</span>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-primary">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-gray-500">Pending Words</p>
-                  <h3 className="text-3xl font-bold">{words.filter(w => !w.approved).length}</h3>
-                </div>
-                <i data-feather="clock" className="text-primary text-2xl"></i>
+          {/* Word Card */}
+          <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+            <div className="p-8">
+              <div className="flex justify-between items-start mb-6">
+                <h1 className="text-4xl font-bold text-secondary">{word.word || "Unknown Word"}</h1>
+                <button className="flex items-center gap-2 text-gray-500 hover:text-primary">
+                  <i data-feather="bookmark"></i> <span className="text-sm">Save</span>
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <section>
+                  <h2 className="text-xl font-bold text-secondary mb-2">Meaning</h2>
+                  <p className="text-gray-700">{word.meaning || "—"}</p>
+                </section>
+
+                <section>
+                  <h2 className="text-xl font-bold text-secondary mb-2">Pronunciation</h2>
+                  <div className="flex items-center gap-4">
+                    <span className="text-gray-700">{word.prononciation || "N/A"}</span>
+                    <button className="flex items-center gap-2 text-primary">
+                      <i data-feather="play-circle"></i> Listen
+                    </button>
+                  </div>
+                </section>
+
+                <section>
+                  <h2 className="text-xl font-bold text-secondary mb-2">Example Usage</h2>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-gray-700 mb-2">{word.example || "—"}</p>
+                    {word.translation && <p className="text-gray-500 text-sm">(Meaning: “{word.translation}”)</p>}
+                  </div>
+                </section>
+
+                <section>
+                  <h2 className="text-xl font-bold text-secondary mb-2">Cultural Context</h2>
+                  <p className="text-gray-700">{word.information || "No additional cultural information available."}</p>
+                </section>
+
+                {word.related?.length > 0 && (
+                  <section>
+                    <h2 className="text-xl font-bold text-secondary mb-2">Related Words</h2>
+                    <div className="flex flex-wrap gap-2">
+                      {word.related.map((w, idx) => (
+                        <a key={idx} href={`/word/${w}`} className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm">{w}</a>
+                      ))}
+                    </div>
+                  </section>
+                )}
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-secondary">
-              <div className="flex justify-between items-center">
+            <div className="bg-gray-50 p-6 border-t border-gray-200">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-500">Words Reviewed</p>
-                  <h3 className="text-3xl font-bold">{words.filter(w => w.approved).length}</h3>
+                  <h3 className="font-medium text-gray-700">Submitted by:</h3>
+                  <p className="text-gray-600">{word.submittedBy || "Anonymous"}</p>
                 </div>
-                <i data-feather="check-circle" className="text-secondary text-2xl"></i>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-accent">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-gray-500">Flagged Words</p>
-                  <h3 className="text-3xl font-bold">{words.filter(w => w.flagged).length}</h3>
+                <div className="flex items-center gap-4">
+                  <button className="flex items-center gap-2 text-gray-500 hover:text-green-600">
+                    <i data-feather="thumbs-up"></i> {word.likes || 0}
+                  </button>
+                  <button className="flex items-center gap-2 text-gray-500 hover:text-red-600">
+                    <i data-feather="thumbs-down"></i> {word.dislikes || 0}
+                  </button>
+                  <button className="flex items-center gap-2 text-gray-500 hover:text-blue-600">
+                    <i data-feather="flag"></i> Report
+                  </button>
                 </div>
-                <i data-feather="flag" className="text-accent text-2xl"></i>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">Words Needing Review</h2>
-              <a href="/moderator/review" className="text-primary hover:underline">View All</a>
-            </div>
+          {/* Contribution Form */}
+          <div className="bg-white rounded-xl shadow-md p-8">
+            <h2 className="text-2xl font-bold text-secondary mb-6">Add Your Contribution</h2>
+            <form className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Alternative Meaning</label>
+                <textarea value={alternativeMeaning} onChange={(e) => setAlternativeMeaning(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"></textarea>
+              </div>
 
-            <div className="space-y-4">
-              {words.map(word => (
-                <div key={word._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                  <div>
-                    <h3 className="font-medium">{word.word}</h3>
-                    <p className="text-gray-500 text-sm">{word.language} - "{word.meaning}"</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="bg-green-100 text-green-800 px-3 py-1 rounded-md text-sm flex items-center gap-1">
-                      <i data-feather="check" className="w-4 h-4"></i> Approve
-                    </button>
-                    <button className="bg-red-100 text-red-800 px-3 py-1 rounded-md text-sm flex items-center gap-1">
-                      <i data-feather="x" className="w-4 h-4"></i> Reject
-                    </button>
-                    <a href={`/moderator/review-detail/${word._id}`} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm flex items-center gap-1">
-                      <i data-feather="edit" className="w-4 h-4"></i> Edit
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Example Usage</label>
+                <textarea value={example} onChange={(e) => setExample(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"></textarea>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Your Name (Optional)</label>
+                <input type="text" value={contributorName} onChange={(e) => setContributorName(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" />
+              </div>
+
+              <button type="submit" className="bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">Submit Contribution</button>
+            </form>
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
+      <CustomFooter />
     </div>
   );
-};
-
-export default page;
+}
