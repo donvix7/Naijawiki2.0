@@ -1,15 +1,21 @@
 import ModeratorNavbar from '@/components/moderatorNavbar';
 import ModeratorSidebar from '@/components/moderatorSidebar';
+import Cookies from 'js-cookie';
 import React from 'react';
 
 // Fetch moderator stats
 const getModeratorStats = async () => {
-  try {
-    const res = await fetch("http://wiki-server.giguild.com/api/moderator/stats", {
-      headers: {
+        const token = Cookies.get('token'); // Get token from cookie
+  
+    try {
+
+    const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
+     
+        headers: {
         "Content-Type": "application/json",
         // Include auth token if required
-        "Authorization": `Bearer ${process.env.NAIJAWIKI_TOKEN}`,
+        
+        "Authorization": `Bearer ${token}`,
       },
       cache: 'no-store' // optional: always fetch fresh data
     });
