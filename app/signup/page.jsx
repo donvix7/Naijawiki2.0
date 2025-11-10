@@ -11,7 +11,6 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [status, setStatus] = useState({ message: "", type: "" });
-  const role = "creator";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +24,7 @@ export default function RegisterPage() {
       const res = await fetch("http://wiki-server.giguild.com/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email, password, role }),
+        body: JSON.stringify({ firstName, lastName, email, password }),
       });
 
       const data = await res.json();
@@ -35,14 +34,14 @@ export default function RegisterPage() {
         return;
       }
 
-      setStatus({ message: "✅ Account created successfully!", type: "success" });
+      setStatus({ message: " Account created successfully!", type: "success" });
       setFirstName("");
       setLastName("");
       setEmail("");
       setPassword("");
       setConfirm("");
     } catch (error) {
-      setStatus({ message: "❌ Something went wrong. Try again.", type: "error" });
+      setStatus({ message: " Something went wrong. Try again.", type: "error" });
       console.log(error);
     }
   };

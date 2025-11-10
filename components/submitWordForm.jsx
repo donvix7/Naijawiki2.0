@@ -41,7 +41,7 @@ const SubmitWordForm = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://wiki-server.giguild.com/api/words", {
+      const res = await fetch("http://wiki-server.giguild.com/api/word/submit-word", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

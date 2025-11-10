@@ -20,7 +20,7 @@ export default function WordDetails() {
   useEffect(() => {
     const fetchWord = async () => {
       try {
-        const res = await fetch(`http://wiki-server.giguild.com/api/word/${id}`, {
+        const res = await fetch(`http://wiki-server.giguild.com/api/${id}`, {
           cache: "no-store",
         });
         if (!res.ok) throw new Error("Failed to fetch word data");
