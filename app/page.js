@@ -15,13 +15,22 @@ export default function Home() {
   }, [trendingWords]);
 
   useEffect(() => {
+    const token = Cookies.get("token"); // browser-only
+      if (!token) {
+        setError("You must be logged in to fetch words.");
+        return;
+      }
     const fetchTrendingWords = async () => {
-      try {
-        const res = await fetch("http://wiki-server.giguild.com/api/word/list");
+        try {
+        const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
         if (!res.ok) throw new Error("Failed to fetch words");
 
         const data = await res.json();
-        setTrendingWords(data.words?.slice(0, 6) || []);
+        setTrendingWords(data.words || []);
       } catch (err) {
         console.error(err);
         setError("Failed to load trending words.");

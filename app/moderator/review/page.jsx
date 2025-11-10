@@ -1,34 +1,29 @@
+"use client";
+
 import ModeratorNavbar from '@/components/moderatorNavbar';
 import ModeratorSidebar from '@/components/moderatorSidebar';
 import React from 'react';
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
-const getSubmissions = async (token) => {
-  try {
-    const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-      },
-      cache: "no-store",
-    });
+export default function page() {
+  const [stats, setStats] = useState(null);
 
-    if (!res.ok) throw new Error("Failed to fetch submissions");
+  useEffect(() => {
+    const getModeratorStats = async () => {
+      const token = Cookies.get("token"); // safe here (browser)
+      const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setStats(data);
+    };
 
-    return res.json();
-  } catch (error) {
-    console.log(error);
-    return [];
-  }
-};
+    getModeratorStats();
+  }, []);
 
-const page = async ({ cookies }) => {
-  const tokenCookie = cookies().get('token');
-  const token = tokenCookie ? tokenCookie.value : null;
+  if (!stats) return <div>Loading...</div>;
 
-  if (!token) {
-    return <p className="text-center mt-8 text-red-500">You must be logged in to view this page.</p>;
-  }
-
-  const submissions = await getSubmissions(token);
 
   return (
     <div>
@@ -113,6 +108,4 @@ const page = async ({ cookies }) => {
       </div>
     </div>
   );
-};
-
-export default page;
+}
