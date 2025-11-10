@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import CustomFooter from "@/components/customFooter";
 import CustomNavbar from "@/components/navBar";
 import feather from "feather-icons";
@@ -10,37 +11,42 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Initialize feather icons once
   useEffect(() => {
-    feather.replace();
-  }, [trendingWords]);
+  feather.replace(); // run once on mount
+}   , []); // empty dependency array is correct
 
+  // Fetch trending words from API
   useEffect(() => {
-    const token = Cookies.get("token"); // browser-only
-      if (!token) {
-        setError("You must be logged in to fetch words.");
-        return;
-      }
-    const fetchTrendingWords = async () => {
-        try {
-        const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-        if (!res.ok) throw new Error("Failed to fetch words");
+  const fetchTrendingWords = async () => {
+    const token = Cookies.get("token");
+    if (!token) {
+      setError("You must be logged in to fetch words.");
+      setLoading(false);
+      return;
+    }
 
-        const data = await res.json();
-        setTrendingWords(data.words || []);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load trending words.");
-      } finally {
-        setLoading(false);
-      }
-    };
+    try {
+      const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    fetchTrendingWords();
-  }, []);
+      if (!res.ok) throw new Error("Failed to fetch words");
+
+      const data = await res.json();
+      setTrendingWords(data.words?.slice(0, 6) || []);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load trending words.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTrendingWords();
+}, []); // empty dependency array ensures this runs once on mount
+
+
 
   return (
     <div className="flex flex-col min-h-screen justify-center bg-zinc-50 font-sans dark:bg-black">
