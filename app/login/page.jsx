@@ -20,7 +20,7 @@ export default function Page() {
       });
 
       const data = await res.json();
-
+        console.log(data);
       if (!res.ok) {
         alert(data.message || "Login failed");
         return;
@@ -32,11 +32,17 @@ export default function Page() {
         secure: true,
         sameSite: "strict"
       });
+      // Store email in cookie
+      Cookies.set("email", data.user.email, {
+        expires: 1, // 1 day
+        secure: true,
+        sameSite: "strict"
+      });
 
       // Redirect based on role
-      if (data.role === "admin") router.push("/admin/dashboard");
-      else if (data.role === "moderator") router.push("/moderator/dashboard");
-      else if (data.role === "creator") router.push("/");
+      if (data.user.role === "admin") router.push("/admin/dashboard");
+      else if (data.user.role === "moderator") router.push("/moderator/dashboard");
+      else if (data.user.role === "creator") router.push("/");
       else alert("User role not recognized");
 
     } catch (error) {

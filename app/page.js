@@ -18,9 +18,9 @@ export default function Home() {
 
   // Fetch trending words from API
   useEffect(() => {
-  /*const fetchTrendingWords = async () => {
+  const fetchTrendingWords = async () => {
     const token = Cookies.get("token");
-    if (!token) {
+    /*if (!token) {
       setError("You must be logged in to fetch words.");
       setLoading(false);
       return;
@@ -129,7 +129,7 @@ export default function Home() {
             </a>
             <a
               href="/explore"
-              className="bg-white hover:bg-gray-100 text-black font-bold py-3 px-6 rounded-full transition-colors"
+              className="bg-secondary hover:bg-gray-100 text-black font-bold py-3 px-6 rounded-full transition-colors"
             >
               Explore Words
             </a>

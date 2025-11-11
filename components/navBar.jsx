@@ -1,7 +1,9 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import feather from "feather-icons";
+import Cookies from "js-cookie";
 
 const links = [
   { name: "Home", href: "/", icon: "home" },
@@ -12,11 +14,33 @@ const links = [
 
 const CustomNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const pathname = usePathname();
 
   useEffect(() => {
     feather.replace(); // Refresh feather icons whenever menu state changes
   }, [menuOpen]);
+
+  useEffect(() => {
+    // Check for token and email in cookies
+    const token = Cookies.get("token");
+    const email = Cookies.get("email");
+
+    console.log(token,email);
+
+    if (token && email) {
+      setUser({ email });
+    } else {
+      setUser(null);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    Cookies.remove("token");
+    Cookies.remove("email");
+    setUser(null);
+    window.location.href = "/";
+  };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -44,14 +68,28 @@ const CustomNavbar = () => {
           ))}
         </ul>
 
-        {/* Desktop Auth Buttons */}
-        <div className="hidden md:flex gap-2">
-          <a href="/login" className="btn btn-outline">
-            Log In
-          </a>
-          <a href="/signup" className="btn btn-primary">
-            Sign Up
-          </a>
+        {/* Desktop Auth / User Buttons */}
+        <div className="hidden md:flex gap-2 items-center">
+          {user ? (
+            <>
+              <span className="text-gray-700">{user.email}</span>
+              <button
+                onClick={handleLogout}
+                className="btn btn-outline border-red-600 text-red-600 hover:bg-red-50"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <a href="/login" className="btn btn-outline">
+                Log In
+              </a>
+              <a href="/signup" className="btn btn-primary">
+                Sign Up
+              </a>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -82,13 +120,28 @@ const CustomNavbar = () => {
               </li>
             ))}
           </ul>
+
           <div className="flex flex-col gap-2 px-6 pb-4">
-            <a href="/login" className="btn btn-outline">
-              Log In
-            </a>
-            <a href="/signup" className="btn btn-primary">
-              Sign Up
-            </a>
+            {user ? (
+              <>
+                <span className="text-gray-700">{user.email}</span>
+                <button
+                  onClick={handleLogout}
+                  className="btn btn-outline border-red-600 text-red-600 hover:bg-red-50"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <a href="/login" className="btn btn-outline">
+                  Log In
+                </a>
+                <a href="/signup" className="btn btn-primary">
+                  Sign Up
+                </a>
+              </>
+            )}
           </div>
         </div>
       )}
