@@ -1,8 +1,8 @@
 "use client";
 import AdminNavbar from '@/components/adminNavbar';
 import AdminSidebar from '@/components/adminSideBar';
+import Cookies from 'js-cookie';
 import React, { useState } from 'react';
-import Cookie from 'js-cookie';
 
 const page = () => {
   const [word, setWord] = useState("");
@@ -16,7 +16,7 @@ const page = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const tokenCookie = Cookie().get('token');
+    const tokenCookie = Cookies.get('token');
     const token = tokenCookie ? tokenCookie.value : null;
 
     if (!token) {

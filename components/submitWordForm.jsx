@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import Cookies from "js-cookie";
 
 const SubmitWordForm = () => {
   const [formData, setFormData] = useState({
@@ -16,9 +17,53 @@ const SubmitWordForm = () => {
     creatorOrigin: "",
   });
 
+  const [audioFile, setAudioFile] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioURL, setAudioURL] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+
+  // Handle input changes
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  // Handle audio file upload
+  const handleFileChange = (e) => {
+    setAudioFile(e.target.files[0]);
+  };
+
+  // Handle recording start/stop
+  const handleRecord = async () => {
+    if (!isRecording) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+        audioChunksRef.current = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+          audioChunksRef.current.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+          const url = URL.createObjectURL(audioBlob);
+          setAudioURL(url);
+          setAudioFile(new File([audioBlob], "recording.webm", { type: "audio/webm" }));
+        };
+
+        mediaRecorder.start();
+        setIsRecording(true);
+      } catch (err) {
+        console.error("Error accessing microphone:", err);
+        alert("Microphone access denied.");
+      }
+    } else {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
   };
 
   const handleReset = () => {
@@ -35,25 +80,43 @@ const SubmitWordForm = () => {
       creatorEmail: "",
       creatorOrigin: "",
     });
+    setAudioFile(null);
+    setAudioURL(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = Cookies.get("token");
+
+    if (!token) {
+      alert("You must be logged in to submit a word.");
+      return;
+    }
 
     try {
+      const formDataToSend = new FormData();
+      for (const key in formData) {
+        formDataToSend.append(key, formData[key]);
+      }
+      if (audioFile) formDataToSend.append("audio", audioFile);
+
       const res = await fetch("http://wiki-server.giguild.com/api/word/submit-word", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formDataToSend,
       });
 
       if (!res.ok) throw new Error("Error submitting word");
-
       const data = await res.json();
+
       console.log("Submitted:", data);
+      alert("Word submitted successfully!");
       handleReset();
     } catch (error) {
       console.error("Submission failed:", error);
+      alert("Failed to submit word. Please try again.");
     }
   };
 
@@ -162,12 +225,12 @@ const SubmitWordForm = () => {
           </div>
         </div>
 
-        {/* Pronunciation */}
+        {/* Pronunciation & Recording */}
         <div>
           <label htmlFor="pronunciation" className="block text-sm font-medium text-gray-700 mb-1">
-            Pronunciation
+            Pronunciation / Audio
           </label>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <input
               type="text"
               id="pronunciation"
@@ -178,12 +241,18 @@ const SubmitWordForm = () => {
             />
             <button
               type="button"
-              id="recordBtn"
-              className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 px-4 rounded-lg transition-colors"
+              onClick={handleRecord}
+              className={`flex items-center gap-2 py-3 px-4 rounded-lg transition-colors ${
+                isRecording ? "bg-red-500 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-800"
+              }`}
             >
-              <i data-feather="mic" className="text-primary"></i> Record
+              <i data-feather="mic"></i> {isRecording ? "Stop" : "Record"}
             </button>
+            <input type="file" accept="audio/*" onChange={handleFileChange} className="text-sm" />
           </div>
+          {audioURL && (
+            <audio controls src={audioURL} className="mt-3 w-full rounded-md border border-gray-300" />
+          )}
         </div>
 
         {/* Additional Info */}
@@ -256,7 +325,7 @@ const SubmitWordForm = () => {
           </button>
           <button
             type="submit"
-            className="bg-primary btn btn-outline hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
+            className="bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
           >
             <i data-feather="send"></i> Submit Word
           </button>
