@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import CustomFooter from "@/components/customFooter";
 import CustomNavbar from "@/components/navBar";
 import feather from "feather-icons";
-import { Router } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [firstname, setFirstName] = useState("");
@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const [status, setStatus] = useState({ message: "", type: "" });
   const [loading, setLoading] = useState(false);
 
+  const router = useRouter();
   useEffect(() => {
     feather.replace();
   }, []);
@@ -77,8 +78,8 @@ export default function RegisterPage() {
         setPassword("");
         setConfirm("");
 
-        alert(status);
-        Router.push("/login")
+        alert(status.type, status.message);
+        router.push("/login")
 
       }
     } catch (error) {
