@@ -40,7 +40,7 @@ export default function Page() {
       });
 
       // Redirect based on role
-      if (data.user.role === "admin") router.push("/admin/dashboard");
+      if (data.user.role === "admin" || "super_admin") router.push("/admin/dashboard");
       else if (data.user.role === "moderator") router.push("/moderator/dashboard");
       else if (data.user.role === "creator") router.push("/");
       else alert("User role not recognized");
