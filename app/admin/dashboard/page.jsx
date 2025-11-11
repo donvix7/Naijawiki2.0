@@ -159,7 +159,7 @@ const AdminPage = () => {
                         <td className="px-6 py-4 whitespace-nowrap">{word.user?.email || "Unknown"}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <a
-                            href={`/admin/words/edit/${word.id}`}
+                            href={`/admin/word/edit/${word.id}`}
                             className="text-primary hover:underline mr-3"
                           >
                             Review

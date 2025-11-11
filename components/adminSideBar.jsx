@@ -123,9 +123,9 @@ const AdminSidebar = () => {
               <i data-feather="settings"></i> Settings
             </a>
             <a
-              href="/admin/activity-log"
+              href="/admin/activity"
               className={`flex items-center gap-2 px-3 py-2 rounded-md ${getActiveClass(
-                "/admin/activity-log"
+                "/admin/activity"
               )}`}
             >
               <i data-feather="activity"></i> Activity Log

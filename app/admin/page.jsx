@@ -4,6 +4,7 @@ import AdminNavbar from '@/components/adminNavbar';
 import AdminSidebar from '@/components/adminSideBar';
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie'; // For handling cookies on client side
+import RoleGuard from '@/utils/RoleGuard';
 
 const page = () => {
   const [words, setWords] = useState([]);
@@ -56,6 +57,8 @@ const page = () => {
   }).length;
 
   return (
+    <RoleGuard allowedRoles={["admin"]}>
+
     <div>
       <AdminNavbar />
       <div className="flex">
@@ -136,6 +139,7 @@ const page = () => {
         </main>
       </div>
     </div>
+    </RoleGuard>
   );
 };
 

@@ -38,6 +38,12 @@ export default function Page() {
         secure: true,
         sameSite: "strict"
       });
+      // Store role in cookie
+      Cookies.set("role", data.user.role, {
+        expires: 1, // 1 day
+        secure: true,
+        sameSite: "strict"
+      });
 
       // Redirect based on role
       if (data.user.role === "admin" || "super_admin") router.push("/admin/dashboard");

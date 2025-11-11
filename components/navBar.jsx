@@ -46,8 +46,8 @@ const CustomNavbar = () => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center px-6 py-3">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2 font-bold text-xl text-secondary">
-          <i data-feather="book-open"></i>
+        <a href="/" className="flex items-center gap-2 font-bold text-secondary">
+        <i data-feather="book-open" className="logo-icon"></i>
           NaijaWiki
         </a>
 
@@ -103,8 +103,9 @@ const CustomNavbar = () => {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-neutral shadow-md border-t border-gray-200 flex flex-col gap-2 min-w-50">
-          <ul className="flex flex-col gap-2 px-6 py-4">
+        <div>
+          <div className=" dropdown md:hidden bg-neutral shadow-md ">
+          <ul className="">
             {links.map((link) => (
               <li key={link.href}>
                 <a
@@ -143,6 +144,7 @@ const CustomNavbar = () => {
               </>
             )}
           </div>
+        </div>
         </div>
       )}
     </nav>
