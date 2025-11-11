@@ -28,7 +28,7 @@ export default function Home() {
 
     try {
       //http://wiki-server.giguild.com/api/user/word/list  for creator
-      const res = await fetch("http://wiki-server.giguild.com/api/words", {
+      const res = await fetch("https://wiki-server.giguild.com/api/words", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
