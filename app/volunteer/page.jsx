@@ -31,7 +31,7 @@ const Volunteer = () => {
     setStatus({ loading: true, message: "" });
 
     try {
-      const res = await fetch("https://api.naijiwiki.org/volunteers", {
+      const res = await fetch("", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

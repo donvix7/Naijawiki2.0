@@ -15,6 +15,7 @@ export default function RoleGuard({ allowedRoles = [], children }) {
 
     // No token or role → redirect
     if (!token || !role) {
+        alert("Not authorized sign in to contribute");
       router.push("/login");
       return;
     }

@@ -1,48 +1,94 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CustomFooter from "@/components/customFooter";
 import CustomNavbar from "@/components/navBar";
+import feather from "feather-icons";
+import { Router } from "next/router";
 
 export default function RegisterPage() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [firstname, setFirstName] = useState("");
+  const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [status, setStatus] = useState({ message: "", type: "" });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    feather.replace();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (loading) return;
+
+    // Trim spaces
+    const trimmedEmail = email.trim();
+    const trimmedFirst = firstname.trim();
+    const trimmedLast = lastname.trim();
+
+    if (!trimmedFirst || !trimmedLast || !trimmedEmail) {
+      setStatus({ message: "Please fill in all required fields.", type: "error" });
+      return;
+    }
+
+    if (password.length < 8) {
+      setStatus({ message: "Password must be at least 8 characters.", type: "error" });
+      return;
+    }
 
     if (password !== confirm) {
       setStatus({ message: "Passwords do not match.", type: "error" });
       return;
     }
 
+    setLoading(true);
+    setStatus({ message: "", type: "" });
+
     try {
       const res = await fetch("http://wiki-server.giguild.com/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email, password }),
+        body: JSON.stringify({
+          firstname: trimmedFirst,
+          lastname: trimmedLast,
+          email: trimmedEmail,
+          password,
+        }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setStatus({ message: data.message || "Registration failed.", type: "error" });
-        return;
-      }
+        setStatus({
+          message: data.message || "Registration failed. Please try again.",
+          type: "error",
+        });
+      } else {
+        setStatus({
+          message: "Account created successfully!",
+          type: "success",
+        });
+        setFirstName("");
+        setLastName("");
+        setEmail("");
+        setPassword("");
+        setConfirm("");
 
-      setStatus({ message: " Account created successfully!", type: "success" });
-      setFirstName("");
-      setLastName("");
-      setEmail("");
-      setPassword("");
-      setConfirm("");
+        alert(status);
+        Router.push("/login")
+
+      }
     } catch (error) {
-      setStatus({ message: " Something went wrong. Try again.", type: "error" });
-      console.log(error);
+      console.error("Registration error:", error);
+      setStatus({
+        message: "Something went wrong. Please try again later.",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,28 +116,34 @@ export default function RegisterPage() {
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="first-name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="first-name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   First Name*
                 </label>
                 <input
                   type="text"
                   id="first-name"
                   required
-                  value={firstName}
+                  value={firstname}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                   placeholder="John"
                 />
               </div>
               <div>
-                <label htmlFor="last-name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="last-name"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Last Name*
                 </label>
                 <input
                   type="text"
                   id="last-name"
                   required
-                  value={lastName}
+                  value={lastname}
                   onChange={(e) => setLastName(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                   placeholder="Doe"
@@ -100,7 +152,10 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Email*
               </label>
               <input
@@ -115,7 +170,10 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Password*
               </label>
               <input
@@ -131,7 +189,10 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="confirm-password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Confirm Password*
               </label>
               <input
@@ -170,9 +231,12 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="w-full bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+              disabled={loading}
+              className={`w-full bg-primary text-white font-bold py-3 px-6 rounded-lg transition-colors ${
+                loading ? "opacity-70 cursor-not-allowed" : "hover:bg-yellow-600"
+              }`}
             >
-              Create Account
+              {loading ? "Creating Account..." : "Create Account"}
             </button>
 
             <div className="text-center text-sm text-gray-500">

@@ -103,7 +103,7 @@ const CustomNavbar = () => {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div>
+        <div className="w-60">
           <div className=" dropdown md:hidden bg-neutral shadow-md ">
           <ul className="">
             {links.map((link) => (
@@ -130,15 +130,20 @@ const CustomNavbar = () => {
                   onClick={handleLogout}
                   className="btn btn-outline border-red-600 text-red-600 hover:bg-red-50"
                 >
+                <i data-feather="log-out"></i> 
                   Logout
                 </button>
               </>
             ) : (
               <>
                 <a href="/login" className="btn btn-outline">
+                <i data-feather="log-in"></i> 
+                  
                   Log In
                 </a>
                 <a href="/signup" className="btn btn-primary">
+                <i data-feather="register"></i> 
+                  
                   Sign Up
                 </a>
               </>

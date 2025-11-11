@@ -5,6 +5,7 @@ import ModeratorNavbar from "@/components/moderatorNavbar";
 import ModeratorSidebar from "@/components/moderatorSidebar";
 import Cookies from "js-cookie";
 import feather from "feather-icons";
+import RoleGuard from "@/utils/RoleGuard";
 
 const fetchModeratorStats = async () => {
   const token = Cookies.get("token");
@@ -46,6 +47,8 @@ const ModeratorDashboard = () => {
   }, [stats]);
 
   return (
+          <RoleGuard allowedRoles={["admin", "super_admin", "moderator"]}>
+    
     <div>
       <ModeratorNavbar />
       <div className="flex">
@@ -108,6 +111,7 @@ const ModeratorDashboard = () => {
         </main>
       </div>
     </div>
+    </RoleGuard>
   );
 };
 

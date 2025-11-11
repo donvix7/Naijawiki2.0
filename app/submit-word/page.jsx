@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import CustomFooter from "@/components/customFooter";
 import CustomNavbar from "@/components/navBar";
 import SubmitWordForm from "@/components/submitWordForm";
+import RoleGuard from "@/utils/RoleGuard";
 
 export default function SubmitWordPage() {
   const [status, setStatus] = useState({ loading: false, message: "" });
@@ -21,18 +22,20 @@ export default function SubmitWordPage() {
 
       setStatus({
         loading: false,
-        message: "✅ Thank you! Your word has been submitted for review.",
+        message: "Thank you! Your word has been submitted for review.",
       });
     } catch (error) {
       setStatus({
         loading: false,
-        message: "❌ Something went wrong. Please try again.",
+        message: "Something went wrong. Please try again.",
       });
     }
   };
 
   return (
+      <RoleGuard allowedRoles={["admin", "super_admin", "moderator", "creator"]}>
     <div>
+      
       <CustomNavbar />
 
       <main className="container mx-auto px-6 py-12">
@@ -82,5 +85,8 @@ export default function SubmitWordPage() {
 
       <CustomFooter />
     </div>
+
+          </RoleGuard>
+      
   );
 }
