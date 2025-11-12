@@ -11,13 +11,14 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const base_url = process.env.NEXT_PUBLIC_BASE_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const res = await fetch("https://wiki-server.giguild.com/api/auth/login", {
+      const res = await fetch(`${base_url}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

@@ -15,6 +15,7 @@ export default function WordDetails() {
   const [alternativeMeaning, setAlternativeMeaning] = useState("");
   const [example, setExample] = useState("");
   const [contributorName, setContributorName] = useState("");
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
 
   // Fetch word data
   useEffect(() => {
@@ -22,7 +23,7 @@ export default function WordDetails() {
 
     const fetchWord = async () => {
       try {
-        const res = await fetch(`http://wiki-server.giguild.com/api/word/${id}`, { cache: "no-store" });
+        const res = await fetch(`${base_url}/word/${id}`, { cache: "no-store" });
         if (!res.ok) throw new Error("Failed to fetch word data");
         setWord(await res.json());
       } catch (err) {

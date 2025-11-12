@@ -9,6 +9,7 @@ import RoleGuard from '@/utils/RoleGuard';
 const page = () => {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
 
   const fetchWords = async () => {
     setLoading(true);
@@ -20,7 +21,7 @@ const page = () => {
         return;
       }
 
-      const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
+      const res = await fetch(`${base_url}/user/word/list`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

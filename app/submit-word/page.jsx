@@ -8,11 +8,12 @@ import RoleGuard from "@/utils/RoleGuard";
 
 export default function SubmitWordPage() {
   const [status, setStatus] = useState({ loading: false, message: "" });
+  const base_url = process.env.NEXT_PUBLIC_BASE_URL;
 
   const handleFormSubmit = async (formData) => {
     setStatus({ loading: true, message: "" });
     try {
-      const res = await fetch("https://api.naijiwiki.org/words", {
+      const res = await fetch(`${base_url}/words`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

@@ -7,6 +7,8 @@ import Cookies from "js-cookie";
 import feather from "feather-icons";
 
 const AdminPage = () => {
+
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
   const [words, setWords] = useState([]);
   const [stats, setStats] = useState({
     total: 0,
@@ -30,7 +32,7 @@ const AdminPage = () => {
           return;
         }
 
-        const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
+        const res = await fetch(`${base_url}/user/word/list`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

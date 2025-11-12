@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [confirm, setConfirm] = useState("");
   const [status, setStatus] = useState({ message: "", type: "" });
   const [loading, setLoading] = useState(false);
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
 
   const router = useRouter();
   useEffect(() => {
@@ -49,7 +50,7 @@ export default function RegisterPage() {
     setStatus({ message: "", type: "" });
 
     try {
-      const res = await fetch("https://wiki-server.giguild.com/api/auth/register", {
+      const res = await fetch(`${base_url}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

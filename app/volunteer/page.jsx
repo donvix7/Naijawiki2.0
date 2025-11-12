@@ -15,6 +15,7 @@ const Volunteer = () => {
   });
 
   const [status, setStatus] = useState({ loading: false, message: "" });
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
 
   const handleChange = (e) => {
     const { name, value, type, selectedOptions } = e.target;
@@ -31,7 +32,7 @@ const Volunteer = () => {
     setStatus({ loading: true, message: "" });
 
     try {
-      const res = await fetch("", {
+      const res = await fetch(`${base_url}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -39,7 +40,7 @@ const Volunteer = () => {
 
       if (!res.ok) throw new Error("Submission failed");
 
-      setStatus({ loading: false, message: "✅ Application submitted successfully!" });
+      setStatus({ loading: false, message: " Application submitted successfully!" });
       setFormData({
         name: "",
         email: "",

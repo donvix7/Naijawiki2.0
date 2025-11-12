@@ -12,6 +12,7 @@ const page = () => {
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState("approved");
   const [message, setMessage] = useState("");
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +26,7 @@ const page = () => {
     }
 
     try {
-      const res = await fetch("http://wiki-server.giguild.com/api/words", {
+      const res = await fetch(`${base_url}/words`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

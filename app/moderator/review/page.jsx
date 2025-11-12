@@ -8,11 +8,12 @@ import Cookies from "js-cookie";
 
 export default function page() {
   const [stats, setStats] = useState(null);
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
 
   useEffect(() => {
     const getModeratorStats = async () => {
       const token = Cookies.get("token"); // safe here (browser)
-      const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
+      const res = await fetch(`${base_url}/user/word/list`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();

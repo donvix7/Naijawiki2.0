@@ -4,8 +4,10 @@ import React from 'react';
 
 // Fetch word details by ID
 const getWord = async (id) => {
+    const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  
   try {
-    const res = await fetch(`http://wiki-server.giguild.com/api/moderator/word/${id}`, {
+    const res = await fetch(`${base_url}/moderator/word/${id}`, {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.NAIJAWIKI_TOKEN}`, // your auth token

@@ -11,6 +11,7 @@ export default function WordDetails() {
   const [word, setWord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
 
   // Controlled form fields
   const [alternativeMeaning, setAlternativeMeaning] = useState("");
@@ -20,7 +21,7 @@ export default function WordDetails() {
   useEffect(() => {
     const fetchWord = async () => {
       try {
-        const res = await fetch(`http://wiki-server.giguild.com/api/${id}`, {
+        const res = await fetch(`${base_url}/${id}`, {
           cache: "no-store",
         });
         if (!res.ok) throw new Error("Failed to fetch word data");

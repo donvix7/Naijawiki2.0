@@ -16,7 +16,7 @@ const SubmitWordForm = () => {
     creatorEmail: "",
     creatorOrigin: "",
   });
-
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
   const [audioFile, setAudioFile] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState(null);
@@ -100,7 +100,7 @@ const SubmitWordForm = () => {
       }
       if (audioFile) formDataToSend.append("audio", audioFile);
 
-      const res = await fetch("http://wiki-server.giguild.com/api/word/submit-word", {
+      const res = await fetch(`${base_url}/word/submit-word`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

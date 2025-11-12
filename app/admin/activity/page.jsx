@@ -11,7 +11,7 @@ export default function AdminActivityPage() {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
   // Placeholder user (until API is ready)
   const user = {
     name: "Admin User",
@@ -22,7 +22,7 @@ export default function AdminActivityPage() {
   // Fetch activity/word list
   const fetchActivityData = async (token) => {
     try {
-      const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
+      const res = await fetch(`${base_url}/user/word/list`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

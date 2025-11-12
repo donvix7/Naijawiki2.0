@@ -13,10 +13,13 @@ const [example, setExample] = useState("");
 const [status, setStatus] = useState("");
 const [category, setCategory] = useState("");
 const [creator, setCreator] = useState("");
-    const handleSubmit = async (e) => {
+
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+
+const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const res = await fetch("", {
+        const res = await fetch(`${base_url}/`, {
             method: "PUT",
             headers: {
                " Content-Type": "application/json"},

@@ -9,8 +9,10 @@ import RoleGuard from "@/utils/RoleGuard";
 
 const fetchModeratorStats = async () => {
   const token = Cookies.get("token");
+  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  
   try {
-    const res = await fetch("http://wiki-server.giguild.com/api/user/word/list", {
+    const res = await fetch(`${base_url}/user/word/list`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
