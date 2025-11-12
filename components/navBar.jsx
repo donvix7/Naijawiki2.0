@@ -46,7 +46,7 @@ const CustomNavbar = () => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center px-6 py-3">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2 font-bold text-secondary">
+        <a href="/" className="flex text-3xl items-center gap-2 font-bold text-secondary">
         <i data-feather="book-open" className="logo-icon"></i>
           NaijaWiki
         </a>

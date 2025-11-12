@@ -49,7 +49,7 @@ export default function RegisterPage() {
     setStatus({ message: "", type: "" });
 
     try {
-      const res = await fetch("http://wiki-server.giguild.com/api/auth/register", {
+      const res = await fetch("https://wiki-server.giguild.com/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
