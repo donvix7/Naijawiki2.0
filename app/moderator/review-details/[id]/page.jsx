@@ -1,6 +1,6 @@
+import getBaseUrl from '@/app/api/baseUrl';
 import ModeratorNavbar from '@/components/moderatorNavbar';
 import ModeratorSidebar from '@/components/moderatorSidebar';
-import getBaseUrl from '@/utils/baseUrl';
 import React from 'react';
 
 // Fetch word details by ID

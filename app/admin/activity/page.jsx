@@ -6,7 +6,7 @@ import feather from "feather-icons";
 import AdminNavbar from "@/components/adminNavbar";
 import AdminSideBar from "@/components/adminSideBar";
 import RoleGuard from "@/utils/RoleGuard";
-import getBaseUrl from "@/utils/baseUrl";
+import getBaseUrl from "@/app/api/baseUrl";
 
 export default function AdminActivityPage() {
   const [words, setWords] = useState([]);

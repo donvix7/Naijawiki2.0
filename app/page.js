@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import CustomFooter from "@/components/customFooter";
 import CustomNavbar from "@/components/navBar";
 import feather from "feather-icons";
-import getBaseUrl from "../utils/baseUrl";
+import getBaseUrl from "./api/baseUrl";
 
 export default function Home() {
   const [recentWords, setRecentWords] = useState([]);

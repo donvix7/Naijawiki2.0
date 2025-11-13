@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef } from "react";
 import Cookies from "js-cookie";
-import getBaseUrl from "@/utils/baseUrl";
+import getBaseUrl from "@/app/api/baseUrl";
 
 const SubmitWordForm = () => {
   const [formData, setFormData] = useState({

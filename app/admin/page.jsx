@@ -5,7 +5,7 @@ import AdminSidebar from '@/components/adminSideBar';
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie'; // For handling cookies on client side
 import RoleGuard from '@/utils/RoleGuard';
-import getBaseUrl from '@/utils/baseUrl';
+import getBaseUrl from '../api/baseUrl';
 
 const page = () => {
   const [words, setWords] = useState([]);

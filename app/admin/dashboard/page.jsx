@@ -5,7 +5,7 @@ import AdminNavbar from "@/components/adminNavbar";
 import AdminSideBar from "@/components/adminSideBar";
 import Cookies from "js-cookie";
 import feather from "feather-icons";
-import getBaseUrl from "@/utils/baseUrl";
+import getBaseUrl from "@/app/api/baseUrl";
 
 const AdminPage = () => {
 

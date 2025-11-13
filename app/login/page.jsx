@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import CustomNavbar from "@/components/navBar";
 import CustomFooter from "@/components/customFooter";
-import getBaseUrl from "@/utils/baseUrl";
+import getBaseUrl from "../api/baseUrl";
 
 export default function Page() {
   const [email, setEmail] = useState("");

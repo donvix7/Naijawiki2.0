@@ -5,13 +5,14 @@ import { useParams } from "next/navigation";
 import CustomNavbar from "@/components/navBar";
 import CustomFooter from "@/components/customFooter";
 import feather from "feather-icons";
+import getBaseUrl from "@/app/api/baseUrl";
 
 export default function WordDetails() {
   const { id } = useParams();
   const [word, setWord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
 
   // Controlled form fields
   const [alternativeMeaning, setAlternativeMeaning] = useState("");

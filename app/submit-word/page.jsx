@@ -5,7 +5,7 @@ import CustomFooter from "@/components/customFooter";
 import CustomNavbar from "@/components/navBar";
 import SubmitWordForm from "@/components/submitWordForm";
 import RoleGuard from "@/utils/RoleGuard";
-import getBaseUrl from "@/utils/baseUrl";
+import getBaseUrl from "../api/baseUrl";
 
 export default function SubmitWordPage() {
   const [status, setStatus] = useState({ loading: false, message: "" });

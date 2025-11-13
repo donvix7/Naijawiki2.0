@@ -1,7 +1,7 @@
 "use client";
+import getBaseUrl from '@/app/api/baseUrl';
 import AdminNavbar from '@/components/adminNavbar'
 import AdminSideBar from '@/components/adminSideBar'
-import getBaseUrl from '@/utils/baseUrl';
 import React, { useState } from 'react'
 
 const page = () => {

@@ -1,7 +1,7 @@
 "use client";
+import getBaseUrl from '@/app/api/baseUrl';
 import AdminNavbar from '@/components/adminNavbar';
 import AdminSidebar from '@/components/adminSideBar';
-import getBaseUrl from '@/utils/baseUrl';
 import Cookies from 'js-cookie';
 import React, { useState } from 'react';
 

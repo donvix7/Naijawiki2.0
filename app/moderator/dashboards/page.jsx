@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import CustomNavbar from "@/components/navBar";
 import CustomFooter from "@/components/customFooter";
 import feather from "feather-icons";
-import getBaseUrl from "@/utils/baseUrl";
+import getBaseUrl from "@/app/api/baseUrl";
 
 export default function WordDetails() {
   const { id } = useParams();

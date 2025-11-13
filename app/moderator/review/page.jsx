@@ -5,10 +5,11 @@ import ModeratorSidebar from '@/components/moderatorSidebar';
 import React from 'react';
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import getBaseUrl from '@/app/api/baseUrl';
 
 export default function page() {
   const [stats, setStats] = useState(null);
-  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
 
   useEffect(() => {
     const getModeratorStats = async () => {

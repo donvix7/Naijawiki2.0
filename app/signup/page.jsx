@@ -5,6 +5,7 @@ import CustomFooter from "@/components/customFooter";
 import CustomNavbar from "@/components/navBar";
 import feather from "feather-icons";
 import { useRouter } from "next/navigation";
+import getBaseUrl from "../api/baseUrl";
 
 export default function RegisterPage() {
   const [firstname, setFirstName] = useState("");

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import CustomFooter from "@/components/customFooter";
 import CustomNavbar from "@/components/navBar";
-import getBaseUrl from "@/utils/baseUrl";
+import getBaseUrl from "../api/baseUrl";
 
 const Volunteer = () => {
   const [formData, setFormData] = useState({

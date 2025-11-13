@@ -6,9 +6,9 @@ import ModeratorSidebar from "@/components/moderatorSidebar";
 import Cookies from "js-cookie";
 import feather from "feather-icons";
 import RoleGuard from "@/utils/RoleGuard";
-import getBaseUrl from "@/utils/baseUrl";
+import getBaseUrl from "../api/baseUrl";
 
-// ✅ Fetch Moderator Stats
+//  Fetch Moderator Stats
 const fetchModeratorStats = async () => {
   const token = Cookies.get("token");
   const base_url = getBaseUrl();
