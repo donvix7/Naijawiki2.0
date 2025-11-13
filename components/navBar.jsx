@@ -77,6 +77,8 @@ const CustomNavbar = () => {
                 onClick={handleLogout}
                 className="btn btn-outline border-red-600 text-red-600 hover:bg-red-50"
               >
+              <i data-feather="log-out" className="w-4 h-4"></i>
+
                 Logout
               </button>
             </>
@@ -101,57 +103,66 @@ const CustomNavbar = () => {
         </button>
       </div>
 
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="w-60">
-          <div className=" dropdown md:hidden bg-neutral shadow-md ">
-          <ul className="">
-            {links.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className={`flex items-center gap-2 px-3 py-2 rounded hover:bg-primary/20 transition-colors ${
-                    pathname === link.href ? "bg-primary/20 font-semibold" : ""
-                  }`}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <i data-feather={link.icon}></i>
-                  {link.name}
-                </a>
-              </li>
-            ))}
-          </ul>
+     {/* Mobile Menu */}
+{menuOpen && (
+  <div className="bg-neutral absolute top-16 right-4 w-64 md:hidden animate-slideDown">
+    <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
+      <ul className="py-3">
+        {links.map((link) => (
+          <li key={link.href}>
+            <a
+              href={link.href}
+              className={`flex items-center gap-3 px-4 py-3 transition-all duration-300 hover:bg-primary/10 hover:scale-[1.02] rounded-lg ${
+                pathname === link.href
+                  ? "bg-primary/10 font-semibold text-primary"
+                  : "text-gray-700"
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
+              <i data-feather={link.icon} className="w-4 h-4 text-primary"></i>
+              <span className="text-sm">{link.name}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
 
-          <div className="flex flex-col gap-2 px-6 pb-4">
-            {user ? (
-              <>
-                <span className="text-gray-700">{user.email}</span>
-                <button
-                  onClick={handleLogout}
-                  className="btn btn-outline border-red-600 text-red-600 hover:bg-red-50"
-                >
-                <i data-feather="log-out"></i> 
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <a href="/login" className="btn btn-outline">
-                <i data-feather="log-in"></i> 
-                  
-                  Log In
-                </a>
-                <a href="/signup" className="btn btn-primary">
-                <i data-feather="register"></i> 
-                  
-                  Sign Up
-                </a>
-              </>
-            )}
+      <div className="border-t border-gray-100 px-4 py-3 flex flex-col gap-3">
+        {user ? (
+          <>
+            <div className="flex items-center justify-between text-sm text-gray-600">
+              <span className="truncate">{user.email}</span>
+              <i data-feather="user" className="w-4 h-4 text-gray-400"></i>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm font-medium border border-red-500 text-red-600 rounded-lg hover:bg-red-50 transition-all duration-300"
+            >
+              <i data-feather="log-out" className="w-4 h-4"></i>
+              Logout
+            </button>
+          </>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <a
+              href="/login"
+              className="flex items-center justify-center gap-2 w-full px-4 py-2 border border-primary text-primary rounded-lg font-medium text-sm hover:bg-primary hover:text-white transition-all duration-300"
+            >
+              <i data-feather="log-in" className="w-4 h-4"></i>
+              Log In
+            </a>
+            <a
+              href="/signup"
+              className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-primary text-white rounded-lg font-medium text-sm hover:bg-primary/90 transition-all duration-300"
+            >
+              <i data-feather="user-plus" className="w-4 h-4"></i>
+              Sign Up
+            </a>
           </div>
-        </div>
-        </div>
-      )}
+        )}
+      </div>
+    </div>
+  </div>
+)}
     </nav>
   );
 };

@@ -15,7 +15,7 @@ const [status, setStatus] = useState("");
 const [category, setCategory] = useState("");
 const [creator, setCreator] = useState("");
 
-  const base_url = getBaseUrl();
+const base_url = getBaseUrl();
 
 const handleSubmit = async (e) => {
         e.preventDefault();
