@@ -6,12 +6,13 @@ import feather from "feather-icons";
 import AdminNavbar from "@/components/adminNavbar";
 import AdminSideBar from "@/components/adminSideBar";
 import RoleGuard from "@/utils/RoleGuard";
+import getBaseUrl from "@/utils/baseUrl";
 
 export default function AdminActivityPage() {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
   // Placeholder user (until API is ready)
   const user = {
     name: "Admin User",

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import CustomFooter from "@/components/customFooter";
 import CustomNavbar from "@/components/navBar";
+import getBaseUrl from "@/utils/baseUrl";
 
 const Volunteer = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +16,7 @@ const Volunteer = () => {
   });
 
   const [status, setStatus] = useState({ loading: false, message: "" });
-  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
 
   const handleChange = (e) => {
     const { name, value, type, selectedOptions } = e.target;

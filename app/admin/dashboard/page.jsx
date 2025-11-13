@@ -5,10 +5,11 @@ import AdminNavbar from "@/components/adminNavbar";
 import AdminSideBar from "@/components/adminSideBar";
 import Cookies from "js-cookie";
 import feather from "feather-icons";
+import getBaseUrl from "@/utils/baseUrl";
 
 const AdminPage = () => {
 
-  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
   const [words, setWords] = useState([]);
   const [stats, setStats] = useState({
     total: 0,

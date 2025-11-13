@@ -1,6 +1,7 @@
 "use client";
 import AdminNavbar from '@/components/adminNavbar';
 import AdminSidebar from '@/components/adminSideBar';
+import getBaseUrl from '@/utils/baseUrl';
 import Cookies from 'js-cookie';
 import React, { useState } from 'react';
 
@@ -12,7 +13,7 @@ const page = () => {
   const [category, setCategory] = useState("");
   const [status, setStatus] = useState("approved");
   const [message, setMessage] = useState("");
-  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -5,10 +5,11 @@ import CustomFooter from "@/components/customFooter";
 import CustomNavbar from "@/components/navBar";
 import SubmitWordForm from "@/components/submitWordForm";
 import RoleGuard from "@/utils/RoleGuard";
+import getBaseUrl from "@/utils/baseUrl";
 
 export default function SubmitWordPage() {
   const [status, setStatus] = useState({ loading: false, message: "" });
-  const base_url = process.env.NEXT_PUBLIC_BASE_URL;
+  const base_url = getBaseUrl();
 
   const handleFormSubmit = async (formData) => {
     setStatus({ loading: true, message: "" });

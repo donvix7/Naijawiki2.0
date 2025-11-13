@@ -14,7 +14,7 @@ export default function RegisterPage() {
   const [confirm, setConfirm] = useState("");
   const [status, setStatus] = useState({ message: "", type: "" });
   const [loading, setLoading] = useState(false);
-  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
 
   const router = useRouter();
   useEffect(() => {

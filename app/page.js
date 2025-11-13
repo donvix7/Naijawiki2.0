@@ -5,13 +5,14 @@ import Cookies from "js-cookie";
 import CustomFooter from "@/components/customFooter";
 import CustomNavbar from "@/components/navBar";
 import feather from "feather-icons";
+import getBaseUrl from "../utils/baseUrl";
 
 export default function Home() {
   const [recentWords, setRecentWords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const audioRef = useRef(null); // track current audio
-  const base_url = process.env.NEXT_PUBLIC_BASE_URL;
+  const base_url = getBaseUrl();
   // Initialize feather icons once
   useEffect(() => {
     feather.replace();

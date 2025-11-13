@@ -5,10 +5,11 @@ import CustomNavbar from "@/components/navBar";
 import CustomFooter from "@/components/customFooter";
 import FilterForm from "@/components/filterForm";
 import Cookies from "js-cookie";
+import getBaseUrl from "@/utils/baseUrl";
 
 export default function Page() {
   const [words, setWords] = useState([]);
-  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
 
   useEffect(() => {
     async function getWords() {

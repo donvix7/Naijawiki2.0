@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import CustomNavbar from "@/components/navBar";
 import CustomFooter from "@/components/customFooter";
+import getBaseUrl from "@/utils/baseUrl";
 
 export default function Page() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const base_url = process.env.NEXT_PUBLIC_BASE_URL;
+  const base_url = getBaseUrl();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

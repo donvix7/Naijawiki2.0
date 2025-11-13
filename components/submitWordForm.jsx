@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef } from "react";
 import Cookies from "js-cookie";
+import getBaseUrl from "@/utils/baseUrl";
 
 const SubmitWordForm = () => {
   const [formData, setFormData] = useState({
@@ -16,7 +17,7 @@ const SubmitWordForm = () => {
     creatorEmail: "",
     creatorOrigin: "",
   });
-  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
   const [audioFile, setAudioFile] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState(null);

@@ -1,10 +1,11 @@
 import ModeratorNavbar from '@/components/moderatorNavbar';
 import ModeratorSidebar from '@/components/moderatorSidebar';
+import getBaseUrl from '@/utils/baseUrl';
 import React from 'react';
 
 // Fetch word details by ID
 const getWord = async (id) => {
-    const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
   
   try {
     const res = await fetch(`${base_url}/moderator/word/${id}`, {

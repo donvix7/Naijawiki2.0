@@ -5,11 +5,12 @@ import AdminSidebar from '@/components/adminSideBar';
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie'; // For handling cookies on client side
 import RoleGuard from '@/utils/RoleGuard';
+import getBaseUrl from '@/utils/baseUrl';
 
 const page = () => {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
-  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
 
   const fetchWords = async () => {
     setLoading(true);
@@ -58,7 +59,7 @@ const page = () => {
   }).length;
 
   return (
-    <RoleGuard allowedRoles={["admin"]}>
+    <RoleGuard allowedRoles={["admin", "super_admin"]}>
 
     <div>
       <AdminNavbar />

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import CustomNavbar from "@/components/navBar";
 import CustomFooter from "@/components/customFooter";
 import feather from "feather-icons";
+import getBaseUrl from "@/utils/baseUrl";
 
 export default function WordDetails() {
   const { id } = useParams();
@@ -15,7 +16,7 @@ export default function WordDetails() {
   const [alternativeMeaning, setAlternativeMeaning] = useState("");
   const [example, setExample] = useState("");
   const [contributorName, setContributorName] = useState("");
-  const base_url = process.env.NEXT_PUBLIC__BASE_URL;
+  const base_url = getBaseUrl();
 
   // Fetch word data
   useEffect(() => {
