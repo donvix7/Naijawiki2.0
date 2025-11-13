@@ -75,7 +75,7 @@ const CustomNavbar = () => {
               <span className="text-gray-700">{user.email}</span>
               <button
                 onClick={handleLogout}
-                className="btn btn-outline border-red-600 text-red-600 hover:bg-red-50"
+                className="flex gap-2 align-center btn btn-outline border-red-600 text-red-600 hover:bg-red-50"
               >
               <i data-feather="log-out" className="w-4 h-4"></i>
 
@@ -96,7 +96,7 @@ const CustomNavbar = () => {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden text-gray-700 focus:outline-none"
+          className="md:hidden text-secondary focus:outline-none"
           onClick={() => setMenuOpen((prev) => !prev)}
         >
           <i data-feather={menuOpen ? "x" : "menu"}></i>
@@ -105,8 +105,8 @@ const CustomNavbar = () => {
 
      {/* Mobile Menu */}
 {menuOpen && (
-  <div className="bg-neutral absolute top-16 right-4 w-64 md:hidden animate-slideDown">
-    <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
+  <div className="absolute top-16 right-4 w-64 md:hidden animate-slideDown">
+    <div className="bg-neutral/95 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
       <ul className="py-3">
         {links.map((link) => (
           <li key={link.href}>
