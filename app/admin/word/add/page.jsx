@@ -2,6 +2,7 @@
 import getBaseUrl from '@/app/api/baseUrl';
 import AdminNavbar from '@/components/adminNavbar';
 import AdminSidebar from '@/components/adminSideBar';
+import RoleGuard from '@/utils/RoleGuard';
 import Cookies from 'js-cookie';
 import React, { useState } from 'react';
 
@@ -58,6 +59,8 @@ const page = () => {
   };
 
   return (
+          <RoleGuard allowedRoles={["admin", "super_admin"]}>
+    
     <div>
       <AdminNavbar />
       <div className="flex">
@@ -65,7 +68,7 @@ const page = () => {
         <main className="flex-1 p-8">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-secondary">Add New Word</h1>
-            <a href="/admin/words" className="text-primary hover:underline flex items-center gap-2">
+            <a href="/admin/word" className="text-primary hover:underline flex items-center gap-2">
               <i data-feather="arrow-left"></i> Back to Words
             </a>
           </div>
@@ -177,6 +180,7 @@ const page = () => {
         </main>
       </div>
     </div>
+    </RoleGuard>
   );
 };
 

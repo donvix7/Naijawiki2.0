@@ -1,153 +1,161 @@
 "use client";
-import getBaseUrl from '@/app/api/baseUrl';
-import AdminNavbar from '@/components/adminNavbar'
-import AdminSideBar from '@/components/adminSideBar'
-import React, { useState } from 'react'
 
-const page = () => {
-    
-const [time, setTime] = useState("");
-const [word, setWord] = useState("");
-const [language, setLanguage] = useState("");
-const [meaning, setMeaning] = useState("");
-const [example, setExample] = useState("");
-const [status, setStatus] = useState("");
-const [category, setCategory] = useState("");
-const [creator, setCreator] = useState("");
+import AdminNavbar from "@/components/adminNavbar";
+import AdminSidebar from "@/components/adminSideBar";
+import getBaseUrl from "@/app/api/baseUrl";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import feather from "feather-icons";
+import { useParams } from "next/navigation";
+import RoleGuard from "@/utils/RoleGuard";
 
-const base_url = getBaseUrl();
+export default function Page() {
 
-const handleSubmit = async (e) => {
-        e.preventDefault();
+  const params = useParams();
+  const id = params.id;
 
-        const res = await fetch(`${base_url}/`, {
-            method: "PUT",
-            headers: {
-               " Content-Type": "application/json"},
-            body: JSON.stringify({
-                word: word,
-                language: language,
-                meaning: meaning,
-                example: example,
-                category: category,
-                status: status,
+  const [word, setWord] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-            })
+  const token = Cookies.get("token");
+  const base_url = getBaseUrl();
 
-        })
+  // Fetch a single word
+  useEffect(() => {
+    const fetchWord = async () => {
+      try {
+        const res = await fetch(`${base_url}/word/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch word");
+
+        const data = await res.json();
+        setWord(data.word);
+      } catch (err) {
+        console.error("Failed to load word:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWord();
+    feather.replace();
+  }, [id]);
+
+  // Update status
+  const updateStatus = async (status) => {
+    try {
+      const res = await fetch(`${base_url}/word/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update status");
+
+      setWord((prev) => ({ ...prev, status }));
+
+      alert(`Word has been ${status}!`);
+    } catch (err) {
+      console.error(err);
+      alert("Error updating status");
     }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen text-gray-600">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!word) {
+    return (
+      <div className="flex justify-center items-center h-screen text-gray-600">
+        Word not found.
+      </div>
+    );
+  }
+
   return (
+      <RoleGuard allowedRoles={["admin", "super_admin"]}>
     <div>
-        <AdminNavbar/>
-    <div className="flex">
-    <AdminSideBar/>
+      <AdminNavbar />
+
+      <div className="flex">
+        <AdminSidebar />
+
         <main className="flex-1 p-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-secondary">Edit Word</h1>
-                <a href="/admin/words " className="text-primary hover:underline flex items-center gap-2">
-                    <i data-feather="arrow-left"></i> Back to Words </a>
-            </div>
-            <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="bg-primary bg-opacity-10 p-3 rounded-lg">
-                        <i data-feather="edit-2" className="text-primary"></i>
-                    </div>
-                    <div>
-                        <h2 className="font-bold">Wahala</h2>
-                        <p className="text-gray-500 text-sm">Pidgin English</p>
-                    </div>
-                </div>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Word/Phrase*</label>
-                            <input type="text"
-                            onChange = {(e) => setWord(e.target.value)}
-                             value={word} required
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"/>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Language*</label>
-                            <select required
-                            onChange = {(e) => setLanguage(e.target.value)}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
-                                <option value="pidgin" selected>Pidgin</option>
-                                <option value="yoruba">Yoruba</option>
-                                <option value="igbo">Igbo</option>
-                                <option value="hausa">Hausa</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Meaning*</label>
-                        <textarea rows="3" required
-                        onChange = {(e) => setMeaning(e.target.value)}
-                        value = {meaning}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">Trouble or problem</textarea>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Example Usage</label>
-                        <textarea rows="2"
-                        onChange = {(e) => setExample(e.target.value)}
-                        value = {example}
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">"No wahala" means "No problem"</textarea>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                            <select
-                            onChange = {(e) => setCategory(e.target.value)}
+          <h1 className="text-3xl font-bold mb-6 text-secondary">
+            Manage Word
+          </h1>
 
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
-                                <option value="">Select Category</option>
-                                <option value="slang" selected>Slang</option>
-                                <option value="proverb">Proverb</option>
-                                <option value="greeting">Greeting</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Status*</label>
-                            <select required
-                            onChange = {(e) => setStatus(e.target.value)}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary">
-                                <option value="approved" selected>Approved</option>
-                                <option value="pending">Pending</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div className="border-t border-gray-200 pt-6">
-                        <h3 className="text-lg font-medium mb-4">Metadata</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Created By</label>
-                                <input type="text" 
-                                onChange={(e) => setCreator(e.target.value)}
-                                value = {creator}
-                                readOnly
-                                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"/>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Last Updated</label>
-                                <input type="text" onChange = {(e) => setTime} value={time} readOnly
-                                    className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50"/>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex justify-end gap-4 pt-6">
-                        <button type="button"
-                            className="bg-red-100 hover:bg-red-200 text-red-800 font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2">
-                            <i data-feather="trash-2"></i> Delete </button>
-                        <button type="submit"
-                            className="bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2">
-                            <i data-feather="save"></i> Save Changes </button>
-                    </div>
-                </form>
-            </div>
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <table className="min-w-full divide-y divide-gray-200">
+              <tbody>
+                <tr>
+                  <td className="px-6 py-4 font-semibold">Word</td>
+                  <td className="px-6 py-4">{word.word}</td>
+                </tr>
+
+                <tr>
+                  <td className="px-6 py-4 font-semibold">Language</td>
+                  <td className="px-6 py-4">{word.language}</td>
+                </tr>
+
+                <tr>
+                  <td className="px-6 py-4 font-semibold">Status</td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-3 py-1 text-xs rounded-full ${
+                        word.status === "approved"
+                          ? "bg-green-100 text-green-800"
+                          : word.status === "rejected"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {word.status}
+                    </span>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td className="px-6 py-4 font-semibold">Submitted By</td>
+                  <td className="px-6 py-4">{word.creatorEmail || "—"}</td>
+                </tr>
+
+                <tr>
+                  <td className="px-6 py-4 font-semibold">Actions</td>
+                  <td className="px-6 py-4 flex gap-4">
+                    <button
+                      onClick={() => updateStatus("approved")}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md flex items-center gap-1"
+                    >
+                      <i data-feather="check"></i> Approve
+                    </button>
+
+                    <button
+                      onClick={() => updateStatus("rejected")}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md flex items-center gap-1"
+                    >
+                      <i data-feather="x"></i> Reject
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </main>
-    </div>   
+      </div>
     </div>
-  )
+    </RoleGuard>
+  );
 }
-
-export default page

@@ -42,13 +42,13 @@ export default function Page() {
       // Redirect based on role
       const role = data.user?.role;
       if (role === "admin" || role === "super_admin") {
-        router.push("/admin/dashboard");
+        router.push("/admin");
       } else if (role === "moderator") {
-        router.push("/moderator/dashboard");
+        router.push("/moderator");
       } else if (role === "creator") {
         router.push("/");
       } else {
-        alert("User role not recognized. Redirecting to home.");
+        alert("User has no role. Redirecting to home.");
         router.push("/");
       }
     } catch (error) {

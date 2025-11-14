@@ -33,7 +33,7 @@ const page = () => {
       }
 
       const data = await res.json();
-      setWords(data);
+      setWords(data.words);
     } catch (error) {
       console.error(error);
     } finally {

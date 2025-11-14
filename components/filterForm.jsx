@@ -84,22 +84,6 @@ const FilterForm = ({ words = [] }) => {
             </select>
           </div>
 
-          {/* Status Filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
-            </label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-            >
-              <option value="">All Statuses</option>
-              <option value="approved">Approved</option>
-              <option value="pending">Pending</option>
-              <option value="disputed">Disputed</option>
-            </select>
-          </div>
 
           {/* Search */}
           <div>

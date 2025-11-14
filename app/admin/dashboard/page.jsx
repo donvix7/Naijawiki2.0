@@ -6,6 +6,7 @@ import AdminSideBar from "@/components/adminSideBar";
 import Cookies from "js-cookie";
 import feather from "feather-icons";
 import getBaseUrl from "@/app/api/baseUrl";
+import RoleGuard from "@/utils/RoleGuard";
 
 const AdminPage = () => {
 
@@ -66,6 +67,8 @@ const AdminPage = () => {
   }, []);
 
   return (
+          <RoleGuard allowedRoles={["admin", "super_admin"]}>
+    
     <div>
       <AdminNavbar />
       <div className="flex">
@@ -187,6 +190,7 @@ const AdminPage = () => {
         </main>
       </div>
     </div>
+    </RoleGuard>
   );
 };
 

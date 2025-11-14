@@ -144,12 +144,12 @@ export default function Home() {
                   </p>
                   <div className="mt-4 flex items-center">
                     <button
-                      className="flex items-center text-primary hover:underline"
+                      className="flex items-center text-primary hover:text-red"
                       aria-label={`Listen to ${word.word}`}
                       onClick={() =>
                         handlePlayAudio(
                           word.audioUrl ||
-                            `https://wiki-server.giguild.com/audio/${word.word}.mp3`,
+                            `${base_url}/audio/${word.word}.mp3`,
                           word.word
                         )
                       }

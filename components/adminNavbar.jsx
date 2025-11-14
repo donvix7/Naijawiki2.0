@@ -12,9 +12,6 @@ const AdminNavbar = () => {
     const email = Cookies.get("email");
     const role = Cookies.get("role");
 
-
-    console.log(token,email,role);
-
     if (token && email && role === "admin") {
       setUser({ role });
     } else {
