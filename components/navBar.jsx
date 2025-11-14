@@ -41,6 +41,21 @@ const CustomNavbar = () => {
     setUser(null);
     window.location.href = "/";
   };
+const [isDarkBackground, setIsDarkBackground] = useState(false);
+
+useEffect(() => {
+  // Read body background on mobile menu open
+  if (menuOpen) {
+    const bg = window.getComputedStyle(document.body).backgroundColor;
+
+    // Convert rgb to brightness
+    const rgb = bg.match(/\d+/g);
+    if (rgb) {
+      const brightness = (0.299 * rgb[0]) + (0.587 * rgb[1]) + (0.114 * rgb[2]);
+      setIsDarkBackground(brightness < 150); // If low brightness → use white text
+    }
+  }
+}, [menuOpen]);
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -104,10 +119,13 @@ const CustomNavbar = () => {
       </div>
 
      {/* Mobile Menu */}
+{/* Mobile Menu */}
 {menuOpen && (
-  <div className="absolute top-16 right-4 w-64 md:hidden animate-slideDown">
-    <div className="bg-neutral/95 backdrop-blur-md shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
-      <ul className="py-3">
+  <div className="absolute top-16 right-4 w-64 md:hidden animate-slideDown z-50">
+    <div className={`shadow-2xl rounded-2xl overflow-hidden border 
+      ${isDarkBackground ? "bg-neutral-900 text-white" : "bg-neutral/95 text-black"}
+    `}>
+  <ul className="py-3">
         {links.map((link) => (
           <li key={link.href}>
             <a
@@ -119,8 +137,13 @@ const CustomNavbar = () => {
               }`}
               onClick={() => setMenuOpen(false)}
             >
-              <i data-feather={link.icon} className="w-4 h-4 text-primary"></i>
-              <span className="text-sm">{link.name}</span>
+              <i
+                data-feather={link.icon}
+                className={`w-4 h-4 ${isDarkBackground ? "text-white" : "text-primary"}`}
+              />
+              <span className={`text-sm ${isDarkBackground ? "text-white" : "text-gray-700"}`}>
+                {link.name}
+              </span>
             </a>
           </li>
         ))}

@@ -11,16 +11,19 @@ const FilterForm = ({ words = [] }) => {
   useEffect(() => {
     feather.replace();
   }, [language, category, status, search]);
+const filteredWords = words.filter((word) => {
+  // ONLY approved words
+  const isApproved = word.status === "approved";
 
-  const filteredWords = words.filter((word) => {
-    const matchesLanguage = language ? word.language === language : true;
-    const matchesCategory = category ? word.category === category : true;
-    const matchesStatus = status ? word.status === status : true;
-    const matchesSearch = search
-      ? word.word.toLowerCase().includes(search.toLowerCase())
-      : true;
-    return matchesLanguage && matchesCategory && matchesStatus && matchesSearch;
-  });
+  const matchesLanguage = language ? word.language === language : true;
+  const matchesCategory = category ? word.category === category : true;
+  const matchesSearch = search
+    ? word.word.toLowerCase().includes(search.toLowerCase())
+    : true;
+
+  return isApproved && matchesLanguage && matchesCategory && matchesSearch;
+});
+
 
   return (
     <main className="container mx-auto px-6 py-12">
@@ -118,10 +121,8 @@ const FilterForm = ({ words = [] }) => {
               <div className="p-6">
                 <div className="flex justify-between items-start">
                   <h3 className="text-2xl font-bold text-secondary">
-                       <a href={`/word-details/${word.id}`}>
                     
                     {word.word}
-                    </a>
                   </h3>
                   <span className="bg-primary text-white px-3 py-1 rounded-full text-sm capitalize">
                     {word.language}
@@ -133,7 +134,7 @@ const FilterForm = ({ words = [] }) => {
                     <i data-feather="play-circle" className="mr-2"></i> Listen
                   </button>
                   <a
-                    href={`/word-detail/${word.id}`}
+                    href={`/word-details/${word.id}`}
                     className="text-accent hover:underline"
                   >
                     View details
@@ -149,53 +150,50 @@ const FilterForm = ({ words = [] }) => {
         )}
       </div>
 
-      {/* Pagination (static demo) */}
-      <div className="mt-12 flex justify-center">
-        <nav
-          className="inline-flex rounded-md shadow-sm -space-x-px"
-          aria-label="Pagination"
-        >
-          <a
-            href="#"
-            className="inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            <i data-feather="chevron-left" className="h-4 w-4"></i>
-          </a>
-          <a
-            href="#"
-            className="inline-flex items-center px-4 py-2 border border-gray-300 bg-gray-100 text-sm font-medium text-primary"
-          >
-            1
-          </a>
-          <a
-            href="#"
-            className="inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            2
-          </a>
-          <a
-            href="#"
-            className="inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            3
-          </a>
-          <span className="inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-            ...
-          </span>
-          <a
-            href="#"
-            className="inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            8
-          </a>
-          <a
-            href="#"
-            className="inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            <i data-feather="chevron-right" className="h-4 w-4"></i>
-          </a>
-        </nav>
-      </div>
+     {/* Responsive Pagination */}
+<div className="mt-12 flex justify-center">
+  <nav className="flex items-center gap-1 flex-wrap" aria-label="Pagination">
+
+    {/* Previous Button */}
+    <button
+      className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+    >
+      <i data-feather="chevron-left" className="h-4 w-4"></i>
+      <span className="ml-1 hidden sm:inline">Previous</span>
+    </button>
+
+    {/* Page Numbers */}
+    <div className="flex items-center gap-1 flex-wrap justify-center">
+      <button className="px-3 py-2 border rounded-md bg-primary text-white text-sm">
+        1
+      </button>
+
+      <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
+        2
+      </button>
+
+      <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
+        3
+      </button>
+
+      <span className="px-3 py-2 text-gray-500 text-sm">…</span>
+
+      <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
+        8
+      </button>
+    </div>
+
+    {/* Next Button */}
+    <button
+      className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+    >
+      <span className="mr-1 hidden sm:inline">Next</span>
+      <i data-feather="chevron-right" className="h-4 w-4"></i>
+    </button>
+
+  </nav>
+</div>
+
     </main>
   );
 };
