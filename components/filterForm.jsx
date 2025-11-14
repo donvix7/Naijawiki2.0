@@ -118,7 +118,10 @@ const FilterForm = ({ words = [] }) => {
               <div className="p-6">
                 <div className="flex justify-between items-start">
                   <h3 className="text-2xl font-bold text-secondary">
+                       <a href={`/word-details/${word.id}`}>
+                    
                     {word.word}
+                    </a>
                   </h3>
                   <span className="bg-primary text-white px-3 py-1 rounded-full text-sm capitalize">
                     {word.language}

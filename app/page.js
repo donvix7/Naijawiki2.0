@@ -13,6 +13,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const audioRef = useRef(null); // track current audio
   const base_url = getBaseUrl();
+  const [wordId, setWordId] = useState(null); 
   // Initialize feather icons once
   useEffect(() => {
     feather.replace();
@@ -32,6 +33,7 @@ export default function Home() {
 
         const data = await res.json();
         const words = data.words || [];
+        setWordId(words.id);
 
         // Group words by date and limit to 5 per day
         const grouped = {};
@@ -130,11 +132,15 @@ export default function Home() {
                 key={word.id || word.word}
                 className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow"
               >
-                <a href={`/word-details/${id}`}>
-<div className="p-6">
+                  <div className="p-6">
+              
+                  
                   <div className="flex justify-between items-start">
                     <h3 className="text-2xl font-bold text-secondary">
+                       <a href={`/word-details/${word.id}`}>
                       {word.word || "Unknown"}
+                      
+                      </a>
                     </h3>
                     <span className="bg-primary text-white px-3 py-1 rounded-full text-sm">
                       {word.language || "Unknown"}
@@ -143,6 +149,7 @@ export default function Home() {
                   <p className="mt-2 text-gray-600">
                     {word.meaning || "No meaning provided"}
                   </p>
+
                   <div className="mt-4 flex items-center">
                     <button
                       className="flex items-center text-primary hover:text-red"
@@ -160,7 +167,6 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
-                </a>
               </div>
             ))}
           </div>

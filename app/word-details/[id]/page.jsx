@@ -8,7 +8,8 @@ import feather from "feather-icons";
 import getBaseUrl from "@/app/api/baseUrl";
 
 export default function WordDetails() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params.id
   const [word, setWord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,12 +23,12 @@ export default function WordDetails() {
   useEffect(() => {
     const fetchWord = async () => {
       try {
-        const res = await fetch(`${base_url}/${id}`, {
+        const res = await fetch(`${base_url}/word/${id}`, {
           cache: "no-store",
         });
         if (!res.ok) throw new Error("Failed to fetch word data");
         const data = await res.json();
-        setWord(data);
+        setWord(data.word);
       } catch (err) {
         console.error(err);
         setError("Unable to load word details. Please try again later.");
