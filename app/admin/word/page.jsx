@@ -162,14 +162,15 @@ const Page = () => {
                       </td>
                     </tr>
                   ) : filteredWords.length === 0 ? (
-                    <tr>
+                    <tr 
+                    >
                       <td colSpan="5" className="px-6 py-6 text-center text-gray-500">
                         No words match your filters.
                       </td>
                     </tr>
                   ) : (
                     filteredWords.map((item) => (
-                      <tr key={item._id}>
+                      <tr key={item.id}>
                         <td className="px-6 py-4 whitespace-nowrap font-medium">{item.word}</td>
                         <td className="px-6 py-4 whitespace-nowrap">{item.language}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
