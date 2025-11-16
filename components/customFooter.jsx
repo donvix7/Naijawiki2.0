@@ -9,123 +9,138 @@ const CustomFooter = () => {
   return (
     <footer className="bg-[var(--neutral)] text-white py-12 px-8 mt-auto">
       <div className="container max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+
         {/* About Section */}
-        <div className="footer-about">
-          <div className="footer-logo text-2xl font-bold flex items-center gap-2 mb-4">
-            <BookOpen className="text-[var(--primary)]" /> NaijaLingo
+        <div>
+          <div className="text-2xl font-bold flex items-center gap-2 mb-4">
+            <BookOpen className="text-[var(--primary)]" /> 
+            NaijaLingo
           </div>
-          <p>
+
+          <p className="text-gray-300 leading-relaxed">
             Preserving Nigerian languages and culture through community
             contributions and education.
           </p>
-          <div className="social-links flex gap-4 mt-4">
+
+          <div className="flex gap-4 mt-4">
             {[Twitter, Facebook, Instagram, Youtube].map((Icon, idx) => (
               <a
                 key={idx}
                 href="#"
-                className="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--primary)] hover:-translate-y-1 transition-transform"
+                aria-label="Social Link"
+                className="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center 
+                  hover:bg-[var(--primary)] hover:-translate-y-1 transition-all"
               >
-                <Icon />
+                <Icon className="w-5 h-5" />
               </a>
             ))}
           </div>
         </div>
 
         {/* Explore Links */}
-        <div className="footer-links flex flex-col">
-          <h3 className="text-[var(--primary)] text-xl mb-4">Explore</h3>
+        <div className="flex flex-col">
+          <h3 className="text-[var(--primary)] text-xl mb-4 font-semibold">
+            Explore
+          </h3>
           <ul className="space-y-2">
             <li>
-              <a href="/explore" className="hover:text-[var(--primary)] text-gray-300">
+              <a
+                href="/explore"
+                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+              >
                 All Words
-              </a>
-            </li>
-            <li>
-              <a href="/explore?language=pidgin" className="hover:text-[var(--primary)] text-gray-300">
-                Pidgin English
-              </a>
-            </li>
-            <li>
-              <a href="/explore?language=yoruba" className="hover:text-[var(--primary)] text-gray-300">
-                Yoruba
-              </a>
-            </li>
-            <li>
-              <a href="/explore?language=igbo" className="hover:text-[var(--primary)] text-gray-300">
-                Igbo
-              </a>
-            </li>
-            <li>
-              <a href="/explore?language=hausa" className="hover:text-[var(--primary)] text-gray-300">
-                Hausa
               </a>
             </li>
           </ul>
         </div>
 
-        {/* Community Links */}
-        <div className="footer-links flex flex-col">
-          <h3 className="text-[var(--primary)] text-xl mb-4">Community</h3>
+        {/* Community */}
+        <div className="flex flex-col">
+          <h3 className="text-[var(--primary)] text-xl mb-4 font-semibold">
+            Community
+          </h3>
           <ul className="space-y-2">
             <li>
-              <a href="/submit-word" className="hover:text-[var(--primary)] text-gray-300">
+              <a
+                href="/submit-word"
+                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+              >
                 Contribute a Word
               </a>
             </li>
             <li>
-              <a href="/about" className="hover:text-[var(--primary)] text-gray-300">
+              <a
+                href="/about"
+                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+              >
                 About Us
               </a>
             </li>
             <li>
-              <a href="/blog" className="hover:text-[var(--primary)] text-gray-300">
-                Blog
-              </a>
-            </li>
-            <li>
-              <a href="/events" className="hover:text-[var(--primary)] text-gray-300">
-                Events
-              </a>
-            </li>
-            <li>
-              <a href="/volunteer" className="hover:text-[var(--primary)] text-gray-300">
+              <a
+                href="/volunteer"
+                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+              >
                 Volunteer
               </a>
             </li>
           </ul>
         </div>
 
-        {/* Support Links */}
-        <div className="footer-links flex flex-col">
-          <h3 className="text-[var(--primary)] text-xl mb-4">Support</h3>
+        {/* Support */}
+        <div className="flex flex-col">
+          <h3 className="text-[var(--primary)] text-xl mb-4 font-semibold">
+            Support
+          </h3>
+
           <ul className="space-y-2">
             <li>
-              <a href="/help" className="hover:text-[var(--primary)] text-gray-300">
+              <a
+                href="/help"
+                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+              >
                 Help Center
               </a>
             </li>
+
             <li>
-              <a href="/contact" className="hover:text-[var(--primary)] text-gray-300">
+              <a
+                href="/contact"
+                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+              >
                 Contact Us
               </a>
             </li>
+
             <li>
-              <a href="/privacy" className="hover:text-[var(--primary)] text-gray-300">
+              <a
+                href="/privacy"
+                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+              >
                 Privacy Policy
               </a>
             </li>
+
             <li>
-              <a href="/terms" className="hover:text-[var(--primary)] text-gray-300">
+              <a
+                href="/terms"
+                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+              >
                 Terms of Use
               </a>
             </li>
+
             <li>
-              <a href="/donate" className="hover:text-[var(--primary)] text-gray-300">
+              <a
+                href="/donate"
+                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+              >
                 Donate
               </a>
             </li>
           </ul>
         </div>
+
       </div>
 
       {/* Copyright */}

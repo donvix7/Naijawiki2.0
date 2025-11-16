@@ -6,6 +6,7 @@ import AdminSidebar from "@/components/adminSideBar";
 import getBaseUrl from "@/app/api/baseUrl";
 import Cookies from "js-cookie";
 import RoleGuard from "@/utils/RoleGuard";
+import DeleteBtn from "@/components/deleteBtn";
 
 const Page = () => {
   const base_url = getBaseUrl();
@@ -14,7 +15,6 @@ const Page = () => {
   const [loading, setLoading] = useState(true);
 
   // Filters
-  const [language, setLanguage] = useState("");
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
 
@@ -53,11 +53,12 @@ const Page = () => {
   // Filter + Search Logic
   const filteredWords = words.filter((w) => {
     return (
-      (!language || w.language === language) &&
       (!status || w.status === status) &&
       (!search || w.word.toLowerCase().includes(search.toLowerCase()))
     );
   });
+
+
 
   return (
           <RoleGuard allowedRoles={["admin", "super_admin"]}>
@@ -85,23 +86,6 @@ const Page = () => {
           <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Language
-                </label>
-                <select
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                >
-                  <option value="">All Languages</option>
-                  <option value="pidgin">Pidgin</option>
-                  <option value="yoruba">Yoruba</option>
-                  <option value="igbo">Igbo</option>
-                  <option value="hausa">Hausa</option>
-                </select>
-              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -147,7 +131,6 @@ const Page = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Word</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Language</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Submitted By</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -172,7 +155,6 @@ const Page = () => {
                     filteredWords.map((item) => (
                       <tr key={item.id}>
                         <td className="px-6 py-4 whitespace-nowrap font-medium">{item.word}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{item.language}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`px-2 py-1 text-xs rounded-full ${
@@ -195,9 +177,7 @@ const Page = () => {
                             Edit
                           </a>
 
-                          <button className="text-red-500 hover:underline">
-                            Delete
-                          </button>
+                            <DeleteBtn id={item.id} base_url={base_url} token={token}/>
                         </td>
                       </tr>
                     ))

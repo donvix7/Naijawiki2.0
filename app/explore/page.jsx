@@ -21,7 +21,7 @@ export default function Page() {
       }
 
       try {
-        const res = await fetch(`${base_url}/user/word/list`, {
+        const res = await fetch(`${base_url}/words`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -47,7 +47,7 @@ export default function Page() {
 
       <main className="flex-grow">
         {/* Defensive rendering — only show FilterForm if words exist */}
-        <FilterForm words={words} />
+        <FilterForm words={words} base_url={base_url}/>
       </main>
 
       <CustomFooter />

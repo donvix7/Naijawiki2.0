@@ -73,9 +73,7 @@ const AdminSidebar = () => {
             </p>
             {[
               { href: "/admin/word", icon: "book", label: "Words" },
-              { href: "/admin/categories", icon: "tag", label: "Categories" },
-              { href: "/admin/languages", icon: "globe", label: "Languages" },
-            ].map((link) => (
+             ].map((link) => (
               <a
                 key={link.href}
                 href={link.href}

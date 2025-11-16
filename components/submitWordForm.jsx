@@ -7,10 +7,7 @@ const SubmitWordForm = () => {
   const [formData, setFormData] = useState({
     word: "",
     meaning: "",
-    language: "",
     example: "",
-    category: "",
-    tags: "",
     information: "",
     pronunciation: "",
     creatorName: "",
@@ -71,10 +68,7 @@ const SubmitWordForm = () => {
     setFormData({
       word: "",
       meaning: "",
-      language: "",
       example: "",
-      category: "",
-      tags: "",
       information: "",
       pronunciation: "",
       creatorName: "",
@@ -139,25 +133,7 @@ const SubmitWordForm = () => {
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
             />
           </div>
-          <div>
-            <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">
-              Language*
-            </label>
-            <select
-              id="language"
-              required
-              value={formData.language}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-            >
-              <option value="">Select Language</option>
-              <option value="pidgin">Pidgin English</option>
-              <option value="yoruba">Yoruba</option>
-              <option value="igbo">Igbo</option>
-              <option value="hausa">Hausa</option>
-              <option value="other">Other Nigerian Language</option>
-            </select>
-          </div>
+          
         </div>
 
         {/* Meaning */}
@@ -190,41 +166,7 @@ const SubmitWordForm = () => {
           ></textarea>
         </div>
 
-        {/* Category & Tags */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-              Category
-            </label>
-            <select
-              id="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-            >
-              <option value="">Select Category</option>
-              <option value="slang">Slang</option>
-              <option value="proverb">Proverb</option>
-              <option value="greeting">Greeting</option>
-              <option value="insult">Insult/Joke</option>
-              <option value="food">Food Related</option>
-              <option value="religious">Religious</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">
-              Tags (comma separated)
-            </label>
-            <input
-              type="text"
-              id="tags"
-              value={formData.tags}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-              placeholder="E.g., youth,urban,music"
-            />
-          </div>
-        </div>
+       
 
         {/* Pronunciation & Recording */}
         <div>
@@ -256,20 +198,7 @@ const SubmitWordForm = () => {
           )}
         </div>
 
-        {/* Additional Info */}
-        <div>
-          <label htmlFor="information" className="block text-sm font-medium text-gray-700 mb-1">
-            Additional Information
-          </label>
-          <textarea
-            id="information"
-            rows="3"
-            value={formData.information}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-            placeholder="Cultural context, variations, etc."
-          ></textarea>
-        </div>
+        
 
         {/* Contributor Info */}
         <div className="border-t border-gray-200 pt-6">

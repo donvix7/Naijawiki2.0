@@ -34,7 +34,7 @@ const page = () => {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ word, meaning, language, example, category, status }),
+        body: JSON.stringify({ word, meaning, example,  status }),
       });
 
       const data = await res.json();
@@ -47,10 +47,8 @@ const page = () => {
       setMessage("Word added successfully!");
       // Reset form
       setWord("");
-      setLanguage("");
       setMeaning("");
       setExample("");
-      setCategory("");
       setStatus("approved");
     } catch (error) {
       console.log(error);
@@ -92,24 +90,8 @@ const page = () => {
                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Language*</label>
-                  <select
-                    required
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                  >
-                    <option value="">Select Language</option>
-                    <option>Pidgin</option>
-                    <option>Yoruba</option>
-                    <option>Igbo</option>
-                    <option>Hausa</option>
-                    <option>Other</option>
-                  </select>
-                </div>
-              </div>
-
+              <div>
+                  
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Meaning*</label>
                 <textarea
@@ -131,34 +113,9 @@ const page = () => {
                 ></textarea>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                  >
-                    <option value="">Select Category</option>
-                    <option>Slang</option>
-                    <option>Proverb</option>
-                    <option>Greeting</option>
-                    <option>Food</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status*</label>
-                  <select
-                    required
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                  >
-                    <option value="approved">Approved</option>
-                    <option value="pending">Pending</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
+              
+              </div>
+                
               </div>
 
               <div className="flex justify-end gap-4 pt-6">

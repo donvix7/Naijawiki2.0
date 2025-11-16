@@ -1,29 +1,67 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import feather from "feather-icons";
+import Cookies from "js-cookie";
 
-const FilterForm = ({ words = [] }) => {
-  const [language, setLanguage] = useState("");
-  const [category, setCategory] = useState("");
-  const [status, setStatus] = useState("");
+const FilterForm = ({ words = [], base_url }) => {
   const [search, setSearch] = useState("");
+  const [filteredWords, setFilteredWords] = useState(words);
+
+  const token = Cookies.get("token");
 
   useEffect(() => {
     feather.replace();
-  }, [language, category, status, search]);
-const filteredWords = words.filter((word) => {
-  // ONLY approved words
-  const isApproved = word.status === "approved";
+  }, [search, filteredWords]);
 
-  const matchesLanguage = language ? word.language === language : true;
-  const matchesCategory = category ? word.category === category : true;
-  const matchesSearch = search
-    ? word.word.toLowerCase().includes(search.toLowerCase())
-    : true;
+  console.log(base_url);
 
-  return isApproved && matchesLanguage && matchesCategory && matchesSearch;
-});
+  // Fetch filtered words when search changes
+  useEffect(() => {
+    const fetchFiltered = async () => {
+      try {
+        const res = await fetch(`${base_url}/words?search=${search}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
+        if (!res.ok) {
+          throw new Error(`Failed fetch: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : data.words || [];
+
+        // Apply search + approved filter
+        const filtered = list.filter((word) => {
+          const isApproved = word.status === "approved";
+
+          const matchesSearch = search
+            ? word.word.toLowerCase().includes(search.toLowerCase())
+            : true;
+
+          return isApproved && matchesSearch;
+        });
+
+        setFilteredWords(filtered);
+      } catch (error) {
+        console.error("Failed fetching filtered words:", error);
+
+        // fallback to local list
+        const fallback = words.filter((word) => {
+          const isApproved = word.status === "approved";
+
+          const matchesSearch = search
+            ? word.word.toLowerCase().includes(search.toLowerCase())
+            : true;
+
+          return isApproved && matchesSearch;
+        });
+
+        setFilteredWords(fallback);
+      }
+    };
+
+    fetchFiltered();
+  }, [search, base_url, token, words]);
 
   return (
     <main className="container mx-auto px-6 py-12">
@@ -37,6 +75,7 @@ const filteredWords = words.filter((word) => {
             Discover and learn words from various Nigerian languages
           </p>
         </div>
+
         <div>
           <a
             href="/submit-word"
@@ -50,44 +89,6 @@ const filteredWords = words.filter((word) => {
       {/* Filters */}
       <div className="bg-white p-6 rounded-xl shadow-md mb-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Language Filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Language
-            </label>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-            >
-              <option value="">All Languages</option>
-              <option value="pidgin">Pidgin English</option>
-              <option value="yoruba">Yoruba</option>
-              <option value="igbo">Igbo</option>
-              <option value="hausa">Hausa</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          {/* Category Filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Category
-            </label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-            >
-              <option value="">All Categories</option>
-              <option value="slang">Slang</option>
-              <option value="proverb">Proverb</option>
-              <option value="phrase">Common Phrase</option>
-              <option value="greeting">Greeting</option>
-            </select>
-          </div>
-
-
           {/* Search */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -110,7 +111,7 @@ const filteredWords = words.filter((word) => {
         </div>
       </div>
 
-      {/* Filtered Words */}
+      {/* Filtered Words Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {filteredWords.length > 0 ? (
           filteredWords.map((word) => (
@@ -121,18 +122,21 @@ const filteredWords = words.filter((word) => {
               <div className="p-6">
                 <div className="flex justify-between items-start">
                   <h3 className="text-2xl font-bold text-secondary">
-                    
                     {word.word}
                   </h3>
+
                   <span className="bg-primary text-white px-3 py-1 rounded-full text-sm capitalize">
                     {word.language}
                   </span>
                 </div>
+
                 <p className="mt-2 text-gray-600">{word.meaning}</p>
+
                 <div className="mt-4 flex items-center justify-between">
                   <button className="flex items-center text-primary">
                     <i data-feather="play-circle" className="mr-2"></i> Listen
                   </button>
+
                   <a
                     href={`/word-details/${word.id}`}
                     className="text-accent hover:underline"
@@ -150,50 +154,40 @@ const filteredWords = words.filter((word) => {
         )}
       </div>
 
-     {/* Responsive Pagination */}
-<div className="mt-12 flex justify-center">
-  <nav className="flex items-center gap-1 flex-wrap" aria-label="Pagination">
+      {/* Pagination */}
+      <div className="mt-12 flex justify-center">
+        <nav className="flex items-center gap-1 flex-wrap" aria-label="Pagination">
+          <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+            <i data-feather="chevron-left" className="h-4 w-4"></i>
+            <span className="ml-1 hidden sm:inline">Previous</span>
+          </button>
 
-    {/* Previous Button */}
-    <button
-      className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-    >
-      <i data-feather="chevron-left" className="h-4 w-4"></i>
-      <span className="ml-1 hidden sm:inline">Previous</span>
-    </button>
+          <div className="flex items-center gap-1 flex-wrap justify-center">
+            <button className="px-3 py-2 border rounded-md bg-primary text-white text-sm">
+              1
+            </button>
 
-    {/* Page Numbers */}
-    <div className="flex items-center gap-1 flex-wrap justify-center">
-      <button className="px-3 py-2 border rounded-md bg-primary text-white text-sm">
-        1
-      </button>
+            <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
+              2
+            </button>
 
-      <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
-        2
-      </button>
+            <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
+              3
+            </button>
 
-      <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
-        3
-      </button>
+            <span className="px-3 py-2 text-gray-500 text-sm">…</span>
 
-      <span className="px-3 py-2 text-gray-500 text-sm">…</span>
+            <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
+              8
+            </button>
+          </div>
 
-      <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
-        8
-      </button>
-    </div>
-
-    {/* Next Button */}
-    <button
-      className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100 flex items-center"
-    >
-      <span className="mr-1 hidden sm:inline">Next</span>
-      <i data-feather="chevron-right" className="h-4 w-4"></i>
-    </button>
-
-  </nav>
-</div>
-
+          <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+            <span className="mr-1 hidden sm:inline">Next</span>
+            <i data-feather="chevron-right" className="h-4 w-4"></i>
+          </button>
+        </nav>
+      </div>
     </main>
   );
 };

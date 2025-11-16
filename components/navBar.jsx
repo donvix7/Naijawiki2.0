@@ -61,10 +61,28 @@ useEffect(() => {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center px-6 py-3">
         {/* Logo */}
-        <a href="/" className="flex text-3xl items-center gap-2 font-bold text-secondary">
-        <i data-feather="book-open" className="logo-icon"></i>
-          NaijaWiki
-        </a>
+       <a
+  href="/"
+  className="group flex items-center gap-2 font-extrabold text-2xl tracking-tight 
+             bg-clip-text text-transparent 
+             bg-gradient-to-r from-secondary via-primary to-secondary
+             transition-transform duration-300 hover:scale-[1.04]"
+>
+  <span className="relative">
+    <i
+      data-feather="book-open"
+      className="w-7 h-7 stroke-[2.6] 
+                 text-secondary group-hover:text-primary
+                 transition-all duration-300 drop-shadow-sm"
+    ></i>
+
+    {/* Glow effect */}
+    <span className="absolute inset-0 blur-md opacity-40 bg-primary/40 rounded-full"></span>
+  </span>
+
+  <span className="font-extrabold drop-shadow-sm">NaijaWiki</span>
+</a>
+
 
         {/* Desktop Links */}
         <ul className="hidden md:flex gap-6 items-center">
