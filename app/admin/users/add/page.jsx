@@ -8,8 +8,9 @@ import { useRouter } from "next/navigation";
 import getBaseUrl from "../api/baseUrl";
 import AdminNavbar from "@/components/adminNavbar";
 import AdminSidebar from "@/components/adminSideBar";
+import RoleGuard from "@/utils/RoleGuard"; // ✅ FIXED missing import
 
-export default function page() {
+export default function Page() {
   const [firstname, setFirstName] = useState("");
   const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -18,29 +19,34 @@ export default function page() {
   const [status, setStatus] = useState({ message: "", type: "" });
   const [loading, setLoading] = useState(false);
   const base_url = getBaseUrl();
-
   const router = useRouter();
+
   useEffect(() => {
-    feather.replace();
+    // safer load
+    setTimeout(() => feather.replace(), 50);
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (loading) return;
 
-    // Trim spaces
     const trimmedEmail = email.trim();
     const trimmedFirst = firstname.trim();
     const trimmedLast = lastname.trim();
 
     if (!trimmedFirst || !trimmedLast || !trimmedEmail) {
-      setStatus({ message: "Please fill in all required fields.", type: "error" });
+      setStatus({
+        message: "Please fill in all required fields.",
+        type: "error",
+      });
       return;
     }
 
     if (password.length < 8) {
-      setStatus({ message: "Password must be at least 8 characters.", type: "error" });
+      setStatus({
+        message: "Password must be at least 8 characters.",
+        type: "error",
+      });
       return;
     }
 
@@ -76,15 +82,18 @@ export default function page() {
           message: "Account created successfully!",
           type: "success",
         });
+
+        // Reset input fields
         setFirstName("");
         setLastName("");
         setEmail("");
         setPassword("");
         setConfirm("");
 
-        alert(status.type, status.message);
-        router.push("/login")
+        // SIMPLE browser alert — MUST ONLY take 1 argument
+        alert(data.message || "Account created successfully!");
 
+        router.push("/login");
       }
     } catch (error) {
       console.error("Registration error:", error);
@@ -99,192 +108,153 @@ export default function page() {
 
   return (
     <RoleGuard allowedRoles={["admin", "super_admin"]}>
+      <div>
+        <AdminNavbar />
+        <div className="flex">
+          <AdminSidebar />
 
-    <div>
-      <AdminNavbar />
-      <div className="flex">
-      <AdminSidebar/>
+          <main className="container mx-auto px-6 py-12">
+            <div className="max-w-md mx-auto bg-white rounded-xl shadow-md p-8">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-secondary mb-2">
+                  Create Account
+                </h1>
+                <p className="text-gray-600">
+                  Join our community of language enthusiasts
+                </p>
+              </div>
 
-      <main className="container mx-auto px-6 py-12">
-        <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-secondary mb-2">Create Account</h1>
-            <p className="text-gray-600">Join our community of language enthusiasts</p>
-          </div>
-
-          {status.message && (
-            <div
-              className={`mb-4 text-center ${
-                status.type === "success" ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {status.message}
-            </div>
-          )}
-
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="first-name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+              {status.message && (
+                <div
+                  className={`mb-4 text-center ${
+                    status.type === "success"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
                 >
-                  First Name*
-                </label>
-                <input
-                  type="text"
-                  id="first-name"
-                  required
-                  value={firstname}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                  placeholder="John"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="last-name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  {status.message}
+                </div>
+              )}
+
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      htmlFor="first-name"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      First Name*
+                    </label>
+                    <input
+                      type="text"
+                      id="first-name"
+                      required
+                      value={firstname}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                      placeholder="John"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="last-name"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Last Name*
+                    </label>
+                    <input
+                      type="text"
+                      id="last-name"
+                      required
+                      value={lastname}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                      placeholder="Doe"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Email*
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                    placeholder="you@email.com"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Password*
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="confirm-password"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Confirm Password*
+                  </label>
+                  <input
+                    type="password"
+                    id="confirm-password"
+                    required
+                    value={confirm}
+                    onChange={(e) => setConfirm(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <div className="flex items-start">
+                  <input
+                    id="terms"
+                    type="checkbox"
+                    required
+                    className="h-4 w-4 text-primary border-gray-300 rounded"
+                  />
+                
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full bg-primary text-white font-bold py-3 rounded-lg transition ${
+                    loading ? "opacity-70 cursor-not-allowed" : "hover:bg-yellow-600"
+                  }`}
                 >
-                  Last Name*
-                </label>
-                <input
-                  type="text"
-                  id="last-name"
-                  required
-                  value={lastname}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                  placeholder="Doe"
-                />
-              </div>
-            </div>
+                  {loading ? "Creating Account..." : "Create Account"}
+                </button>
 
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Email*
-              </label>
-              <input
-                type="email"
-                id="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                placeholder="your@email.com"
-              />
+                
+              </form>
             </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Password*
-              </label>
-              <input
-                type="password"
-                id="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                placeholder="••••••••"
-              />
-              <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
-            </div>
-
-            <div>
-              <label
-                htmlFor="confirm-password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Confirm Password*
-              </label>
-              <input
-                type="password"
-                id="confirm-password"
-                required
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                placeholder="••••••••"
-              />
-            </div>
-
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
-                <input
-                  id="terms"
-                  type="checkbox"
-                  required
-                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                />
-              </div>
-              <div className="ml-3 text-sm">
-                <label htmlFor="terms" className="text-gray-700">
-                  I agree to the{" "}
-                  <a href="/terms" className="text-primary hover:underline">
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a href="/privacy" className="text-primary hover:underline">
-                    Privacy Policy
-                  </a>
-                </label>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full bg-primary text-white font-bold py-3 px-6 rounded-lg transition-colors ${
-                loading ? "opacity-70 cursor-not-allowed" : "hover:bg-yellow-600"
-              }`}
-            >
-              {loading ? "Creating Account..." : "Create Account"}
-            </button>
-
-            <div className="text-center text-sm text-gray-500">
-              Already have an account?{" "}
-              <a href="/login" className="text-primary hover:underline">
-                Login
-              </a>
-            </div>
-          </form>
-
-          <div className="mt-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or sign up with</span>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                className="w-full inline-flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                <i data-feather="facebook" className="text-blue-600"></i> Facebook
-              </button>
-              <button
-                type="button"
-                className="w-full inline-flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                <i data-feather="google" className="text-red-600"></i> Google
-              </button>
-            </div>
-          </div>
+          </main>
         </div>
-      </main>
-     </div>
-    </div>
+      </div>
     </RoleGuard>
   );
 }
