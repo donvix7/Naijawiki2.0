@@ -1,14 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import CustomFooter from "@/components/customFooter";
-import CustomNavbar from "@/components/navBar";
 import feather from "feather-icons";
 import { useRouter } from "next/navigation";
-import getBaseUrl from "../api/baseUrl";
 import AdminNavbar from "@/components/adminNavbar";
 import AdminSidebar from "@/components/adminSideBar";
 import RoleGuard from "@/utils/RoleGuard"; // ✅ FIXED missing import
+import getBaseUrl from "@/app/api/baseUrl";
 
 export default function Page() {
   const [firstname, setFirstName] = useState("");
@@ -119,9 +117,7 @@ export default function Page() {
                 <h1 className="text-3xl font-bold text-secondary mb-2">
                   Create Account
                 </h1>
-                <p className="text-gray-600">
-                  Join our community of language enthusiasts
-                </p>
+                
               </div>
 
               {status.message && (
