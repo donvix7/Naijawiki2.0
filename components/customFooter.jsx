@@ -76,14 +76,7 @@ const CustomFooter = () => {
                 About Us
               </a>
             </li>
-            <li>
-              <a
-                href="/volunteer"
-                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
-              >
-                Volunteer
-              </a>
-            </li>
+           
           </ul>
         </div>
 
@@ -94,14 +87,7 @@ const CustomFooter = () => {
           </h3>
 
           <ul className="space-y-2">
-            <li>
-              <a
-                href="/help"
-                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
-              >
-                Help Center
-              </a>
-            </li>
+         
 
             <li>
               <a
