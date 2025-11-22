@@ -17,22 +17,17 @@ const CustomNavbar = () => {
   const [user, setUser] = useState(null);
   const pathname = usePathname();
 
+  // Render Feather icons every render
   useEffect(() => {
-    feather.replace(); // Refresh feather icons whenever menu state changes
-  }, [menuOpen]);
+    feather.replace();
+  }, [menuOpen, pathname]);
 
+  // Check user auth
   useEffect(() => {
-    // Check for token and email in cookies
     const token = Cookies.get("token");
     const email = Cookies.get("email");
-
-    console.log(token,email);
-
-    if (token && email) {
-      setUser({ email });
-    } else {
-      setUser(null);
-    }
+    if (token && email) setUser({ email });
+    else setUser(null);
   }, []);
 
   const handleLogout = () => {
@@ -41,86 +36,69 @@ const CustomNavbar = () => {
     setUser(null);
     window.location.href = "/";
   };
-const [isDarkBackground, setIsDarkBackground] = useState(false);
-
-useEffect(() => {
-  // Read body background on mobile menu open
-  if (menuOpen) {
-    const bg = window.getComputedStyle(document.body).backgroundColor;
-
-    // Convert rgb to brightness
-    const rgb = bg.match(/\d+/g);
-    if (rgb) {
-      const brightness = (0.299 * rgb[0]) + (0.587 * rgb[1]) + (0.114 * rgb[2]);
-      setIsDarkBackground(brightness < 150); // If low brightness → use white text
-    }
-  }
-}, [menuOpen]);
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="container mx-auto flex justify-between items-center px-6 py-3">
+    <nav className="hidden bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
+      <div className="container mx-auto flex justify-between items-center px-6 py-4">
+
         {/* Logo */}
-       <a
-  href="/"
-  className="group flex items-center gap-2 font-extrabold text-2xl tracking-tight 
-             bg-clip-text text-transparent 
-             bg-gradient-to-r from-secondary via-primary to-secondary
-             transition-transform duration-300 hover:scale-[1.04]"
->
-  <span className="relative">
-    <i
-      data-feather="book-open"
-      className="w-7 h-7 stroke-[2.6] 
-                 text-secondary group-hover:text-primary
-                 transition-all duration-300 drop-shadow-sm"
-    ></i>
-
-    {/* Glow effect */}
-    <span className="absolute inset-0 blur-md opacity-40 bg-primary/40 rounded-full"></span>
-  </span>
-
-  <span className="font-extrabold drop-shadow-sm">NaijaWiki</span>
-</a>
-
+        <a href="/" className="flex items-center gap-3 font-bold text-2xl">
+          <i data-feather="book-open" className="w-8 h-8 text-primary stroke-[2.5]"></i>
+          <span className="bg-white from-primary to-secondary bg-clip-text text-transparent">
+            NaijaWiki
+          </span>
+        </a>
 
         {/* Desktop Links */}
-        <ul className="hidden md:flex gap-6 items-center">
-          {links.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className={`flex items-center gap-1 px-2 py-1 rounded hover:bg-primary/20 transition-colors ${
-                  pathname === link.href ? "bg-primary/20 font-semibold" : ""
-                }`}
-              >
-                <i data-feather={link.icon}></i>
-                {link.name}
-              </a>
-            </li>
-          ))}
+        <ul className="hidden lg:flex gap-8 items-center hider">
+          {links.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
+                    isActive
+                      ? "bg-primary text-white shadow-md"
+                      : "text-gray-700 hover:bg-primary/10 hover:text-primary"
+                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  <i data-feather={link.icon} className="w-4 h-4"></i>
+                  {link.name}
+                </a>
+              </li>
+            );
+          })}
         </ul>
 
-        {/* Desktop Auth / User Buttons */}
-        <div className="hidden md:flex gap-2 items-center">
+        {/* Desktop Auth Buttons */}
+        <div className="hidden lg:flex gap-4 items-center">
           {user ? (
             <>
-              <span className="text-gray-700">{user.email}</span>
+              <span className="text-gray-700 font-medium px-3 py-1 bg-gray-100 rounded-lg">
+                {user.email}
+              </span>
               <button
                 onClick={handleLogout}
-                className="flex gap-2 align-center btn btn-outline border-red-600 text-red-600 hover:bg-red-50"
+                className="flex items-center gap-2 px-4 py-2 border border-red-500 text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-colors duration-200"
               >
-              <i data-feather="log-out" className="w-4 h-4"></i>
-
+                <i data-feather="log-out" className="w-4 h-4"></i>
                 Logout
               </button>
             </>
           ) : (
             <>
-              <a href="/login" className="btn btn-outline">
+              <a
+                href="/login"
+                className="px-6 py-2 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-all duration-200"
+              >
                 Log In
               </a>
-              <a href="/signup" className="btn btn-primary">
+              <a
+                href="/signup"
+                className="px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 shadow-md transition-all duration-200"
+              >
                 Sign Up
               </a>
             </>
@@ -129,81 +107,103 @@ useEffect(() => {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden text-secondary focus:outline-none"
+          className="lg:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200"
           onClick={() => setMenuOpen((prev) => !prev)}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
         >
-          <i data-feather={menuOpen ? "x" : "menu"}></i>
+          <i data-feather={menuOpen ? "x" : "menu"} className="w-6 h-6"></i>
         </button>
       </div>
 
-     {/* Mobile Menu */}
-{/* Mobile Menu */}
-{menuOpen && (
-  <div className="absolute top-16 right-4 w-64 md:hidden animate-slideDown z-50">
-    <div className={`shadow-2xl rounded-2xl overflow-hidden border 
-      ${isDarkBackground ? "bg-neutral-900 text-white" : "bg-neutral/95 text-black"}
-    `}>
-  <ul className="py-3">
-        {links.map((link) => (
-          <li key={link.href}>
-            <a
-              href={link.href}
-              className={`flex items-center gap-3 px-4 py-3 transition-all duration-300 hover:bg-primary/10 hover:scale-[1.02] rounded-lg ${
-                pathname === link.href
-                  ? "bg-primary/10 font-semibold text-primary"
-                  : "text-gray-700"
-              }`}
-              onClick={() => setMenuOpen(false)}
-            >
-              <i
-                data-feather={link.icon}
-                className={`w-4 h-4 ${isDarkBackground ? "text-white" : "text-primary"}`}
-              />
-              <span className={`text-sm ${isDarkBackground ? "text-white" : "text-gray-700"}`}>
-                {link.name}
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
+      {/* Mobile Menu */}
+      {menuOpen && (
+        <div className="fixed inset-0 top-16 lg:hidden z-50 bg-black/20 backdrop-blur-sm">
+          <div className="absolute top-0 right-0 w-80 h-full bg-white shadow-2xl border-l border-gray-200 animate-slideDown">
+            <div className="p-6 h-full overflow-y-auto relative">
 
-      <div className="border-t border-gray-100 px-4 py-3 flex flex-col gap-3">
-        {user ? (
-          <>
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <span className="truncate">{user.email}</span>
-              <i data-feather="user" className="w-4 h-4 text-gray-400"></i>
+              {/* Close Button */}
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                aria-label="Close mobile menu"
+              >
+                <i data-feather="x" className="w-6 h-6"></i>
+              </button>
+
+              {/* Mobile Links */}
+              <ul className="space-y-3 mb-8">
+                {links.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <li key={link.href}>
+                      <a
+                        href={link.href}
+                        className={`flex items-center gap-4 px-4 py-4 rounded-xl font-semibold text-lg transition-all duration-200 border-2 ${
+                          isActive
+                            ? "bg-primary text-white border-primary shadow-lg"
+                            : "text-gray-800 border-transparent hover:bg-primary/10 hover:text-primary hover:border-primary/20"
+                        }`}
+                        onClick={() => setMenuOpen(false)}
+                        aria-current={isActive ? "page" : undefined}
+                      >
+                        <i
+                          data-feather={link.icon}
+                          className={`w-5 h-5 ${isActive ? "text-white" : "text-primary"}`}
+                        ></i>
+                        {link.name}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              {/* Mobile Auth Section */}
+              <div className="border-t border-gray-200 pt-6">
+                {user ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl border border-primary/20">
+                      <i data-feather="user" className="w-5 h-5 text-primary"></i>
+                      <span className="text-gray-800 font-semibold text-sm truncate flex-1">
+                        {user.email}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setMenuOpen(false);
+                      }}
+                      className="flex items-center justify-center gap-3 w-full px-4 py-4 bg-gradient-to-r from-red-500 to-red-600 text-white font-bold rounded-xl hover:shadow-lg transition-all duration-200 border-2 border-red-600"
+                    >
+                      <i data-feather="log-out" className="w-5 h-5"></i>
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <a
+                      href="/login"
+                      className="flex items-center justify-center gap-3 px-4 py-4 border-2 border-primary text-primary font-bold rounded-xl hover:bg-primary hover:text-white transition-all duration-200 text-center group"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <i data-feather="log-in" className="w-5 h-5 group-hover:text-white"></i>
+                      Log In
+                    </a>
+                    <a
+                      href="/signup"
+                      className="flex items-center justify-center gap-3 px-4 py-4 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl hover:shadow-lg transition-all duration-200 text-center border-2 border-transparent hover:border-primary/30"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <i data-feather="user-plus" className="w-5 h-5"></i>
+                      Sign Up
+                    </a>
+                  </div>
+                )}
+              </div>
+
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm font-medium border border-red-500 text-red-600 rounded-lg hover:bg-red-50 transition-all duration-300"
-            >
-              <i data-feather="log-out" className="w-4 h-4"></i>
-              Logout
-            </button>
-          </>
-        ) : (
-          <div className="flex flex-col gap-2">
-            <a
-              href="/login"
-              className="flex items-center justify-center gap-2 w-full px-4 py-2 border border-primary text-primary rounded-lg font-medium text-sm hover:bg-primary hover:text-white transition-all duration-300"
-            >
-              <i data-feather="log-in" className="w-4 h-4"></i>
-              Log In
-            </a>
-            <a
-              href="/signup"
-              className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-primary text-white rounded-lg font-medium text-sm hover:bg-primary/90 transition-all duration-300"
-            >
-              <i data-feather="user-plus" className="w-4 h-4"></i>
-              Sign Up
-            </a>
           </div>
-        )}
-      </div>
-    </div>
-  </div>
-)}
+        </div>
+      )}
     </nav>
   );
 };

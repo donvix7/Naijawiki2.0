@@ -80,9 +80,10 @@ export default function RegisterPage() {
         setPassword("");
         setConfirm("");
 
-        alert(status.type, status.message);
-        router.push("/login")
-
+        // Redirect to login page after successful registration
+        setTimeout(() => {
+          router.push("/login");
+        }, 1500);
       }
     } catch (error) {
       console.error("Registration error:", error);
@@ -108,8 +109,10 @@ export default function RegisterPage() {
 
           {status.message && (
             <div
-              className={`mb-4 text-center ${
-                status.type === "success" ? "text-green-600" : "text-red-600"
+              className={`mb-4 p-3 rounded-lg text-center ${
+                status.type === "success" 
+                  ? "bg-green-100 text-green-700 border border-green-200" 
+                  : "bg-red-100 text-red-700 border border-red-200"
               }`}
             >
               {status.message}

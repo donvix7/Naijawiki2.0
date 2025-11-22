@@ -1,9 +1,12 @@
 "use client";
+
 import React, { useState, useRef } from "react";
 import Cookies from "js-cookie";
 import getBaseUrl from "@/app/api/baseUrl";
 
 const SubmitWordForm = () => {
+  const [status, setStatus] = useState({ loading: false, message: "" });
+  const base_url = getBaseUrl();
   const [formData, setFormData] = useState({
     word: "",
     meaning: "",
@@ -14,25 +17,21 @@ const SubmitWordForm = () => {
     creatorEmail: "",
     creatorOrigin: "",
   });
-  const base_url = getBaseUrl();
   const [audioFile, setAudioFile] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
-  // Handle input changes
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  // Handle audio file upload
   const handleFileChange = (e) => {
     setAudioFile(e.target.files[0]);
   };
 
-  // Handle recording start/stop
   const handleRecord = async () => {
     if (!isRecording) {
       try {
@@ -118,22 +117,34 @@ const SubmitWordForm = () => {
   return (
     <div>
       <form onSubmit={handleSubmit} id="wordForm" className="space-y-6">
-        {/* Word & Language */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="word" className="block text-sm font-medium text-gray-700 mb-1">
-              Word/Phrase*
-            </label>
-            <input
-              type="text"
-              id="word"
-              required
-              value={formData.word}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-            />
-          </div>
-          
+        {/* Word */}
+        <div>
+          <label htmlFor="word" className="block text-sm font-medium text-gray-700 mb-1">
+            Word/Phrase*
+          </label>
+          <input
+            type="text"
+            id="word"
+            required
+            value={formData.word}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+          />
+        </div>
+
+        {/* Information */}
+        <div>
+          <label htmlFor="information" className="block text-sm font-medium text-gray-700 mb-1">
+            Extra Information
+          </label>
+          <textarea
+            id="information"
+            rows="2"
+            value={formData.information}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+            placeholder="Any additional context about the word"
+          ></textarea>
         </div>
 
         {/* Meaning */}
@@ -166,9 +177,7 @@ const SubmitWordForm = () => {
           ></textarea>
         </div>
 
-       
-
-        {/* Pronunciation & Recording */}
+        {/* Pronunciation + Audio */}
         <div>
           <label htmlFor="pronunciation" className="block text-sm font-medium text-gray-700 mb-1">
             Pronunciation / Audio
@@ -189,16 +198,12 @@ const SubmitWordForm = () => {
                 isRecording ? "bg-red-500 text-white" : "bg-gray-100 hover:bg-gray-200 text-gray-800"
               }`}
             >
-              <i data-feather="mic"></i> {isRecording ? "Stop" : "Record"}
+              {isRecording ? "Stop" : "Record"}
             </button>
             <input type="file" accept="audio/*" onChange={handleFileChange} className="text-sm" />
           </div>
-          {audioURL && (
-            <audio controls src={audioURL} className="mt-3 w-full rounded-md border border-gray-300" />
-          )}
+          {audioURL && <audio controls src={audioURL} className="mt-3 w-full rounded-md border border-gray-300" />}
         </div>
-
-        
 
         {/* Contributor Info */}
         <div className="border-t border-gray-200 pt-6">
@@ -229,6 +234,7 @@ const SubmitWordForm = () => {
               />
             </div>
           </div>
+
           <div className="mt-6">
             <label htmlFor="creatorOrigin" className="block text-sm font-medium text-gray-700 mb-1">
               Your Connection to This Word
@@ -255,7 +261,7 @@ const SubmitWordForm = () => {
           </button>
           <button
             type="submit"
-            className="bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
+            className="bg-primary text-yellow hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
           >
             <i data-feather="send"></i> Submit Word
           </button>

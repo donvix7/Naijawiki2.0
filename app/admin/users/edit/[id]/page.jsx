@@ -17,22 +17,25 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [status, setStatus] = useState({ message: "", type: "" });
 
   const token = Cookies.get("token");
   const base_url = getBaseUrl();
 
   // Editable fields
   const [form, setForm] = useState({
-    username: "",
+    firstname: "",
+    lastname: "",
     email: "",
     role: "",
+    status: "active"
   });
 
   // Fetch user
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(`${base_url}/user/${id}`, {
+        const res = await fetch(`${base_url}/admin/users/${id}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -46,9 +49,11 @@ export default function Page() {
 
         // Pre-fill form
         setForm({
-          username: data.user.username || "",
+          firstname: data.user.firstname || "",
+          lastname: data.user.lastname || "",
           email: data.user.email || "",
           role: data.user.role || "",
+          status: data.user.status || "active"
         });
       } catch (err) {
         console.error(err);
@@ -61,10 +66,10 @@ export default function Page() {
     fetchUser();
   }, [id, base_url, token]);
 
-  // Load Feather icons once
+  // Load Feather icons
   useEffect(() => {
     feather.replace();
-  }, []);
+  }, [loading, saving]);
 
   // Handle change
   const handleChange = (e) => {
@@ -74,9 +79,10 @@ export default function Page() {
   // Save updated user
   const saveChanges = async () => {
     setSaving(true);
+    setStatus({ message: "", type: "" });
 
     try {
-      const res = await fetch(`${base_url}/user/${id}`, {
+      const res = await fetch(`${base_url}/admin/users/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -85,15 +91,68 @@ export default function Page() {
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) throw new Error("Failed to update user");
+      const data = await res.json();
 
-      alert("User profile updated successfully!");
-      router.refresh();
+      if (!res.ok) throw new Error(data.message || "Failed to update user");
+
+      setStatus({
+        message: "User updated successfully!",
+        type: "success"
+      });
+
+      // Refresh user data
+      const updatedRes = await fetch(`${base_url}/admin/users/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (updatedRes.ok) {
+        const updatedData = await updatedRes.json();
+        setUser(updatedData.user);
+      }
+
     } catch (err) {
       console.error(err);
-      alert("Error updating profile");
+      setStatus({
+        message: err.message || "Error updating user",
+        type: "error"
+      });
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Reset password
+  const resetPassword = async () => {
+    if (!confirm("Are you sure you want to reset this user's password? They will receive an email with instructions.")) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`${base_url}/admin/users/${id}/reset-password`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Failed to reset password");
+
+      setStatus({
+        message: "Password reset email sent successfully!",
+        type: "success"
+      });
+    } catch (err) {
+      console.error(err);
+      setStatus({
+        message: err.message || "Error resetting password",
+        type: "error"
+      });
     }
   };
 
@@ -101,18 +160,45 @@ export default function Page() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen text-gray-600 text-lg">
-        <div className="animate-spin h-8 w-8 border-2 border-gray-400 border-t-transparent rounded-full mr-3" />
-        Loading user…
-      </div>
+      <RoleGuard allowedRoles={["admin", "super_admin"]}>
+        <div className="min-h-screen bg-gray-50">
+          <AdminNavbar />
+          <div className="flex">
+            <AdminSidebar />
+            <div className="flex-1 flex justify-center items-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-gray-700 font-semibold text-lg">Loading user...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </RoleGuard>
     );
   }
 
   if (error || !user) {
     return (
-      <div className="flex justify-center items-center h-screen text-gray-500">
-        {error || "User not found."}
-      </div>
+      <RoleGuard allowedRoles={["admin", "super_admin"]}>
+        <div className="min-h-screen bg-gray-50">
+          <AdminNavbar />
+          <div className="flex">
+            <AdminSidebar />
+            <div className="flex-1 flex justify-center items-center">
+              <div className="text-center">
+                <i data-feather="user-x" className="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+                <p className="text-gray-600 font-semibold text-lg mb-2">{error || "User not found"}</p>
+                <button
+                  onClick={() => router.push('/admin/users')}
+                  className="bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors"
+                >
+                  Back to Users
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </RoleGuard>
     );
   }
 
@@ -120,87 +206,209 @@ export default function Page() {
 
   return (
     <RoleGuard allowedRoles={["admin", "super_admin"]}>
-      <div>
+      <div className="min-h-screen bg-gray-50">
         <AdminNavbar />
 
         <div className="flex">
           <AdminSidebar />
 
-          <main className="flex-1 p-8 max-w-3xl mx-auto">
-            <h1 className="text-3xl font-bold mb-6 text-secondary flex items-center gap-2">
-              <i data-feather="user-check" className="w-7" />
-              Edit User Profile
-            </h1>
-
-            <div className="bg-white rounded-xl shadow p-6 space-y-6">
-
-              {/* Username */}
+          <main className="flex-1 p-4 md:p-6 lg:p-8">
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
               <div>
-                <label className="block font-medium text-gray-700 mb-1">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  value={form.username}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded border focus:ring-primary/50 focus:ring-2 outline-none"
-                />
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                  Edit User
+                </h1>
+                <p className="text-gray-600 font-medium">
+                  Update user information and permissions
+                </p>
+              </div>
+              
+              <button
+                onClick={() => router.push('/admin/users')}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                <i data-feather="arrow-left" className="w-4 h-4"></i>
+                Back to Users
+              </button>
+            </div>
+
+            {/* Status Message */}
+            {status.message && (
+              <div className={`mb-6 p-4 rounded-xl ${
+                status.type === "success" 
+                  ? "bg-green-100 border border-green-300 text-green-800" 
+                  : "bg-red-100 border border-red-300 text-red-800"
+              }`}>
+                <div className="flex items-center gap-3">
+                  <i data-feather={status.type === "success" ? "check-circle" : "alert-circle"} className="w-5 h-5"></i>
+                  <span className="font-semibold">{status.message}</span>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Main Form */}
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-6 pb-2 border-b border-gray-200">
+                    User Information
+                  </h2>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* First Name */}
+                    <div>
+                      <label className="block text-gray-700 font-semibold mb-2">
+                        First Name
+                      </label>
+                      <input
+                        type="text"
+                        name="firstname"
+                        value={form.firstname}
+                        onChange={handleChange}
+                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                      />
+                    </div>
+
+                    {/* Last Name */}
+                    <div>
+                      <label className="block text-gray-700 font-semibold mb-2">
+                        Last Name
+                      </label>
+                      <input
+                        type="text"
+                        name="lastname"
+                        value={form.lastname}
+                        onChange={handleChange}
+                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                      />
+                    </div>
+
+                    {/* Email */}
+                    <div className="md:col-span-2">
+                      <label className="block text-gray-700 font-semibold mb-2">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={form.email}
+                        onChange={handleChange}
+                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                      />
+                    </div>
+
+                    {/* Role */}
+                    <div>
+                      <label className="block text-gray-700 font-semibold mb-2">
+                        Role
+                      </label>
+                      <select
+                        name="role"
+                        value={form.role}
+                        onChange={handleChange}
+                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                      >
+                        <option value="creator">Creator</option>
+                        <option value="moderator">Moderator</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </div>
+
+                    {/* Status */}
+                    <div>
+                      <label className="block text-gray-700 font-semibold mb-2">
+                        Status
+                      </label>
+                      <select
+                        name="status"
+                        value={form.status}
+                        onChange={handleChange}
+                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                      >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="suspended">Suspended</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Form Actions */}
+                  <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200 mt-6">
+                    <button
+                      onClick={() => router.push('/admin/users')}
+                      className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 border border-gray-300 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all duration-200"
+                    >
+                      <i data-feather="x" className="w-4 h-4"></i>
+                      Cancel
+                    </button>
+                    <button
+                      onClick={saveChanges}
+                      disabled={saving}
+                      className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-all duration-200 shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                      {saving ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <i data-feather="save" className="w-4 h-4"></i>
+                          Save Changes
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              {/* Email */}
-              <div>
-                <label className="block font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded border focus:ring-primary/50 focus:ring-2 outline-none"
-                />
+              {/* Sidebar Actions */}
+              <div className="space-y-6">
+                {/* User Summary */}
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">User Summary</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">User ID:</span>
+                      <span className="font-mono text-sm">{user.id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Joined:</span>
+                      <span className="text-gray-900">
+                        {new Date(user.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Last Updated:</span>
+                      <span className="text-gray-900">
+                        {new Date(user.updatedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+                  <div className="space-y-3">
+                    <button
+                      onClick={resetPassword}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-100 text-blue-700 font-semibold rounded-lg hover:bg-blue-200 transition-colors"
+                    >
+                      <i data-feather="refresh-cw" className="w-4 h-4"></i>
+                      Reset Password
+                    </button>
+                    <button
+                      onClick={() => router.push(`/admin/users/${id}/activity`)}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-100 text-green-700 font-semibold rounded-lg hover:bg-green-200 transition-colors"
+                    >
+                      <i data-feather="activity" className="w-4 h-4"></i>
+                      View Activity
+                    </button>
+                  </div>
+                </div>
               </div>
-
-              {/* Role */}
-              <div>
-                <label className="block font-medium text-gray-700 mb-1">
-                  Role
-                </label>
-                <select
-                  name="role"
-                  value={form.role}
-                  onChange={handleChange}
-                  className="w-full p-3 rounded border focus:ring-primary/50 focus:ring-2 outline-none"
-                >
-                  <option value="">Select role</option>
-                  <option value="user">User</option>
-                  <option value="moderator">Moderator</option>
-                  <option value="admin">Admin</option>
-                  <option value="super_admin">Super Admin</option>
-                </select>
-              </div>
-
-              {/* Buttons */}
-              <div className="flex gap-3 pt-4">
-                <button
-                  onClick={saveChanges}
-                  disabled={saving}
-                  className={`px-5 py-2.5 rounded text-white font-medium transition 
-                    ${saving ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"}
-                  `}
-                >
-                  {saving ? "Saving…" : "Save Changes"}
-                </button>
-
-                <button
-                  onClick={() => router.back()}
-                  className="px-5 py-2.5 rounded border text-gray-700 hover:bg-gray-100"
-                >
-                  Cancel
-                </button>
-              </div>
-
             </div>
           </main>
         </div>

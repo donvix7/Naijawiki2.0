@@ -26,63 +26,73 @@ const ModeratorNavbar = () => {
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
 
   return (
-    <header className="moderator w-full bg-gray-900 text-white shadow-md">
-      <nav className="flex justify-between items-center px-6 py-3">
-        {/* Logo */}
-        <a
-          href="/moderator"
-          className="logo flex items-center gap-2 text-lg font-semibold hover:text-blue-400 transition-colors"
-        >
-          <i data-feather="book-open" className="logo-icon"></i>
-          NaijaLingo Moderator
-        </a>
-
-        {/* Mobile menu button (placeholder for future sidebar toggle) */}
-        <button
-          className="mobile-menu-btn md:hidden p-2 rounded-md hover:bg-gray-800 focus:outline-none"
-          aria-label="Toggle menu"
-        >
-          <i data-feather="menu"></i>
-        </button>
-
-        {/* User Dropdown */}
-        <div className="user-menu relative" ref={dropdownRef}>
-          <button
-            onClick={toggleDropdown}
-            className="user-avatar bg-blue-700 text-white font-semibold rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition"
-            aria-haspopup="true"
-            aria-expanded={dropdownOpen}
-            aria-label="User menu"
-          >
-            MO
-          </button>
-
-          {/* Dropdown content */}
-          {dropdownOpen && (
-            <div className="dropdown-content absolute right-0 mt-2 w-48 bg-gray-800 text-gray-200 rounded-lg shadow-lg overflow-hidden animate-fade-in z-50">
-              <a
-                href="/moderator/profile"
-                className="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-gray-700 transition"
-              >
-                <i data-feather="user"></i> Profile
-              </a>
-              <a
-                href="/moderator/settings"
-                className="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-gray-700 transition"
-              >
-                <i data-feather="settings"></i> Settings
-              </a>
-              <a
-                href="/logout"
-                className="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-gray-700 transition text-red-400 hover:text-red-300"
-              >
-                <i data-feather="log-out"></i> Logout
+    <div className="admin">
+      <nav className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo and Brand */}
+            <div className="flex items-center">
+              <a href="/moderator" className="flex items-center space-x-3 text-gray-900 hover:text-gray-700 transition-colors">
+                <i data-feather="book-open" className="w-6 h-6"></i>
+                <span className="text-lg font-bold">NaijaLingo Moderator</span>
               </a>
             </div>
-          )}
+
+            {/* User Menu */}
+            <div className="flex items-center">
+              {/* User dropdown */}
+              <div className="relative dropdown">
+                <button 
+                  onClick={toggleDropdown}
+                  className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors p-2 rounded-md"
+                >
+                  <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center font-semibold text-sm">
+                    MO
+                  </div>
+                  <span className="hidden sm:block text-sm font-medium">
+                    Moderator
+                  </span>
+                  <i 
+                    data-feather="chevron-down" 
+                    className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
+                  ></i>
+                </button>
+
+                {/* Dropdown menu */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+                    <a 
+                      href="/moderator/profile" 
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <i data-feather="user" className="w-4 h-4 mr-3"></i>
+                      Profile
+                    </a>
+                    <a 
+                      href="/moderator/settings" 
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <i data-feather="settings" className="w-4 h-4 mr-3"></i>
+                      Settings
+                    </a>
+                    <a
+                      href="/logout"
+                      className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <i data-feather="log-out" className="w-4 h-4 mr-3"></i>
+                      Logout
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </nav>
-    </header>
+    </div>
   );
 };
 

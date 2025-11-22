@@ -14,81 +14,76 @@ const ModeratorSidebar = () => {
   const toggleSidebar = () => setIsOpen(!isOpen);
   const getActiveClass = (path) =>
     pathname === path
-      ? "menu-item bg-blue-700 text-white rounded-md"
-      : "menu-item hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md";
+      ? "bg-primary text-white rounded-lg"
+      : "text-gray-700 hover:bg-gray-100 rounded-lg";
 
   return (
     <div className="relative">
       {/* Mobile toggle button */}
       <button
         onClick={toggleSidebar}
-        className="md:hidden fixed top-4 left-4 z-50 bg-gray-900 text-white p-2 rounded-md"
+        className="md:hidden fixed top-4 left-4 z-50 bg-white text-gray-700 p-2 rounded-lg shadow-sm"
       >
         <i data-feather={isOpen ? "x" : "menu"}></i>
       </button>
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-gray-200 transform transition-transform duration-300 ease-in-out z-40
+        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-sm transform transition-transform duration-300 ease-in-out z-40
           ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
-        <div className="sidebar-header px-4 py-4 border-b border-gray-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <i data-feather="shield"></i> Moderator Panel
+        <div className="sidebar-header px-6 py-6 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <i data-feather="shield" className="w-5 h-5"></i> Moderator Panel
           </h2>
-          <button onClick={toggleSidebar} className="md:hidden">
-            <i data-feather="x"></i>
+          <button onClick={toggleSidebar} className="md:hidden text-gray-500 hover:text-gray-700">
+            <i data-feather="x" className="w-5 h-5"></i>
           </button>
         </div>
 
         {/* Sidebar Menu */}
-        <div className="sidebar-menu px-4 py-4 space-y-6 overflow-y-auto h-[calc(100%-4rem)]">
+        <div className="sidebar-menu px-4 py-4 space-y-6 overflow-y-auto h-[calc(100%-5rem)]">
           {/* Main */}
           <div className="menu-group">
-            <div className="menu-title text-gray-400 uppercase text-sm mb-2">
+            <div className="menu-title text-gray-500 uppercase text-xs font-semibold mb-3 px-2">
               Main
             </div>
-            <a href="/moderator" className={`flex items-center gap-2 px-3 py-2 ${getActiveClass("/moderator")}`}>
-              <i data-feather="home"></i> Dashboard
-            </a>
-          </div>
-
-          {/* Content Review */}
-          <div className="menu-group">
-            <div className="menu-title text-gray-400 uppercase text-sm mb-2">
-              Content Review
-            </div>
-            <a href="/moderator/review" className={`flex items-center justify-between px-3 py-2 ${getActiveClass("/moderator/review")}`}>
-              <span className="flex items-center gap-2">
-                <i data-feather="check-circle"></i> Pending Review
-              </span>
-              <span className="badge bg-blue-600 text-white text-xs px-2 py-1 rounded-full">24</span>
-            </a>
-            <a href="/moderator/approved" className={`flex items-center gap-2 px-3 py-2 ${getActiveClass("/moderator/approved")}`}>
-              <i data-feather="thumbs-up"></i> Approved Words
-            </a>
-            <a href="/moderator/rejected" className={`flex items-center gap-2 px-3 py-2 ${getActiveClass("/moderator/rejected")}`}>
-              <i data-feather="thumbs-down"></i> Rejected Words
-            </a>
-            <a href="/moderator/flagged" className={`flex items-center justify-between px-3 py-2 ${getActiveClass("/moderator/flagged")}`}>
-              <span className="flex items-center gap-2">
-                <i data-feather="flag"></i> Flagged Content
-              </span>
-              <span className="badge bg-red-600 text-white text-xs px-2 py-1 rounded-full">5</span>
+            <a href="/moderator" className={`flex items-center gap-3 px-3 py-3 text-sm font-medium transition-colors ${getActiveClass("/moderator")}`}>
+              <i data-feather="home" className="w-4 h-4"></i> Dashboard
             </a>
           </div>
 
           {/* Community */}
           <div className="menu-group">
-            <div className="menu-title text-gray-400 uppercase text-sm mb-2">
+            <div className="menu-title text-gray-500 uppercase text-xs font-semibold mb-3 px-2">
               Community
             </div>
-            <a href="/moderator/users" className={`flex items-center gap-2 px-3 py-2 ${getActiveClass("/moderator/users")}`}>
-              <i data-feather="users"></i> User Management
+            <a href="/moderator/users" className={`flex items-center gap-3 px-3 py-3 text-sm font-medium transition-colors ${getActiveClass("/moderator/users")}`}>
+              <i data-feather="users" className="w-4 h-4"></i> User Management
             </a>
-            <a href="/moderator/reports" className={`flex items-center gap-2 px-3 py-2 ${getActiveClass("/moderator/reports")}`}>
-              <i data-feather="alert-circle"></i> Reports
+            <a href="/moderator/reports" className={`flex items-center gap-3 px-3 py-3 text-sm font-medium transition-colors ${getActiveClass("/moderator/reports")}`}>
+              <i data-feather="alert-circle" className="w-4 h-4"></i> Reports
             </a>
+          </div>
+
+          {/* Tools */}
+          <div className="menu-group">
+            <div className="menu-title text-gray-500 uppercase text-xs font-semibold mb-3 px-2">
+              Tools
+            </div>
+            <a href="/moderator/analytics" className={`flex items-center gap-3 px-3 py-3 text-sm font-medium transition-colors ${getActiveClass("/moderator/analytics")}`}>
+              <i data-feather="bar-chart" className="w-4 h-4"></i> Analytics
+            </a>
+            <a href="/moderator/settings" className={`flex items-center gap-3 px-3 py-3 text-sm font-medium transition-colors ${getActiveClass("/moderator/settings")}`}>
+              <i data-feather="settings" className="w-4 h-4"></i> Settings
+            </a>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-50">
+          <div className="text-center text-xs text-gray-500">
+            Moderator Access
           </div>
         </div>
       </aside>

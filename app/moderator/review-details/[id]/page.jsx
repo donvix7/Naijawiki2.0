@@ -8,7 +8,7 @@ const getWord = async (id) => {
   const base_url = getBaseUrl();
   
   try {
-    const res = await fetch(`${base_url}/moderator/word/${id}`, {
+    const res = await fetch(`${base_url}/word/${id}`, {
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${process.env.NAIJAWIKI_TOKEN}`, // your auth token

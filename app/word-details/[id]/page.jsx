@@ -95,10 +95,7 @@ export default function WordDetails() {
                 <h1 className="text-4xl font-bold text-secondary">
                   {word.word || "Unknown Word"}
                 </h1>
-                <button className="flex items-center gap-2 text-gray-500 hover:text-primary">
-                  <i data-feather="bookmark"></i>
-                  <span className="text-sm">Save</span>
-                </button>
+                
               </div>
 
               <div className="space-y-6">
@@ -181,20 +178,7 @@ export default function WordDetails() {
                   <h3 className="font-medium text-gray-700">Submitted by:</h3>
                   <p className="text-gray-600">{word.submittedBy || "Anonymous"}</p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <button className="flex items-center gap-2 text-gray-500 hover:text-green-600">
-                    <i data-feather="thumbs-up"></i>
-                    <span>{word.likes || 0}</span>
-                  </button>
-                  <button className="flex items-center gap-2 text-gray-500 hover:text-red-600">
-                    <i data-feather="thumbs-down"></i>
-                    <span>{word.dislikes || 0}</span>
-                  </button>
-                  <button className="flex items-center gap-2 text-gray-500 hover:text-blue-600">
-                    <i data-feather="flag"></i>
-                    <span>Report</span>
-                  </button>
-                </div>
+                
               </div>
             </div>
           </div>

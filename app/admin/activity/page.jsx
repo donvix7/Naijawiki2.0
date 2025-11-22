@@ -13,12 +13,6 @@ export default function AdminActivityPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const base_url = getBaseUrl();
-  // Placeholder user (until API is ready)
-  const user = {
-    name: "Admin User",
-    email: "admin@example.com",
-    role: "admin",
-  };
 
   // Fetch activity/word list
   const fetchActivityData = async (token) => {
@@ -60,9 +54,11 @@ export default function AdminActivityPage() {
   // Loading state
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen text-gray-500 dark:text-gray-300">
-        <i data-feather="loader" className="animate-spin w-6 h-6 mb-3"></i>
-        <p className="text-lg font-medium">Loading dashboard data...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-700 text-lg font-semibold">Loading activity data...</p>
+        </div>
       </div>
     );
   }
@@ -70,42 +66,144 @@ export default function AdminActivityPage() {
   // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen text-red-500">
-        <i data-feather="alert-triangle" className="w-6 h-6 mb-3"></i>
-        <p className="text-lg">{error}</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <i data-feather="alert-triangle" className="w-16 h-16 text-red-500 mx-auto mb-4"></i>
+          <p className="text-red-600 text-lg font-semibold">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-4 px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <RoleGuard allowedRoles={["admin", "super_admin"]}>
-      <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
-        {/* Navbar with placeholder user */}
-        <AdminNavbar user={user} />
-
-        <div className="flex flex-1">
+      <div className="min-h-screen bg-gray-50">
+        <AdminNavbar />
+        
+        <div className="flex">
           <AdminSideBar />
+          
+          <main className="flex-1 p-4 md:p-6 lg:p-8">
+            {/* Header */}
+            <div className="mb-6 md:mb-8">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+                <i data-feather="activity" className="w-6 h-6 md:w-7 md:h-7 text-primary"></i> 
+                User Activity Log
+              </h1>
+              <p className="text-gray-600 font-medium">
+                Monitor all user activities and word submissions
+              </p>
+            </div>
 
-          <main className="flex-1 p-6 md:p-8 overflow-y-auto">
-            <h1 className="text-3xl font-bold text-secondary mb-6 flex items-center gap-2">
-              <i data-feather="activity"></i> User Activity Log
-            </h1>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 md:mb-8">
+              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-primary">
+                <p className="text-gray-700 font-semibold text-sm md:text-base mb-2">Total Activities</p>
+                <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{words.length}</h3>
+              </div>
+              
+              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-secondary">
+                <p className="text-gray-700 font-semibold text-sm md:text-base mb-2">Pending Reviews</p>
+                <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
+                  {words.filter(w => w.status === 'pending').length}
+                </h3>
+              </div>
+              
+              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-accent">
+                <p className="text-gray-700 font-semibold text-sm md:text-base mb-2">Approved Today</p>
+                <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
+                  {words.filter(w => 
+                    w.status === 'approved' && 
+                    new Date(w.createdAt).toDateString() === new Date().toDateString()
+                  ).length}
+                </h3>
+              </div>
+              
+              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-green-600">
+                <p className="text-gray-700 font-semibold text-sm md:text-base mb-2">Active Users</p>
+                <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
+                  {new Set(words.map(w => w.submittedBy)).size}
+                </h3>
+              </div>
+            </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 transition-all duration-300">
+            {/* Activity Table */}
+            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <div className="px-4 md:px-6 py-4 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">Recent Activities</h2>
+              </div>
+
               {words.length === 0 ? (
-                <p className="text-center text-gray-500 py-10">
-                  No recorded activities yet.
-                </p>
+                <div className="text-center py-12">
+                  <i data-feather="inbox" className="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+                  <p className="text-gray-600 font-semibold text-lg">No recorded activities yet.</p>
+                  <p className="text-gray-500 mt-2">User activities will appear here once they start submitting words.</p>
+                </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-100 dark:bg-gray-700">
+                  {/* Mobile Cards View */}
+                  <div className="md:hidden space-y-4 p-4">
+                    {words.map((item, idx) => (
+                      <div key={idx} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="flex justify-between items-start mb-3">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
+                            item.status === 'approved' 
+                              ? 'bg-green-100 text-green-800' 
+                              : item.status === 'pending'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            <i
+                              data-feather={
+                                item.status === 'approved' ? 'check' : 
+                                item.status === 'pending' ? 'clock' : 'edit'
+                              }
+                              className="w-3 h-3 mr-1"
+                            ></i>
+                            {item.status}
+                          </span>
+                          <span className="text-xs text-gray-500 font-medium">
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        
+                        <h3 className="font-bold text-gray-900 text-lg mb-2">{item.word}</h3>
+                        <p className="text-gray-700 mb-2">{item.meaning}</p>
+                        
+                        <div className="flex justify-between items-center text-sm text-gray-600">
+                          <span className="font-medium">By: {item.submittedBy || 'Unknown'}</span>
+                          <span>{new Date(item.createdAt).toLocaleTimeString()}</span>
+                        </div>
+                        
+                        <div className="mt-3 flex gap-2">
+                          <button className="flex-1 bg-primary text-white font-semibold py-2 px-3 rounded-lg text-sm hover:bg-primary-dark transition-colors">
+                            View Details
+                          </button>
+                          {item.status === 'pending' && (
+                            <button className="flex-1 bg-secondary text-white font-semibold py-2 px-3 rounded-lg text-sm hover:bg-secondary-dark transition-colors">
+                              Review
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <table className="hidden md:table min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
                       <tr>
-                        {["Action", "User", "Target", "Timestamp", "Details"].map(
+                        {["Word", "Meaning", "Submitted By", "Status", "Date", "Actions"].map(
                           (header) => (
                             <th
                               key={header}
-                              className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider"
+                              className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider"
                             >
                               {header}
                             </th>
@@ -113,42 +211,64 @@ export default function AdminActivityPage() {
                         )}
                       </tr>
                     </thead>
-                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    <tbody className="bg-white divide-y divide-gray-200">
                       {words.map((item, idx) => (
                         <tr
                           key={idx}
-                          className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                          className="hover:bg-gray-50 transition-colors duration-150"
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="font-semibold text-gray-900 text-lg">
+                              {item.word}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="text-gray-700 font-medium max-w-xs truncate">
+                              {item.meaning}
+                            </p>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="text-gray-700 font-medium">
+                              {item.submittedBy || 'Unknown'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
                             <span
-                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                item.action === "approved"
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                  : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
+                                item.status === 'approved'
+                                  ? 'bg-green-100 text-green-800'
+                                  : item.status === 'pending'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-blue-100 text-blue-800'
                               }`}
                             >
                               <i
                                 data-feather={
-                                  item.action === "approved" ? "check" : "edit"
+                                  item.status === 'approved' ? 'check' : 
+                                  item.status === 'pending' ? 'clock' : 'edit'
                                 }
                                 className="w-3 h-3 mr-1"
                               ></i>
-                              {item.action}
+                              {item.status}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {item.userEmail || user.email}
+                            <div className="text-sm text-gray-700">
+                              <div className="font-medium">{new Date(item.createdAt).toLocaleDateString()}</div>
+                              <div className="text-gray-500">{new Date(item.createdAt).toLocaleTimeString()}</div>
+                            </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {item.target || "—"}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {new Date(item.timestamp).toLocaleString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <button className="text-primary hover:underline flex items-center gap-1 transition">
-                              <i data-feather="eye" className="w-4 h-4"></i> View
-                            </button>
+                            <div className="flex gap-2">
+                              <button className="bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors text-sm">
+                                View
+                              </button>
+                              {item.status === 'pending' && (
+                                <button className="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary-dark transition-colors text-sm">
+                                  Review
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
