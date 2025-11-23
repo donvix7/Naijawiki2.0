@@ -7,6 +7,7 @@ import AdminNavbar from "@/components/adminNavbar";
 import AdminSidebar from "@/components/adminSideBar";
 import RoleGuard from "@/utils/RoleGuard";
 import getBaseUrl from "@/app/api/baseUrl";
+import SubmitWordForm from "@/components/submitWordForm";
 
 export default function Page() {
   const [firstname, setFirstName] = useState("");
