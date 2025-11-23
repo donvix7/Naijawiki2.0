@@ -178,10 +178,10 @@ export default function Home() {
       {/* HERO SECTION */}
       <section className="bg-gradient-to-r from-primary to-secondary py-16 md:py-20 text-white">
         <div className="container mx-auto px-4 sm:px-6 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 leading-tight break-words">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 leading-tight break-words text-black">
             Preserve Nigerian Languages & Culture
           </h1>
-          <p className="text-lg sm:text-xl md:text-xl mb-6 md:mb-8 max-w-4xl mx-auto leading-relaxed font-medium break-words px-4">
+          <p className="text-lg sm:text-xl md:text-xl mb-6 md:mb-8 max-w-4xl mx-auto leading-relaxed font-medium break-words px-4 text-gray-500">
             Discover, learn, and contribute to the rich linguistic heritage of Nigeria.
           </p>
 

@@ -50,7 +50,7 @@ const CustomNavbar = () => {
         </a>
 
         {/* Desktop Links */}
-        <ul className="hidden lg:flex gap-8 items-center hider">
+        <ul className="hidden lg:flex gap-8 items-center">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -60,7 +60,7 @@ const CustomNavbar = () => {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all duration-200 ${
                     isActive
                       ? "bg-primary text-white shadow-md"
-                      : "text-gray-700 hover:bg-primary/10 hover:text-primary"
+                      : "text-white hover:bg-primary hover:text-white"
                   }`}
                   aria-current={isActive ? "page" : undefined}
                 >
@@ -76,12 +76,12 @@ const CustomNavbar = () => {
         <div className="hidden lg:flex gap-4 items-center">
           {user ? (
             <>
-              <span className="text-gray-700 font-medium px-3 py-1 bg-gray-100 rounded-lg">
+              <span className="text-white font-medium px-3 py-1 bg-gray-600 rounded-lg">
                 {user.email}
               </span>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 border border-red-500 text-red-600 font-semibold rounded-lg hover:bg-red-50 transition-colors duration-200"
+                className="flex items-center gap-2 px-4 py-2 border border-red-500 text-white font-semibold rounded-lg hover:bg-red-500 transition-colors duration-200"
               >
                 <i data-feather="log-out" className="w-4 h-4"></i>
                 Logout
@@ -91,13 +91,13 @@ const CustomNavbar = () => {
             <>
               <a
                 href="/login"
-                className="px-6 py-2 border-2 border-primary text-primary font-semibold rounded-lg hover:bg-primary hover:text-white transition-all duration-200"
+                className="px-6 py-2 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-primary transition-all duration-200"
               >
                 Log In
               </a>
               <a
                 href="/signup"
-                className="px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 shadow-md transition-all duration-200"
+                className="px-6 py-2 bg-white text-primary font-semibold rounded-lg hover:bg-gray-100 shadow-md transition-all duration-200"
               >
                 Sign Up
               </a>
@@ -107,7 +107,7 @@ const CustomNavbar = () => {
 
         {/* Mobile Menu Button */}
         <button
-          className="lg:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+          className="lg:hidden p-2 text-white hover:bg-gray-100 rounded-lg transition-colors duration-200"
           onClick={() => setMenuOpen((prev) => !prev)}
           aria-label={menuOpen ? "Close menu" : "Open menu"}
         >
@@ -140,7 +140,7 @@ const CustomNavbar = () => {
                         href={link.href}
                         className={`flex items-center gap-4 px-4 py-4 rounded-xl font-semibold text-lg transition-all duration-200 border-2 ${
                           isActive
-                            ? "bg-primary text-white border-primary shadow-lg"
+                            ? " border-primary shadow-lg"
                             : "text-gray-800 border-transparent hover:bg-primary/10 hover:text-primary hover:border-primary/20"
                         }`}
                         onClick={() => setMenuOpen(false)}

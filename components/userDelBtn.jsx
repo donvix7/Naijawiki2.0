@@ -47,8 +47,10 @@ const UserDelBtn = ({ id, base_url, token }) => {
     <button
       onClick={deleteUser}
       disabled={loading}
-      className={`text-red-500 hover:underline ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`flex-1 bg-red-300 text-white font-semibold py-2 px-3 rounded text-center text-sm hover:bg-red-600 transition-colors flex items-center justify-center gap-1 : ""}`}
     >
+     
+        <i data-feather="trash" className="w-3 h-3"></i>
       {loading ? "Deleting..." : "Delete"}
     </button>
   );

@@ -7,26 +7,12 @@ import getBaseUrl from "@/app/api/baseUrl";
 const SubmitWordForm = () => {
   const [status, setStatus] = useState({ loading: false, message: "" });
   const base_url = getBaseUrl();
-  const [formData, setFormData] = useState({
-    word: "",
-    meaning: "",
-    example: "",
-    information: "",
-    pronunciation: "",
-    creatorName: "",
-    creatorEmail: "",
-    creatorOrigin: "",
-  });
   const [audioFile, setAudioFile] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
+  const formRef = useRef(null);
 
   const handleFileChange = (e) => {
     setAudioFile(e.target.files[0]);
@@ -64,16 +50,9 @@ const SubmitWordForm = () => {
   };
 
   const handleReset = () => {
-    setFormData({
-      word: "",
-      meaning: "",
-      example: "",
-      information: "",
-      pronunciation: "",
-      creatorName: "",
-      creatorEmail: "",
-      creatorOrigin: "",
-    });
+    if (formRef.current) {
+      formRef.current.reset();
+    }
     setAudioFile(null);
     setAudioURL(null);
   };
@@ -87,36 +66,49 @@ const SubmitWordForm = () => {
       return;
     }
 
+    setStatus({ loading: true, message: "Submitting word..." });
+
     try {
-      const formDataToSend = new FormData();
-      for (const key in formData) {
-        formDataToSend.append(key, formData[key]);
+      const formData = new FormData(formRef.current);
+
+      // Add audio file if exists
+      if (audioFile) {
+        formData.append("audio", audioFile);
       }
-      if (audioFile) formDataToSend.append("audio", audioFile);
 
       const res = await fetch(`${base_url}/word/submit-word`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        body: formDataToSend,
+        body: formData,
       });
 
       if (!res.ok) throw new Error("Error submitting word");
       const data = await res.json();
 
       console.log("Submitted:", data);
-      alert("Word submitted successfully!");
+      setStatus({ loading: false, message: "Word submitted successfully!" });
       handleReset();
     } catch (error) {
       console.error("Submission failed:", error);
-      alert("Failed to submit word. Please try again.");
+      setStatus({ loading: false, message: "Failed to submit word. Please try again." });
     }
   };
 
   return (
     <div>
-      <form onSubmit={handleSubmit} id="wordForm" className="space-y-6">
+      {status.message && (
+        <div className={`p-4 mb-6 rounded-lg ${
+          status.message.includes("success") 
+            ? "bg-green-100 text-green-800 border border-green-200" 
+            : "bg-red-100 text-red-800 border border-red-200"
+        }`}>
+          {status.message}
+        </div>
+      )}
+
+      <form ref={formRef} onSubmit={handleSubmit} id="wordForm" className="space-y-6">
         {/* Word */}
         <div>
           <label htmlFor="word" className="block text-sm font-medium text-gray-700 mb-1">
@@ -124,27 +116,11 @@ const SubmitWordForm = () => {
           </label>
           <input
             type="text"
+            name="word"
             id="word"
             required
-            value={formData.word}
-            onChange={handleChange}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
           />
-        </div>
-
-        {/* Information */}
-        <div>
-          <label htmlFor="information" className="block text-sm font-medium text-gray-700 mb-1">
-            Extra Information
-          </label>
-          <textarea
-            id="information"
-            rows="2"
-            value={formData.information}
-            onChange={handleChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-            placeholder="Any additional context about the word"
-          ></textarea>
         </div>
 
         {/* Meaning */}
@@ -153,25 +129,23 @@ const SubmitWordForm = () => {
             Meaning/Definition*
           </label>
           <textarea
+            name="meaning"
             id="meaning"
             rows="3"
             required
-            value={formData.meaning}
-            onChange={handleChange}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
           ></textarea>
         </div>
 
         {/* Example */}
         <div>
-          <label htmlFor="example" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="use_case" className="block text-sm font-medium text-gray-700 mb-1">
             Example Usage
           </label>
           <textarea
-            id="example"
+            name="use_case"
+            id="use_case"
             rows="2"
-            value={formData.example}
-            onChange={handleChange}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
             placeholder="E.g., 'No wahala, I go do am'"
           ></textarea>
@@ -185,9 +159,8 @@ const SubmitWordForm = () => {
           <div className="flex items-center gap-4 flex-wrap">
             <input
               type="text"
+              name="pronunciation"
               id="pronunciation"
-              value={formData.pronunciation}
-              onChange={handleChange}
               className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
               placeholder="Phonetic spelling"
             />
@@ -205,55 +178,10 @@ const SubmitWordForm = () => {
           {audioURL && <audio controls src={audioURL} className="mt-3 w-full rounded-md border border-gray-300" />}
         </div>
 
-        {/* Contributor Info */}
-        <div className="border-t border-gray-200 pt-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">About You (Optional)</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="creatorName" className="block text-sm font-medium text-gray-700 mb-1">
-                Your Name
-              </label>
-              <input
-                type="text"
-                id="creatorName"
-                value={formData.creatorName}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-              />
-            </div>
-            <div>
-              <label htmlFor="creatorEmail" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                id="creatorEmail"
-                value={formData.creatorEmail}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-              />
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <label htmlFor="creatorOrigin" className="block text-sm font-medium text-gray-700 mb-1">
-              Your Connection to This Word
-            </label>
-            <textarea
-              id="creatorOrigin"
-              rows="2"
-              value={formData.creatorOrigin}
-              onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-              placeholder="How do you know this word? Where did you learn it?"
-            ></textarea>
-          </div>
-        </div>
-
         {/* Submission */}
         <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200">
           <button
-            type="reset"
+            type="button"
             onClick={handleReset}
             className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg transition-colors"
           >
@@ -261,9 +189,10 @@ const SubmitWordForm = () => {
           </button>
           <button
             type="submit"
-            className="bg-primary text-yellow hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
+            disabled={status.loading}
+            className="btn-outline g-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <i data-feather="send"></i> Submit Word
+            {status.loading ? "Submitting..." : "Submit Word"}
           </button>
         </div>
       </form>
