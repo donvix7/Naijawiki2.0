@@ -50,7 +50,7 @@ const CustomNavbar = () => {
         </a>
 
         {/* Desktop Links */}
-        <ul className="hidden lg:flex gap-8 items-center">
+        <ul className="hidden hider lg:flex gap-8 items-center">
           {links.map((link) => {
             const isActive = pathname === link.href;
             return (

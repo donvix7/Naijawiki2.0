@@ -172,11 +172,11 @@ nav {
 }
 
 nav ul {
-  display: flex;
   gap: 3rem;
   list-style: none;
   margin: 0;
   padding: 0;
+
 }
 
 nav a {
@@ -500,6 +500,9 @@ aside {
     font-size: 14px;
   }
 
+  .hider {
+    display: none;
+  }
   .text-5xl {
     font-size: 2.5rem;
   }
