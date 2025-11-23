@@ -291,14 +291,14 @@ const Page = () => {
                               <div className="flex gap-2">
                                 <a
                                   href={`/admin/word/edit/${item.id}`}
-                                  className="bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors text-sm flex items-center gap-1"
+                                  className="bg-[var(--neutral)] hover:bg-grey-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors text-sm flex items-center gap-1"
                                 >
                                   <i data-feather="edit" className="w-3 h-3"></i>
                                   Edit
                                 </a>
                                 <a
                                   href={`/admin/word/${item.id}`}
-                                  className="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary-dark transition-colors text-sm flex items-center gap-1"
+                                  className="bg-blue-500 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary-dark transition-colors text-sm flex items-center gap-1"
                                 >
                                   <i data-feather="eye" className="w-3 h-3"></i>
                                   Review
