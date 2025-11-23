@@ -19,6 +19,7 @@ export default function Home() {
 
   const [currentAudio, setCurrentAudio] = useState(null);
   const [playingAudioId, setPlayingAudioId] = useState(null);
+  const [audioError, setAudioError] = useState(null);
   const base_url = getBaseUrl();
   const token = Cookies.get("token");
 
@@ -120,44 +121,56 @@ export default function Home() {
       setPlayingAudioId(null);
     }
 
-    // Check if audio URL exists
-    if (!word.audio_url && !word.audio) {
-      alert(`Audio not available for "${word.word}"`);
+    // Check for audio availability - fixed property names
+    const audioUrl = word.audio_url || word.audioUrl || word.audio;
+    console.log("Attempting to play audio:", audioUrl);
+    
+    if (!audioUrl) {
+      setAudioError(`No audio available for "${word.word}"`);
       return;
     }
 
     try {
-      // Use the correct audio URL - check different possible properties
-      const audioUrl = word.audio_url || word.audio || `${base_url}/audio/${word.id}`;
-      
-      console.log("Attempting to play audio:", audio_url);
-      
-      const audio = new Audio(audio_url);
-      
+      setAudioError(null);
+      setPlayingAudioId(word.id);
+
+      // Create audio element
+      const audio = new Audio(audioUrl);
+      setCurrentAudio(audio);
+
       // Set up event listeners
       audio.addEventListener('loadeddata', () => {
         console.log("Audio loaded successfully");
       });
-      
+
+      audio.addEventListener('canplaythrough', () => {
+        console.log("Audio can play through");
+      });
+
       audio.addEventListener('error', (e) => {
         console.error("Audio error:", e);
-        alert(`Couldn't play audio for "${word.word}". The audio file may be missing or corrupted.`);
+        setAudioError(`Couldn't play audio for "${word.word}". The file may be missing or corrupted.`);
         setPlayingAudioId(null);
+        setCurrentAudio(null);
       });
-      
+
       audio.addEventListener('ended', () => {
+        setPlayingAudioId(null);
+        setCurrentAudio(null);
+      });
+
+      audio.addEventListener('pause', () => {
         setPlayingAudioId(null);
       });
 
-      setCurrentAudio(audio);
-      setPlayingAudioId(word.id);
-      
+      // Attempt to play
       await audio.play();
       
     } catch (error) {
       console.error("Audio play failed:", error);
-      alert(`Couldn't play audio for "${word.word}". Please try again.`);
+      setAudioError(`Couldn't play audio for "${word.word}". Please try again.`);
       setPlayingAudioId(null);
+      setCurrentAudio(null);
     }
   };
 
@@ -176,64 +189,70 @@ export default function Home() {
   /* ------------------------------
      Render Word Card
   -------------------------------*/
-  const renderWordCard = (word) => (
-    <div
-      key={word.id}
-      className="bg-white text-gray-900 rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 hover:border-primary"
-    >
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-2xl font-bold text-secondary-dark break-words">
-          <a
-            href={`/word-details/${word.id}`}
-            className="hover:text-primary-dark transition-colors duration-200"
-          >
-            {word.word}
-          </a>
-        </h3>
-        <span className="bg-primary text-neutral px-3 py-1 rounded-full text-sm font-semibold min-w-[80px] text-center shrink-0 ml-2">
-          {word.language}
-        </span>
-      </div>
-
-      <p className="text-gray-800 mb-4 leading-relaxed font-medium break-words">
-        {word.meaning}
-      </p>
-
-      <div className="flex items-center gap-2">
-        <button
-          className={`flex items-center font-semibold transition-colors duration-200 px-3 py-2 rounded-lg ${
-            playingAudioId === word.id 
-              ? "text-red-600 hover:text-red-700 bg-red-50" 
-              : "text-primary-dark hover:text-primary hover:bg-primary-light"
-          }`}
-          onClick={() => 
-            playingAudioId === word.id 
-              ? handleStopAudio() 
-              : handlePlayAudio(word)
-          }
-          aria-label={
-            playingAudioId === word.id 
-              ? `Stop pronunciation of ${word.word}` 
-              : `Listen to pronunciation of ${word.word}`
-          }
-        >
-          <i 
-            data-feather={playingAudioId === word.id ? "square" : "play-circle"} 
-            className="mr-2" 
-            aria-hidden="true"
-          ></i>
-          {playingAudioId === word.id ? "Stop" : "Listen"}
-        </button>
-        
-        {/* Audio format indicator */}
-        {(word.audioUrl || word.audio) && (
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            Audio
+  const renderWordCard = (word) => {
+    // Check if audio is available for this word
+    const hasAudio = word.audio_url || word.audioUrl || word.audio;
+    
+    return (
+      <div
+        key={word.id}
+        className="bg-white text-gray-900 rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 hover:border-primary"
+      >
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-2xl font-bold text-secondary-dark break-words">
+            <a
+              href={`/word-details/${word.id}`}
+              className="hover:text-primary-dark transition-colors duration-200"
+            >
+              {word.word}
+            </a>
+          </h3>
+          <span className="bg-primary text-neutral px-3 py-1 rounded-full text-sm font-semibold min-w-[80px] text-center shrink-0 ml-2">
+            {word.language}
           </span>
-        )}
+        </div>
+
+        <p className="text-gray-800 mb-4 leading-relaxed font-medium break-words">
+          {word.meaning}
+        </p>
+
+        <div className="flex items-center gap-2">
+          <button
+            className={`flex items-center font-semibold transition-colors duration-200 px-3 py-2 rounded-lg ${
+              playingAudioId === word.id 
+                ? "text-red-600 hover:text-red-700 bg-red-50" 
+                : "text-primary-dark hover:text-primary hover:bg-primary-light"
+            } ${!hasAudio ? "opacity-50 cursor-not-allowed" : ""}`}
+            onClick={() => 
+              playingAudioId === word.id 
+                ? handleStopAudio() 
+                : handlePlayAudio(word)
+            }
+            disabled={!hasAudio}
+            aria-label={
+              playingAudioId === word.id 
+                ? `Stop pronunciation of ${word.word}` 
+                : `Listen to pronunciation of ${word.word}`
+            }
+          >
+            <i 
+              data-feather={playingAudioId === word.id ? "square" : "play-circle"} 
+              className="mr-2" 
+              aria-hidden="true"
+            ></i>
+            {playingAudioId === word.id ? "Stop" : "Listen"}
+          </button>
+          
+          {/* Audio format indicator */}
+          {hasAudio && (
+            <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+              Audio
+            </span>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   /* ------------------------------
      Clean up audio on unmount
@@ -242,6 +261,7 @@ export default function Home() {
     return () => {
       if (currentAudio) {
         currentAudio.pause();
+        setCurrentAudio(null);
       }
     };
   }, [currentAudio]);
@@ -337,6 +357,13 @@ export default function Home() {
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center text-gray-900 break-words">
           Recent Words This Week
         </h2>
+
+        {/* Audio Error Display */}
+        {audioError && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-center">
+            {audioError}
+          </div>
+        )}
 
         {loading ? (
           <div className="text-center">
