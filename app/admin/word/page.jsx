@@ -76,7 +76,7 @@ const Page = () => {
 
               <a
                 href="/admin/word/add"
-                className="bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark text-white font-bold py-3 px-6 rounded-xl flex items-center gap-3 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="bg-[var(--neutral)] hover:from-primary-dark hover:to-secondary-dark text-white font-bold py-3 px-6 rounded-xl flex items-center gap-3 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 <i data-feather="plus" className="w-5 h-5"></i> 
                 Add New Word
@@ -218,14 +218,14 @@ const Page = () => {
                         <div className="flex gap-2">
                           <a
                             href={`/admin/word/edit/${item.id}`}
-                            className="flex-1 bg-primary text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-primary-dark transition-colors flex items-center justify-center gap-1"
+                            className="flex-1 bg-[var(--neutral)] hover:bg-gray-500 text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-primary-dark transition-colors flex items-center justify-center gap-1"
                           >
                             <i data-feather="edit" className="w-3 h-3"></i>
                             Edit
                           </a>
                           <a
                             href={`/admin/word/${item.id}`}
-                            className="flex-1 bg-secondary text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-secondary-dark transition-colors flex items-center justify-center gap-1"
+                            className="flex-1 bg-blue-500 hover:bg-blue-800 text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-secondary-dark transition-colors flex items-center justify-center gap-1"
                           >
                             <i data-feather="eye" className="w-3 h-3"></i>
                             Review

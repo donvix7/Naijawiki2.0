@@ -15,6 +15,9 @@ export default function Page() {
   const [word, setWord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [reason, setReason] = useState("");
 
   const token = Cookies.get("token");
   const base_url = getBaseUrl();
@@ -23,6 +26,12 @@ export default function Page() {
   useEffect(() => {
     const fetchWord = async () => {
       try {
+        if (!token) {
+          setError("Authentication required");
+          setLoading(false);
+          return;
+        }
+
         const res = await fetch(`${base_url}/word/${id}`, {
           headers: {
             "Content-Type": "application/json",
@@ -30,13 +39,23 @@ export default function Page() {
           },
         });
 
-        if (!res.ok) throw new Error("Failed to fetch word");
+        if (!res.ok) {
+          if (res.status === 404) {
+            setError("Word not found");
+          } else if (res.status === 401) {
+            setError("Unauthorized access");
+          } else {
+            throw new Error("Failed to fetch word");
+          }
+          return;
+        }
 
         const data = await res.json();
-        setWord(data.word);
+        setWord(data.word || data);
       } 
       catch (err) {
         console.error("Failed to load word:", err);
+        setError(err.message || "Failed to load word");
       } 
       finally {
         setLoading(false);
@@ -46,15 +65,14 @@ export default function Page() {
     fetchWord();
   }, [id, base_url, token]);
 
-  // Load feather icons once word loads
-  useEffect(() => {
-    feather.replace();
-  }, [word]);
-
-  // Approve
+  // Approve word
   const approveWord = async () => {
+    if (!word || !id) return;
+    
     setActionLoading(true);
     try {
+      console.log("Approving word with ID:", id);
+      
       const res = await fetch(`${base_url}/word/approve-word/${id}`, {
         method: "PUT",
         headers: {
@@ -63,44 +81,94 @@ export default function Page() {
         }
       });
 
-      if (!res.ok) throw new Error("Failed to approve word");
+      console.log("Approve response status:", res.status);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Approve error response:", errorText);
+        throw new Error(`Failed to approve word: ${res.status} ${errorText}`);
+      }
 
-      setWord((prev) => ({ ...prev, status: "approved" }));
+      const data = await res.json();
+      console.log("Approve success:", data);
+      
+      setWord(prev => ({ ...prev, status: "approved" }));
       alert("Word approved successfully!");
     } 
     catch (err) {
-      console.error(err);
-      alert("Error approving word");
+      console.error("Approve error:", err);
+      alert("Error approving word: " + err.message);
     }
     finally {
       setActionLoading(false);
     }
   };
 
-  // Reject
+  // Open reject modal
+  const openRejectModal = () => {
+    setShowRejectModal(true);
+    setReason("");
+  };
+
+  // Close reject modal
+  const closeRejectModal = () => {
+    setShowRejectModal(false);
+    setReason("");
+  };
+
+  // Reject word with reason
   const rejectWord = async () => {
+    if (!word || !id || !reason.trim()) {
+      alert("Please provide a reason for rejection");
+      return;
+    }
+    
     setActionLoading(true);
     try {
+      console.log("Rejecting word with ID:", id, "Reason:", rejectionReason);
+      
       const res = await fetch(`${base_url}/word/reject-word/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-        }
+        },
+        body: JSON.stringify({
+          reason: reason.trim()
+        })
       });
 
-      if (!res.ok) throw new Error("Failed to reject word");
+      console.log("Reject response status:", res.status);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Reject error response:", errorText);
+        throw new Error(`Failed to reject word: ${res.status} ${errorText}`);
+      }
 
-      setWord((prev) => ({ ...prev, status: "rejected" }));
-      alert("Word rejected!");
+      const data = await res.json();
+      console.log("Reject success:", data);
+      
+      setWord(prev => ({ ...prev, status: "rejected" }));
+      alert("Word rejected successfully!");
+      closeRejectModal();
+      
+      // Redirect after a short delay
+      setTimeout(() => {
+      }, 1000);
     } 
     catch (err) {
-      console.error(err);
-      alert("Error rejecting word");
+      console.error("Reject error:", err);
+      alert("Error rejecting word: " + err.message);
     }
     finally {
       setActionLoading(false);
     }
+  };
+
+  // Handle back to words list
+  const handleBack = () => {
+    router.push('/admin/word');
   };
 
   if (loading) {
@@ -114,14 +182,22 @@ export default function Page() {
     );
   }
 
-  if (!word) {
+  if (error || !word) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <i data-feather="alert-circle" className="w-16 h-16 text-red-500 mx-auto mb-4"></i>
-          <p className="text-red-600 text-lg font-semibold mb-4">Word not found</p>
+          <div className="w-16 h-16 text-red-500 mx-auto mb-4 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <p className="text-red-600 text-lg font-semibold mb-4">
+            {error || "Word not found"}
+          </p>
           <button 
-            onClick={() => router.push('/admin/words')}
+            onClick={handleBack}
             className="px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
           >
             Back to Words
@@ -130,6 +206,47 @@ export default function Page() {
       </div>
     );
   }
+
+  // Manual SVG icons
+  const icons = {
+    arrowLeft: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+    ),
+    check: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    ),
+    x: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    ),
+    edit: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      </svg>
+    ),
+    info: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+    ),
+    alert: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+    )
+  };
 
   return (
     <RoleGuard allowedRoles={["admin", "super_admin"]}>
@@ -150,23 +267,13 @@ export default function Page() {
                   Review and manage this word submission
                 </p>
               </div>
-              
-              <div className="flex gap-2">
-                <a
-                  href={`/admin/word/edit/${id}`}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition-colors shadow-lg hover:shadow-xl"
-                >
-                  <i data-feather="edit" className="w-4 h-4"></i>
-                  Edit Word
-                </a>
-                <button
-                  onClick={() => router.push('/admin/word')}
-                  className="flex items-center gap-2 px-4 py-2 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <i data-feather="arrow-left" className="w-4 h-4"></i>
-                  Back to Words
-                </button>
-              </div>
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 font-semibold hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                {icons.arrowLeft}
+                Back to Words
+              </button>
             </div>
 
             {/* Word Information Card */}
@@ -175,58 +282,13 @@ export default function Page() {
                 Word Information
               </h2>
               
-              {/* Mobile Card View */}
-              <div className="md:hidden space-y-4">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label className="block text-gray-700 font-semibold mb-2 text-sm">Word</label>
-                  <p className="text-gray-900 font-bold text-xl">{word.word}</p>
-                </div>
-                
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label className="block text-gray-700 font-semibold mb-2 text-sm">Language</label>
-                  <p className="text-gray-900 font-medium">{word.language || "Not specified"}</p>
-                </div>
-                
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label className="block text-gray-700 font-semibold mb-2 text-sm">Meaning</label>
-                  <p className="text-gray-900 font-medium">{word.meaning || "No meaning provided"}</p>
-                </div>
-                
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label className="block text-gray-700 font-semibold mb-2 text-sm">Status</label>
-                  <span
-                    className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                      word.status === "approved"
-                        ? "bg-green-100 text-green-800"
-                        : word.status === "rejected"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {word.status?.charAt(0).toUpperCase() + word.status?.slice(1) || "Unknown"}
-                  </span>
-                </div>
-                
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label className="block text-gray-700 font-semibold mb-2 text-sm">Submitted By</label>
-                  <p className="text-gray-900 font-medium">{word.creatorEmail || word.submittedBy || "Unknown"}</p>
-                </div>
-                
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <label className="block text-gray-700 font-semibold mb-2 text-sm">Date Submitted</label>
-                  <p className="text-gray-900 font-medium">
-                    {new Date(word.createdAt).toLocaleDateString()} at {new Date(word.createdAt).toLocaleTimeString()}
-                  </p>
-                </div>
-              </div>
-
               {/* Desktop Table View */}
-              <div className="hidden md:block overflow-x-auto">
+              <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <tbody className="bg-white divide-y divide-gray-200">
                     <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Word</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-lg font-bold text-gray-900">{word.word}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 w-1/4">Word</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-lg font-bold text-gray-900">{word.word || "N/A"}</td>
                     </tr>
                     
                     <tr className="hover:bg-gray-50 transition-colors">
@@ -238,6 +300,20 @@ export default function Page() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Meaning</td>
                       <td className="px-6 py-4 text-gray-900 font-medium">{word.meaning || "No meaning provided"}</td>
                     </tr>
+
+                    {word.use_case && (
+                      <tr className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Example Usage</td>
+                        <td className="px-6 py-4 text-gray-900 font-medium">{word.use_case}</td>
+                      </tr>
+                    )}
+
+                    {word.pronunciation && (
+                      <tr className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Pronunciation</td>
+                        <td className="px-6 py-4 text-gray-900 font-medium">{word.pronunciation}</td>
+                      </tr>
+                    )}
                     
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Status</td>
@@ -251,20 +327,20 @@ export default function Page() {
                               : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
-                          {word.status?.charAt(0).toUpperCase() + word.status?.slice(1) || "Unknown"}
+                          {word.status ? word.status.charAt(0).toUpperCase() + word.status.slice(1) : "Pending"}
                         </span>
                       </td>
                     </tr>
                     
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Submitted By</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">{word.creatorEmail || word.submittedBy || "Unknown"}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">{word.creatorEmail || word.creator || word.submittedBy || "Unknown"}</td>
                     </tr>
                     
                     <tr className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Date Submitted</td>
                       <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">
-                        {new Date(word.createdAt).toLocaleDateString()} at {new Date(word.createdAt).toLocaleTimeString()}
+                        {word.createdAt ? new Date(word.createdAt).toLocaleDateString() + " at " + new Date(word.createdAt).toLocaleTimeString() : "Unknown"}
                       </td>
                     </tr>
                   </tbody>
@@ -278,7 +354,7 @@ export default function Page() {
                 Quick Actions
               </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <button
                   onClick={approveWord}
                   disabled={actionLoading || word.status === "approved"}
@@ -287,7 +363,7 @@ export default function Page() {
                   {actionLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   ) : (
-                    <i data-feather="check" className="w-5 h-5"></i>
+                    icons.check
                   )}
                   <span className="text-lg">
                     {word.status === "approved" ? "Already Approved" : "Approve Word"}
@@ -295,15 +371,11 @@ export default function Page() {
                 </button>
 
                 <button
-                  onClick={rejectWord}
+                  onClick={openRejectModal}
                   disabled={actionLoading || word.status === "rejected"}
                   className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
                 >
-                  {actionLoading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  ) : (
-                    <i data-feather="x" className="w-5 h-5"></i>
-                  )}
+                  {icons.x}
                   <span className="text-lg">
                     {word.status === "rejected" ? "Already Rejected" : "Reject Word"}
                   </span>
@@ -313,15 +385,15 @@ export default function Page() {
                   href={`/admin/word/edit/${id}`}
                   className="bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
                 >
-                  <i data-feather="edit-3" className="w-5 h-5"></i>
+                  {icons.edit}
                   <span className="text-lg">Edit Word Details</span>
                 </a>
               </div>
 
               {/* Additional Information */}
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <div className="flex items-start gap-3">
-                  <i data-feather="info" className="w-5 h-5 text-blue-600 mt-0.5"></i>
+                  {icons.info}
                   <div>
                     <p className="text-blue-800 font-semibold text-sm">Word Review Guidelines</p>
                     <p className="text-blue-700 text-sm mt-1">
@@ -334,6 +406,63 @@ export default function Page() {
             </div>
           </main>
         </div>
+
+        {/* Rejection Modal */}
+        {showRejectModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-slideDown">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="text-red-500">
+                  {icons.alert}
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Reject Word</h3>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-gray-700 mb-4">
+                  You are about to reject the word: <strong>"{word.word}"</strong>
+                </p>
+                <label htmlFor="rejectionReason" className="block text-sm font-semibold text-gray-700 mb-2">
+                  Reason for Rejection *
+                </label>
+                <textarea
+                  id="rejectionReason"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="Please provide a clear reason for rejecting this word..."
+                  rows="4"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  This reason will be recorded and may be shared with the submitter.
+                </p>
+              </div>
+
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={closeRejectModal}
+                  disabled={actionLoading}
+                  className="px-4 py-2 text-gray-700 hover:text-gray-900 font-semibold hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={rejectWord}
+                  disabled={actionLoading || !reason.trim()}
+                  className="px-6 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold rounded-lg transition-colors flex items-center gap-2 disabled:cursor-not-allowed"
+                >
+                  {actionLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  ) : (
+                    icons.x
+                  )}
+                  Confirm Rejection
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </RoleGuard>
   );

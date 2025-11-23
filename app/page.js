@@ -17,7 +17,8 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
 
-  const audioRef = useRef(null);
+  const [currentAudio, setCurrentAudio] = useState(null);
+  const [playingAudioId, setPlayingAudioId] = useState(null);
   const base_url = getBaseUrl();
   const token = Cookies.get("token");
 
@@ -111,19 +112,65 @@ export default function Home() {
   /* ------------------------------
      Audio Play Handler
   -------------------------------*/
-  const handlePlayAudio = (audioUrl, word) => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
+  const handlePlayAudio = async (word) => {
+    // Stop current audio if playing
+    if (currentAudio) {
+      currentAudio.pause();
+      setCurrentAudio(null);
+      setPlayingAudioId(null);
     }
 
-    if (!audioUrl) return alert(`Audio not available for "${word}"`);
+    // Check if audio URL exists
+    if (!word.audio_url && !word.audio) {
+      alert(`Audio not available for "${word.word}"`);
+      return;
+    }
 
-    const audio = new Audio(audioUrl);
-    audioRef.current = audio;
-    audio
-      .play()
-      .catch(() => alert(`Couldn't play audio for "${word}".`));
+    try {
+      // Use the correct audio URL - check different possible properties
+      const audioUrl = word.audio_url || word.audio || `${base_url}/audio/${word.id}`;
+      
+      console.log("Attempting to play audio:", audio_url);
+      
+      const audio = new Audio(audio_url);
+      
+      // Set up event listeners
+      audio.addEventListener('loadeddata', () => {
+        console.log("Audio loaded successfully");
+      });
+      
+      audio.addEventListener('error', (e) => {
+        console.error("Audio error:", e);
+        alert(`Couldn't play audio for "${word.word}". The audio file may be missing or corrupted.`);
+        setPlayingAudioId(null);
+      });
+      
+      audio.addEventListener('ended', () => {
+        setPlayingAudioId(null);
+      });
+
+      setCurrentAudio(audio);
+      setPlayingAudioId(word.id);
+      
+      await audio.play();
+      
+    } catch (error) {
+      console.error("Audio play failed:", error);
+      alert(`Couldn't play audio for "${word.word}". Please try again.`);
+      setPlayingAudioId(null);
+    }
+  };
+
+  /* ------------------------------
+     Stop Audio
+  -------------------------------*/
+  const handleStopAudio = () => {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setCurrentAudio(null);
+      setPlayingAudioId(null);
+    }
   };
 
   /* ------------------------------
@@ -152,21 +199,52 @@ export default function Home() {
         {word.meaning}
       </p>
 
-      <button
-        className="flex items-center text-primary-dark font-semibold hover:text-primary transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-primary-light"
-        onClick={() =>
-          handlePlayAudio(
-            word.audioUrl || `${base_url}/audio/${word.word}.mp3`,
-            word.word
-          )
-        }
-        aria-label={`Listen to pronunciation of ${word.word}`}
-      >
-        <i data-feather="play-circle" className="mr-2" aria-hidden="true"></i>
-        Listen
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          className={`flex items-center font-semibold transition-colors duration-200 px-3 py-2 rounded-lg ${
+            playingAudioId === word.id 
+              ? "text-red-600 hover:text-red-700 bg-red-50" 
+              : "text-primary-dark hover:text-primary hover:bg-primary-light"
+          }`}
+          onClick={() => 
+            playingAudioId === word.id 
+              ? handleStopAudio() 
+              : handlePlayAudio(word)
+          }
+          aria-label={
+            playingAudioId === word.id 
+              ? `Stop pronunciation of ${word.word}` 
+              : `Listen to pronunciation of ${word.word}`
+          }
+        >
+          <i 
+            data-feather={playingAudioId === word.id ? "square" : "play-circle"} 
+            className="mr-2" 
+            aria-hidden="true"
+          ></i>
+          {playingAudioId === word.id ? "Stop" : "Listen"}
+        </button>
+        
+        {/* Audio format indicator */}
+        {(word.audioUrl || word.audio) && (
+          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+            Audio
+          </span>
+        )}
+      </div>
     </div>
   );
+
+  /* ------------------------------
+     Clean up audio on unmount
+  -------------------------------*/
+  useEffect(() => {
+    return () => {
+      if (currentAudio) {
+        currentAudio.pause();
+      }
+    };
+  }, [currentAudio]);
 
   /* ------------------------------
      MAIN UI

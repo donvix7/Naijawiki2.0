@@ -146,7 +146,7 @@ const AdminPage = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <h2 className="text-xl font-bold text-gray-900">Recent Word Submissions</h2>
                   <a 
-                    href="/admin/words" 
+                    href="/admin/word" 
                     className="text-primary font-semibold hover:underline flex items-center gap-2 text-lg"
                   >
                     Manage All Words
