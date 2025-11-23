@@ -39,7 +39,7 @@ const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) =>
     }, 400);
 
     return () => clearTimeout(delayDebounce);
-  }, [search, onSearch, isInitialLoad]);
+  }, [search]);
 
   /* ------------------------------
      Audio Play Handler
