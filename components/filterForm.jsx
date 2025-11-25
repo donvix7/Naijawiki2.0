@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import feather from "feather-icons";
-import Cookies from "js-cookie";
 
 const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) => {
   const [search, setSearch] = useState("");
@@ -10,8 +9,11 @@ const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) =>
   const [playingAudioId, setPlayingAudioId] = useState(null);
   const [audioError, setAudioError] = useState(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-
-  const token = Cookies.get("token");
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize] = useState(20); // Adjust as needed
 
   useEffect(() => {
     feather.replace();
@@ -35,11 +37,11 @@ const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) =>
     if (isInitialLoad && !search) return;
 
     const delayDebounce = setTimeout(() => {
-      onSearch(search);
+      onSearch(search, currentPage, pageSize);
     }, 400);
 
     return () => clearTimeout(delayDebounce);
-  }, [search]);
+  }, [search, currentPage, pageSize]);
 
   /* ------------------------------
      Audio Play Handler
@@ -117,18 +119,20 @@ const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) =>
     }
   };
 
-  // Clear all filters
+  // Clear all filters and reset pagination
   const clearFilters = () => {
     setSearch("");
+    setCurrentPage(1);
     if (onResetSearch) {
-      onResetSearch();
+      onResetSearch(1, pageSize);
     }
   };
 
   // Handle manual search (when user clicks search button or presses enter)
   const handleManualSearch = () => {
+    setCurrentPage(1); // Reset to first page on new search
     if (onSearch) {
-      onSearch(search);
+      onSearch(search, 1, pageSize);
     }
   };
 
@@ -137,6 +141,54 @@ const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) =>
     if (e.key === 'Enter') {
       handleManualSearch();
     }
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    if (onSearch) {
+      onSearch(search, page, pageSize);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      if (onSearch) {
+        onSearch(search, nextPage, pageSize);
+      }
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      const prevPage = currentPage - 1;
+      setCurrentPage(prevPage);
+      if (onSearch) {
+        onSearch(search, prevPage, pageSize);
+      }
+    }
+  };
+
+  // Generate page numbers for pagination
+  const generatePageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Adjust if we're near the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
   };
 
   // Clean up audio on unmount
@@ -165,7 +217,7 @@ const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) =>
         <div>
           <a
             href="/submit-word"
-            className="inline-flex items-center bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-full transition-colors"
+            className="inline-flex items-center bg-primary hover:bg-primary-dark btn-outline text-white font-bold py-3 px-6 rounded-full transition-colors"
           >
             <i data-feather="plus" className="mr-2"></i> Add New Word
           </a>
@@ -348,35 +400,47 @@ const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) =>
       </div>
 
       {/* Pagination - Only show if not loading and there are results */}
-      {!loading && filteredWords.length > 0 && (
+      {!loading && filteredWords.length > 0 && totalPages > 1 && (
         <div className="mt-12 flex justify-center">
           <nav className="flex items-center gap-1 flex-wrap" aria-label="Pagination">
-            <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+            <button 
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className={`px-3 py-2 border rounded-md text-sm flex items-center ${
+                currentPage === 1 
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                  : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}
+            >
               <i data-feather="chevron-left" className="h-4 w-4"></i>
               <span className="ml-1 hidden sm:inline">Previous</span>
             </button>
 
             <div className="flex items-center gap-1 flex-wrap justify-center">
-              <button className="px-3 py-2 border rounded-md bg-primary text-white text-sm">
-                1
-              </button>
-
-              <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
-                2
-              </button>
-
-              <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
-                3
-              </button>
-
-              <span className="px-3 py-2 text-gray-500 text-sm">…</span>
-
-              <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100">
-                8
-              </button>
+              {generatePageNumbers().map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`px-3 py-2 border rounded-md text-sm ${
+                    currentPage === page
+                      ? "bg-primary text-white"
+                      : "bg-white text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
             </div>
 
-            <button className="px-3 py-2 border rounded-md bg-white text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+            <button 
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className={`px-3 py-2 border rounded-md text-sm flex items-center ${
+                currentPage === totalPages
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                  : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}
+            >
               <span className="mr-1 hidden sm:inline">Next</span>
               <i data-feather="chevron-right" className="h-4 w-4"></i>
             </button>
