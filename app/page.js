@@ -196,32 +196,32 @@ export default function Home() {
     return (
       <div
         key={word.id}
-        className="bg-white text-gray-900 rounded-xl shadow-lg border border-gray-200 p-6 hover:shadow-xl transition-all duration-300 hover:border-primary"
+        className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 hover:border-primary"
       >
         <div className="flex justify-between items-start mb-4">
-          <h3 className="text-2xl font-bold text-secondary-dark break-words">
+          <h3 className="text-xl font-bold text-gray-900 break-words">
             <a
               href={`/word-details/${word.id}`}
-              className="hover:text-primary-dark transition-colors duration-200"
+              className="hover:text-primary transition-colors duration-200"
             >
               {word.word}
             </a>
           </h3>
-          <span className="bg-primary text-neutral px-3 py-1 rounded-full text-sm font-semibold min-w-[80px] text-center shrink-0 ml-2">
+          <span className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold min-w-[80px] text-center shrink-0 ml-2">
             {word.language}
           </span>
         </div>
 
-        <p className="text-gray-800 mb-4 leading-relaxed font-medium break-words">
+        <p className="text-gray-700 mb-4 leading-relaxed font-normal text-base break-words">
           {word.meaning}
         </p>
 
         <div className="flex items-center gap-2">
           <button
-            className={`flex items-center font-semibold transition-colors duration-200 px-3 py-2 rounded-lg ${
+            className={`flex items-center font-semibold transition-colors duration-200 px-3 py-2 rounded-lg text-sm ${
               playingAudioId === word.id 
                 ? "text-red-600 hover:text-red-700 bg-red-50" 
-                : "text-primary-dark hover:text-primary hover:bg-primary-light"
+                : "text-primary hover:text-primary-dark hover:bg-primary-light"
             } ${!hasAudio ? "opacity-50 cursor-not-allowed" : ""}`}
             onClick={() => 
               playingAudioId === word.id 
@@ -236,8 +236,8 @@ export default function Home() {
             }
           >
             <i 
-              data-feather={playingAudioId === word.id ? "square" : "play-circle"} 
-              className="mr-2" 
+              data-feather={playingAudioId === word.id ? "square" : "play"} 
+              className="mr-2 w-4 h-4" 
               aria-hidden="true"
             ></i>
             {playingAudioId === word.id ? "Stop" : "Listen"}
@@ -245,7 +245,7 @@ export default function Home() {
           
           {/* Audio format indicator */}
           {hasAudio && (
-            <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
+            <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-200">
               Audio
             </span>
           )}
@@ -270,16 +270,16 @@ export default function Home() {
      MAIN UI
   -------------------------------*/
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <CustomNavbar />
 
       {/* HERO SECTION */}
-      <section className="bg-gradient-to-r from-primary to-secondary py-16 md:py-20 text-white">
-        <div className="container mx-auto px-4 sm:px-6 text-center">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6 leading-tight break-words text-black">
+      <section className="bg-gradient-to-r from-primary to-secondary py-16 text-white">
+        <div className="container mx-auto px-6 text-center">
+          <h1 className="text-3xl font-bold mb-4 leading-tight tracking-tight text-black">
             Preserve Nigerian Languages & Culture
           </h1>
-          <p className="text-lg sm:text-xl md:text-xl mb-6 md:mb-8 max-w-4xl mx-auto leading-relaxed font-medium break-words px-4 text-gray-500">
+          <p className="text-base font-normal mb-6 max-w-4xl mx-auto leading-relaxed text-yellow-500 px-4">
             Discover, learn, and contribute to the rich linguistic heritage of Nigeria.
           </p>
 
@@ -291,29 +291,29 @@ export default function Home() {
                 placeholder="Search Naija words..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full py-3 sm:py-4 px-4 sm:px-6 rounded-full text-gray-900 shadow-xl border-2 border-transparent focus:border-primary focus:outline-none text-base sm:text-lg font-medium"
+                className="w-full py-3.5 px-6 rounded-full text-gray-900 shadow-sm border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-base font-normal placeholder-gray-500"
                 aria-label="Search for Nigerian words"
               />
               <button
                 type="button"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-accent text-white p-2 sm:p-3 rounded-full hover:bg-accent-dark transition-colors duration-200"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary text-white p-3 rounded-full hover:bg-primary-dark transition-colors duration-200"
                 aria-label="Search"
                 onClick={() => setSearch(search.trim())}
               >
-                <i data-feather="search" className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true"></i>
+                <i data-feather="search" className="w-4 h-4" aria-hidden="true"></i>
               </button>
             </div>
 
             {/* SEARCH RESULTS */}
             {search && (
-              <div className="absolute top-full left-0 right-0 bg-white mt-2 rounded-xl shadow-2xl border border-gray-200 max-h-96 overflow-y-auto z-50">
+              <div className="absolute top-full left-0 right-0 bg-white mt-2 rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto z-50">
                 {searchLoading ? (
                   <div className="p-4 text-center">
-                    <p className="text-gray-700 font-medium">Searching...</p>
+                    <p className="text-gray-700 font-normal text-sm">Searching...</p>
                   </div>
                 ) : searchResults.length === 0 ? (
                   <div className="p-4 text-center">
-                    <p className="text-gray-700 font-medium break-words">
+                    <p className="text-gray-700 font-normal text-sm break-words">
                       No results found for "{search}"
                     </p>
                   </div>
@@ -330,16 +330,13 @@ export default function Home() {
                         >
                           <div className="flex justify-between items-start gap-2">
                             <div className="flex-1 min-w-0">
-                              <h4 className="font-bold text-gray-900 text-base sm:text-lg mb-1 break-words">
+                              <h4 className="font-semibold text-gray-900 text-base mb-1 break-words">
                                 {word.word}
                               </h4>
-                              <p className="text-gray-700 font-medium text-sm break-words">
+                              <p className="text-gray-700 font-normal text-sm break-words">
                                 {word.meaning}
                               </p>
                             </div>
-                            <span className="bg-primary text-neutral px-2 py-1 rounded text-xs font-semibold whitespace-nowrap shrink-0 ml-2">
-                              {word.language}
-                            </span>
                           </div>
                         </a>
                       </li>
@@ -353,36 +350,42 @@ export default function Home() {
       </section>
 
       {/* RECENT WORDS SECTION */}
-      <section className="py-12 md:py-16 container mx-auto px-4 sm:px-6">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 md:mb-12 text-center text-gray-900 break-words">
-          Recent Words This Week
-        </h2>
+      <section className="py-12 container mx-auto px-6">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-bold mb-3 tracking-tight text-gray-900">
+            Recent Words This Week
+          </h2>
+          <p className="text-gray-600 text-base font-normal">
+            Explore the latest additions to our dictionary
+          </p>
+        </div>
 
         {/* Audio Error Display */}
         {audioError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-center">
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-center text-sm">
             {audioError}
           </div>
         )}
 
         {loading ? (
-          <div className="text-center">
-            <p className="text-gray-700 text-lg font-medium">Loading words...</p>
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3"></div>
+            <p className="text-gray-700 font-normal text-base">Loading words...</p>
           </div>
         ) : error ? (
           <div className="text-center">
-            <p className="text-red-600 text-lg font-semibold bg-red-50 inline-block px-4 py-2 rounded-lg break-words">
+            <p className="text-red-600 font-semibold text-sm bg-red-50 inline-block px-4 py-2 rounded-lg break-words">
               {error}
             </p>
           </div>
         ) : recentWords.length === 0 ? (
           <div className="text-center">
-            <p className="text-gray-700 text-lg font-medium break-words">
+            <p className="text-gray-700 font-normal text-base break-words">
               No words available yet.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recentWords.map(renderWordCard)}
           </div>
         )}

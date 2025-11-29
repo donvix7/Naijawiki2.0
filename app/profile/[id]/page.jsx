@@ -27,12 +27,13 @@ export default function UserProfilePage() {
 
   const token = Cookies.get("token");
   const base_url = getBaseUrl();
+  const id = Cookies.get("id");
 
   // Fetch user profile
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const res = await fetch(`${base_url}/user/profile`, {
+        const res = await fetch(`${base_url}/users/${id}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
