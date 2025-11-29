@@ -62,9 +62,9 @@ const About = () => {
             <p className="text-gray-700 mb-4">
               We welcome contributors, volunteers, and language enthusiasts to help grow this resource.
             </p>
-            <a href="/volunteer"
+            <a href="/signup"
                className="inline-block bg-primary hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors btn-outline">
-               Become a Volunteer
+               Join us
             </a>
           </div>
         </div>

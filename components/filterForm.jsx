@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import feather from "feather-icons";
 
-const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) => {
+const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false, isLoggedIn = false }) => {
   const [search, setSearch] = useState("");
   const [filteredWords, setFilteredWords] = useState(words);
   const [currentAudio, setCurrentAudio] = useState(null);
@@ -214,14 +214,17 @@ const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) =>
           </p>
         </div>
 
-        <div>
-          <a
-            href="/submit-word"
-            className="inline-flex items-center bg-primary hover:bg-primary-dark btn-outline text-white font-bold py-3 px-6 rounded-full transition-colors"
-          >
-            <i data-feather="plus" className="mr-2"></i> Add New Word
-          </a>
-        </div>
+        {/* Conditionally render Add Word button only for logged-in users */}
+        {isLoggedIn && (
+          <div>
+            <a
+              href="/submit-word"
+              className="inline-flex items-center bg-primary hover:bg-primary-dark btn-outline text-white font-bold py-3 px-6 rounded-full transition-colors"
+            >
+              <i data-feather="plus" className="mr-2"></i> Add New Word
+            </a>
+          </div>
+        )}
       </div>
 
       {/* Audio Error Display */}
@@ -309,7 +312,7 @@ const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) =>
       </div>
 
       {/* Filtered Words Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 ">
         {loading ? (
           <div className="col-span-full text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
@@ -323,7 +326,7 @@ const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false }) =>
             return (
               <div
                 key={word.id}
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow"
+                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow my-10"
               >
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-3">

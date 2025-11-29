@@ -11,24 +11,20 @@ export default function Page() {
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const base_url = getBaseUrl();
 
-  // Fetch all words on component mount
+  // Check if user is logged in
+  useEffect(() => {
+    const token = Cookies.get("token");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  // Fetch all words on component mount - no authentication required
   useEffect(() => {
     async function getWords() {
-      const token = Cookies.get("token");
-
-      if (!token) {
-        console.warn("No token found — user may not be logged in");
-        setError("Authentication required");
-        setLoading(false);
-        return;
-      }
-
       try {
-        const res = await fetch(`${base_url}/words`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(`${base_url}/words`);
 
         if (!res.ok) {
           throw new Error(`Failed to fetch words: ${res.statusText}`);
@@ -49,22 +45,13 @@ export default function Page() {
     getWords();
   }, [base_url]);
 
-  // Search words function
+  // Search words function - no authentication required
   const searchWords = async (searchTerm) => {
-    const token = Cookies.get("token");
-    
-    if (!token) {
-      setError("Authentication required");
-      return;
-    }
-
     setLoading(true);
     try {
       // If search term is empty, fetch all words
       if (!searchTerm.trim()) {
-        const res = await fetch(`${base_url}/words`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(`${base_url}/words`);
 
         if (!res.ok) {
           throw new Error(`Failed to fetch words: ${res.statusText}`);
@@ -78,9 +65,7 @@ export default function Page() {
       }
 
       // Search with the provided term
-      const res = await fetch(`${base_url}/words?search=${encodeURIComponent(searchTerm)}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(`${base_url}/words?search=${encodeURIComponent(searchTerm)}`);
 
       if (!res.ok) {
         throw new Error(`Failed to search words: ${res.statusText}`);
@@ -100,20 +85,11 @@ export default function Page() {
     }
   };
 
-  // Reset to show all words
+  // Reset to show all words - no authentication required
   const resetSearch = async () => {
-    const token = Cookies.get("token");
-    
-    if (!token) {
-      setError("Authentication required");
-      return;
-    }
-
     setLoading(true);
     try {
-      const res = await fetch(`${base_url}/words`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(`${base_url}/words`);
 
       if (!res.ok) {
         throw new Error(`Failed to fetch words: ${res.statusText}`);
@@ -159,12 +135,13 @@ export default function Page() {
           </div>
         )}
         
-        {/* Pass search function to FilterForm */}
+        {/* Pass search function and login status to FilterForm */}
         <FilterForm 
           words={words} 
           onSearch={searchWords}
           onResetSearch={resetSearch}
           loading={loading}
+          isLoggedIn={isLoggedIn}
         />
       </main>
 

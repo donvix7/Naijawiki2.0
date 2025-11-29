@@ -97,36 +97,43 @@ export default function RegisterPage() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <CustomNavbar />
 
-      <main className="container mx-auto px-6 py-12">
-        <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-secondary mb-2">Create Account</h1>
-            <p className="text-gray-600">Join our community of language enthusiasts</p>
+      <main className="flex-grow flex items-center justify-center py-16 px-6">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden p-10">
+          {/* Header Section */}
+          <div className="text-center mb-10">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4 tracking-tight">
+              Create Account
+            </h1>
+            <p className="text-gray-600 text-base font-normal leading-relaxed">
+              Join our community of language enthusiasts
+            </p>
           </div>
 
+          {/* Status Message */}
           {status.message && (
             <div
-              className={`mb-4 p-3 rounded-lg text-center ${
+              className={`mb-6 p-4 rounded-lg text-center text-sm font-medium ${
                 status.type === "success" 
-                  ? "bg-green-100 text-green-700 border border-green-200" 
-                  : "bg-red-100 text-red-700 border border-red-200"
+                  ? "bg-green-50 text-green-700 border border-green-200" 
+                  : "bg-red-50 text-red-700 border border-red-200"
               }`}
             >
               {status.message}
             </div>
           )}
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form className="space-y-7" onSubmit={handleSubmit}>
+            {/* Name Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label
                   htmlFor="first-name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs"
                 >
-                  First Name*
+                  First Name
                 </label>
                 <input
                   type="text"
@@ -134,16 +141,16 @@ export default function RegisterPage() {
                   required
                   value={firstname}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                  className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                   placeholder="John"
                 />
               </div>
               <div>
                 <label
                   htmlFor="last-name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs"
                 >
-                  Last Name*
+                  Last Name
                 </label>
                 <input
                   type="text"
@@ -151,18 +158,19 @@ export default function RegisterPage() {
                   required
                   value={lastname}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                  className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                   placeholder="Doe"
                 />
               </div>
             </div>
 
+            {/* Email Field */}
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Email*
+                className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs"
+                >
+                Email Address
               </label>
               <input
                 type="email"
@@ -170,17 +178,18 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                 placeholder="your@email.com"
               />
             </div>
 
+            {/* Password Field */}
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs"
               >
-                Password*
+                Password
               </label>
               <input
                 type="password"
@@ -188,18 +197,21 @@ export default function RegisterPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                placeholder="••••••••"
+                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                placeholder="Enter your password"
               />
-              <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
+              <p className="mt-2 text-xs text-gray-500 font-normal">
+                Must be at least 8 characters
+              </p>
             </div>
 
+            {/* Confirm Password Field */}
             <div>
               <label
                 htmlFor="confirm-password"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs"
               >
-                Confirm Password*
+                Confirm Password
               </label>
               <input
                 type="password"
@@ -207,77 +219,62 @@ export default function RegisterPage() {
                 required
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                placeholder="••••••••"
+                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                placeholder="Confirm your password"
               />
             </div>
 
+            {/* Terms Agreement */}
             <div className="flex items-start">
-              <div className="flex items-center h-5">
+              <div className="flex items-center h-5 mt-0.5">
                 <input
                   id="terms"
                   type="checkbox"
                   required
-                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  className="h-4 w-4 text-primary focus:ring-2 focus:ring-primary border border-gray-300 rounded"
                 />
               </div>
-              <div className="ml-3 text-sm">
-                <label htmlFor="terms" className="text-gray-700">
+              <div className="ml-3">
+                <label htmlFor="terms" className="text-sm font-normal text-gray-700 leading-relaxed">
                   I agree to the{" "}
-                  <a href="/terms" className="text-primary hover:underline">
+                  <a href="/terms" className="font-semibold text-primary hover:underline transition-colors">
                     Terms of Service
                   </a>{" "}
                   and{" "}
-                  <a href="/privacy" className="text-primary hover:underline">
+                  <a href="/privacy" className="font-semibold text-primary hover:underline transition-colors">
                     Privacy Policy
                   </a>
                 </label>
               </div>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className={`w-full bg-primary text-white font-bold py-3 px-6 rounded-lg transition-colors ${
-                loading ? "opacity-70 cursor-not-allowed" : "hover:bg-yellow-600"
-              }`}
+              className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark text-white font-semibold text-base py-3.5 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {loading ? "Creating Account..." : "Create Account"}
+              {loading ? (
+                <span className="flex items-center justify-center gap-3">
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating Account...
+                </span>
+              ) : (
+                "Create Account"
+              )}
             </button>
 
-            <div className="text-center text-sm text-gray-500">
+            {/* Login Link */}
+            <div className="text-center text-sm font-normal text-gray-600 pt-6 border-t border-gray-200">
               Already have an account?{" "}
-              <a href="/login" className="text-primary hover:underline">
-                Login
+              <a href="/login" className="font-semibold text-primary hover:underline transition-colors">
+                Sign in
               </a>
             </div>
           </form>
-
-          <div className="mt-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or sign up with</span>
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                className="w-full inline-flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                <i data-feather="facebook" className="text-blue-600"></i> Facebook
-              </button>
-              <button
-                type="button"
-                className="w-full inline-flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
-                <i data-feather="google" className="text-red-600"></i> Google
-              </button>
-            </div>
-          </div>
         </div>
       </main>
 

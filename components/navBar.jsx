@@ -16,6 +16,7 @@ const CustomNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const pathname = usePathname();
+    console.log(user);
 
   // Render Feather icons every render
   useEffect(() => {
@@ -26,6 +27,7 @@ const CustomNavbar = () => {
   useEffect(() => {
     const token = Cookies.get("token");
     const email = Cookies.get("email");
+    const userId = Cookies.get("Id");
     if (token && email) setUser({ email });
     else setUser(null);
   }, []);
@@ -76,9 +78,11 @@ const CustomNavbar = () => {
         <div className="hidden lg:flex gap-4 items-center">
           {user ? (
             <>
-              <span className="text-white font-medium px-3 py-1 bg-gray-600 rounded-lg">
+              <a href={`profile/${user.id}`}>
+                <span className="text-white font-medium px-3 py-1 bg-gray-600 rounded-lg">
                 {user.email}
               </span>
+              </a>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 px-4 py-2 border border-red-500 text-white font-semibold rounded-lg hover:bg-red-500 transition-colors duration-200"

@@ -9,7 +9,7 @@ import getBaseUrl from "@/app/api/baseUrl";
 
 export default function WordDetails() {
   const params = useParams();
-  const id = params.id
+  const id = params.id;
   const [word, setWord] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -36,12 +36,12 @@ export default function WordDetails() {
     };
 
     if (id) fetchWord();
-  }, [id]);
+  }, [id, base_url]);
 
   // Replace feather icons after mount or when word loads
   useEffect(() => {
     feather.replace();
-  }, [word]);
+  }, [word, isPlaying, audioError]);
 
   // Handle audio playback
   const handlePlayAudio = async () => {
@@ -54,9 +54,9 @@ export default function WordDetails() {
       setIsPlaying(false);
     }
 
-    // Check for audio availability - fixed the property names
+    // Check for audio availability
     const audioUrl = word.audio_url || word.audioUrl || word.audio;
-    console.log("Audio URL:", audioUrl); // Fixed the typo from console,log to console.log
+    console.log("Audio URL:", audioUrl);
     
     if (!audioUrl) {
       setAudioError(`No audio available for "${word.word}"`);
@@ -84,6 +84,7 @@ export default function WordDetails() {
         console.error("Audio error:", e);
         setAudioError(`Couldn't play audio for "${word.word}". The file may be missing or corrupted.`);
         setIsPlaying(false);
+        audioRef.current = null;
       });
 
       audio.addEventListener('ended', () => {
@@ -102,6 +103,7 @@ export default function WordDetails() {
       console.error("Audio play failed:", error);
       setAudioError(`Couldn't play audio for "${word.word}". Please try again.`);
       setIsPlaying(false);
+      audioRef.current = null;
     }
   };
 
@@ -130,174 +132,174 @@ export default function WordDetails() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen text-gray-500">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          Loading word details...
+      <div className="min-h-screen flex flex-col">
+        <CustomNavbar />
+        <div className="flex-grow flex items-center justify-center text-gray-500 py-24">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-primary mx-auto mb-5"></div>
+            <p className="text-base text-gray-600">Loading word details...</p>
+          </div>
         </div>
+        <CustomFooter />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen text-red-600">
-        <div className="text-center">
-          <div className="w-16 h-16 text-red-500 mx-auto mb-4 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
+      <div className="min-h-screen flex flex-col">
+        <CustomNavbar />
+        <div className="flex-grow flex items-center justify-center text-red-600 py-24">
+          <div className="text-center max-w-md mx-auto px-6">
+            <div className="w-16 h-16 text-red-500 mx-auto mb-5 flex items-center justify-center">
+              <i data-feather="alert-triangle"></i>
+            </div>
+            <h2 className="text-xl font-semibold mb-4">Unable to Load Word</h2>
+            <p className="text-gray-600 mb-6 text-base">{error}</p>
+            <a
+              href="/explore"
+              className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors text-base"
+            >
+              <i data-feather="arrow-left"></i>
+              Back to Explore
+            </a>
           </div>
-          {error}
         </div>
+        <CustomFooter />
       </div>
     );
   }
 
   if (!word) {
     return (
-      <div className="flex items-center justify-center h-screen text-gray-600">
-        <div className="text-center">
-          <div className="w-16 h-16 text-gray-500 mx-auto mb-4 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
+      <div className="min-h-screen flex flex-col">
+        <CustomNavbar />
+        <div className="flex-grow flex items-center justify-center text-gray-600 py-24">
+          <div className="text-center max-w-md mx-auto px-6">
+            <div className="w-16 h-16 text-gray-500 mx-auto mb-5 flex items-center justify-center">
+              <i data-feather="alert-triangle"></i>
+            </div>
+            <h2 className="text-xl font-semibold mb-4">Word Not Found</h2>
+            <p className="text-gray-600 mb-6 text-base">The word you're looking for doesn't exist or may have been removed.</p>
+            <a
+              href="/explore"
+              className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors text-base"
+            >
+              <i data-feather="arrow-left"></i>
+              Back to Explore
+            </a>
           </div>
-          Word not found.
         </div>
+        <CustomFooter />
       </div>
     );
   }
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <CustomNavbar />
 
-      <main className="container mx-auto px-6 py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Back Button + Language */}
-          <div className="flex items-center justify-between mb-8">
-            <a
-              href="/explore"
-              className="text-primary hover:underline flex items-center gap-2"
-            >
-              <i data-feather="arrow-left"></i> Back to Explore
-            </a>
-            <span className="bg-primary text-white px-3 py-1 rounded-full text-sm">
-              {word.language || "Pidgin"}
-            </span>
-          </div>
+      <main className="flex-grow">
+        <div className="container mx-auto px-6 py-12">
+          <div className="max-w-3xl mx-auto">
+            {/* Back Button */}
+            <div className="mb-10">
+              <a
+                href="/explore"
+                className="inline-flex items-center gap-2.5 text-primary hover:text-primary-dark transition-colors text-base font-medium group"
+              >
+                <i data-feather="arrow-left" className="group-hover:-translate-x-0.5 transition-transform"></i>
+                Back to Explore
+              </a>
+            </div>
 
-          {/* Word Card */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-            <div className="p-8">
-              <div className="flex justify-between items-start mb-6">
-                <h1 className="text-4xl font-bold text-secondary">
-                  {word.word || "Unknown Word"}
-                </h1>
-              </div>
+            {/* Word Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-8">
+                {/* Word Header */}
+                <div className="mb-10">
+                  <h1 className="text-3xl font-bold text-gray-900 leading-tight tracking-tight">
+                    {word.word || "Unknown Word"}
+                  </h1>
+                </div>
 
-              <div className="space-y-6">
-                {/* Meaning */}
-                <section>
-                  <h2 className="text-xl font-bold text-secondary mb-2">
-                    Meaning
-                  </h2>
-                  <p className="text-gray-700">{word.meaning || "—"}</p>
-                </section>
+                <div className="space-y-8">
+                  {/* Meaning Section */}
+                  <section>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                      Meaning
+                    </h2>
+                    <p className="text-gray-700 text-base leading-relaxed">{word.meaning || "—"}</p>
+                  </section>
 
-                {/* Pronunciation */}
-                <section>
-                  <h2 className="text-xl font-bold text-secondary mb-2">
-                    Pronunciation
-                  </h2>
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <span className="text-gray-700">
-                      {word.pronunciation || word.prononciation || "N/A"}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={isPlaying ? handleStopAudio : handlePlayAudio}
-                        disabled={!hasAudio}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
-                          isPlaying 
-                            ? "bg-red-500 text-white hover:bg-red-600" 
-                            : "bg-primary text-white hover:bg-primary-dark disabled:bg-gray-300 disabled:cursor-not-allowed"
-                        }`}
-                      >
-                        {isPlaying ? (
-                          <>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <rect x="6" y="4" width="4" height="16"></rect>
-                              <rect x="14" y="4" width="4" height="16"></rect>
-                            </svg>
-                            <span>Stop</span>
-                          </>
-                        ) : (
-                          <>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                            <span>Listen</span>
-                          </>
+                  {/* Pronunciation Section */}
+                  <section>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                      Pronunciation
+                    </h2>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-wrap">
+                      <span className="text-gray-700 text-base font-medium bg-gray-50 px-4 py-2.5 rounded-lg border border-gray-200">
+                        {word.pronunciation || word.prononciation || "N/A"}
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={isPlaying ? handleStopAudio : handlePlayAudio}
+                          disabled={!hasAudio}
+                          className={`flex items-center gap-2.5 px-5 py-2.5 rounded-lg transition-all duration-200 font-medium text-base ${
+                            isPlaying 
+                              ? "bg-red-500 text-white hover:bg-red-600 shadow-sm" 
+                              : "bg-primary text-red hover:bg-primary-dark disabled:bg-gray-300 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                          }`}
+                        >
+                          {isPlaying ? (
+                            <>
+                              <i data-feather="square"></i>
+                              <span>Stop</span>
+                            </>
+                          ) : (
+                            <>
+                              <i data-feather="play"></i>
+                              <span>Listen</span>
+                            </>
+                          )}
+                        </button>
+                        
+                        {/* Audio availability indicator */}
+                        {hasAudio && (
+                          <span className="text-xs text-green-600 bg-green-50 px-2.5 py-1.5 rounded border border-green-200">
+                            <i data-feather="volume-2" className="w-3 h-3 inline mr-1"></i>
+                            Audio
+                          </span>
                         )}
-                      </button>
-                      
-                      {/* Audio availability indicator */}
-                      {hasAudio && (
-                        <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
-                          Audio Available
-                        </span>
+                      </div>
+                    </div>
+                    
+                    {/* Audio error message */}
+                    {audioError && (
+                      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                        <div className="flex items-center gap-2">
+                          <i data-feather="alert-triangle"></i>
+                          <span>{audioError}</span>
+                        </div>
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Example Usage Section */}
+                  <section>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                      Example Usage
+                    </h2>
+                    <div className="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                      <p className="text-gray-700 text-base leading-relaxed mb-3">{word.use_case || word.example || "—"}</p>
+                      {word.translation && (
+                        <p className="text-gray-500 text-sm border-t border-gray-200 pt-3">
+                          <span className="font-medium">Translation:</span> "{word.translation}"
+                        </p>
                       )}
                     </div>
-                  </div>
-                  
-                  {/* Audio error message */}
-                  {audioError && (
-                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-                      {audioError}
-                    </div>
-                  )}
-                </section>
-
-                {/* Example Usage */}
-                <section>
-                  <h2 className="text-xl font-bold text-secondary mb-2">
-                    Example Usage
-                  </h2>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-gray-700 mb-2">{word.use_case || word.example || "—"}</p>
-                    {word.translation && (
-                      <p className="text-gray-500 text-sm">
-                        (Meaning: "{word.translation}")
-                      </p>
-                    )}
-                  </div>
-                </section>
-
-                {/* Related Words */}
-                {word.related && word.related.length > 0 && (
-                  <section>
-                    <h2 className="text-xl font-bold text-secondary mb-2">
-                      Related Words
-                    </h2>
-                    <div className="flex flex-wrap gap-2">
-                      {word.related.map((relatedWord, index) => (
-                        <a
-                          key={index}
-                          href={`/word/${relatedWord}`}
-                          className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm"
-                        >
-                          {relatedWord}
-                        </a>
-                      ))}
-                    </div>
                   </section>
-                )}
+                </div>
               </div>
             </div>
           </div>
