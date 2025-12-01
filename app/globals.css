@@ -54,9 +54,6 @@ h1, h2, h3, h4 {
   margin: 0 0 0.5em 0;
 }
 
-p {
-  margin: 0 0 1em 0;
-}
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
@@ -244,7 +241,9 @@ nav .active {
   background-color: var(--primary);
   color: white;
 }
-
+button {
+  transition: all 1s ease;
+}
 /* Footer */
 footer {
   background: var(--neutral);

@@ -1,197 +1,140 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import feather from "feather-icons";
+import getBaseUrl from "@/app/api/baseUrl";
 
-const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false, isLoggedIn = false }) => {
+export default function FilterForm({ isLoggedIn }) {
+  const base_url = getBaseUrl();
+
   const [search, setSearch] = useState("");
-  const [filteredWords, setFilteredWords] = useState(words);
+  const [words, setWords] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [currentAudio, setCurrentAudio] = useState(null);
   const [playingAudioId, setPlayingAudioId] = useState(null);
-  const [audioError, setAudioError] = useState(null);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [pageSize] = useState(20); // Adjust as needed
+  const [audioError, setAudioError] = useState("");
 
+  /** Init feather icons */
   useEffect(() => {
     feather.replace();
-  }, [search, filteredWords]);
+  });
 
-  // Update filtered words when words prop changes (only after initial load)
-  useEffect(() => {
-    if (isInitialLoad) {
-      setFilteredWords(words);
-      setIsInitialLoad(false);
-    } else {
-      setFilteredWords(words);
+  /** Fetch All Words */
+  const fetchAllWords = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${base_url}/words`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setWords(data.words ?? []);
+      setError("");
+    } catch {
+      setError("⚠ Failed to fetch words. Please retry.");
+    } finally {
+      setLoading(false);
     }
-  }, [words, isInitialLoad]);
+  }, [base_url]);
 
-  // Handle search with debounce - only trigger when search actually changes
   useEffect(() => {
-    if (!onSearch) return;
+    fetchAllWords();
+  }, [fetchAllWords]);
 
-    // Don't search on initial render or when search is empty
-    if (isInitialLoad && !search) return;
-
-    const delayDebounce = setTimeout(() => {
-      onSearch(search, currentPage, pageSize);
-    }, 400);
-
-    return () => clearTimeout(delayDebounce);
-  }, [search, currentPage, pageSize]);
-
-  /* ------------------------------
-     Audio Play Handler
-  -------------------------------*/
-  const handlePlayAudio = async (word) => {
-    // Stop current audio if playing
-    if (currentAudio) {
-      currentAudio.pause();
-      setCurrentAudio(null);
-      setPlayingAudioId(null);
+  /** Search */
+  const searchWords = async () => {
+    if (!search.trim()) return fetchAllWords();
+    setLoading(true);
+    try {
+      const res = await fetch(`${base_url}/words?search=${search}`);
+      const data = await res.json();
+      setWords(data.words ?? []);
+      setError("");
+    } catch {
+      setError("No results found.");
+      setWords([]);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // Check for audio availability
-    const audioUrl = word.audio_url || word.audioUrl || word.audio;
-    console.log("Attempting to play audio:", audioUrl);
+  /** Fixed Audio Controls */
+  const playAudio = useCallback(async (word) => {
+    const url = word.audio_url || word.audioUrl || word.audio;
     
-    if (!audioUrl) {
+    if (!url) {
       setAudioError(`No audio available for "${word.word}"`);
       return;
     }
 
+    // Stop current audio if playing
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+
     try {
-      setAudioError(null);
+      setAudioError("");
       setPlayingAudioId(word.id);
 
-      // Create audio element
-      const audio = new Audio(audioUrl);
+      // Create new audio element
+      const audio = new Audio(url);
       setCurrentAudio(audio);
 
       // Set up event listeners
-      audio.addEventListener('loadeddata', () => {
-        console.log("Audio loaded successfully");
-      });
+      const handleEnded = () => {
+        setPlayingAudioId(null);
+        setCurrentAudio(null);
+      };
 
-      audio.addEventListener('canplaythrough', () => {
-        console.log("Audio can play through");
-      });
-
-      audio.addEventListener('error', (e) => {
+      const handleError = (e) => {
         console.error("Audio error:", e);
         setAudioError(`Couldn't play audio for "${word.word}". The file may be missing or corrupted.`);
         setPlayingAudioId(null);
         setCurrentAudio(null);
-      });
+      };
 
-      audio.addEventListener('ended', () => {
-        setPlayingAudioId(null);
-        setCurrentAudio(null);
-      });
+      const handlePause = () => {
+        if (audio.currentTime > 0 && !audio.ended) {
+          // Only clear if manually paused, not when ended
+          return;
+        }
+      };
 
-      audio.addEventListener('pause', () => {
-        setPlayingAudioId(null);
-      });
+      // Add event listeners
+      audio.addEventListener('ended', handleEnded);
+      audio.addEventListener('error', handleError);
+      audio.addEventListener('pause', handlePause);
 
-      // Attempt to play
+      // Play audio
       await audio.play();
       
+      // Store cleanup function
+      return () => {
+        audio.removeEventListener('ended', handleEnded);
+        audio.removeEventListener('error', handleError);
+        audio.removeEventListener('pause', handlePause);
+      };
     } catch (error) {
       console.error("Audio play failed:", error);
       setAudioError(`Couldn't play audio for "${word.word}". Please try again.`);
       setPlayingAudioId(null);
       setCurrentAudio(null);
     }
-  };
+  }, [currentAudio]);
 
-  /* ------------------------------
-     Stop Audio
-  -------------------------------*/
-  const handleStopAudio = () => {
-    if (currentAudio) {
+  const stopAudio = useCallback(() => {
+    if (!currentAudio) return;
+    
+    try {
       currentAudio.pause();
       currentAudio.currentTime = 0;
       setCurrentAudio(null);
       setPlayingAudioId(null);
+    } catch (error) {
+      console.error("Error stopping audio:", error);
     }
-  };
+  }, [currentAudio]);
 
-  // Clear all filters and reset pagination
-  const clearFilters = () => {
-    setSearch("");
-    setCurrentPage(1);
-    if (onResetSearch) {
-      onResetSearch(1, pageSize);
-    }
-  };
-
-  // Handle manual search (when user clicks search button or presses enter)
-  const handleManualSearch = () => {
-    setCurrentPage(1); // Reset to first page on new search
-    if (onSearch) {
-      onSearch(search, 1, pageSize);
-    }
-  };
-
-  // Handle enter key press in search input
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleManualSearch();
-    }
-  };
-
-  // Pagination handlers
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    if (onSearch) {
-      onSearch(search, page, pageSize);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      const nextPage = currentPage + 1;
-      setCurrentPage(nextPage);
-      if (onSearch) {
-        onSearch(search, nextPage, pageSize);
-      }
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      const prevPage = currentPage - 1;
-      setCurrentPage(prevPage);
-      if (onSearch) {
-        onSearch(search, prevPage, pageSize);
-      }
-    }
-  };
-
-  // Generate page numbers for pagination
-  const generatePageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-    
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
-    // Adjust if we're near the end
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-    
-    return pages;
-  };
-
-  // Clean up audio on unmount
+  // Clean up audio on component unmount
   useEffect(() => {
     return () => {
       if (currentAudio) {
@@ -201,257 +144,175 @@ const FilterForm = ({ words = [], onSearch, onResetSearch, loading = false, isLo
     };
   }, [currentAudio]);
 
+  // Clear audio error after 5 seconds
+  useEffect(() => {
+    if (audioError) {
+      const timer = setTimeout(() => {
+        setAudioError("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [audioError]);
+
   return (
-    <main className="container mx-auto px-6 py-12">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+    <main className="container mx-auto px-6 py-16">
+      
+      {/* HEADER */}
+      <header className="flex flex-col md:flex-row items-start md:items-center justify-between mb-16">
         <div>
-          <h1 className="text-4xl font-bold text-secondary mb-2">
-            Explore Nigerian Words
+          <h1 className="text-5xl font-bold tracking-tight text-gray-900">
+            Nigerian Word Explorer
           </h1>
-          <p className="text-gray-600">
-            Discover and learn words from various Nigerian languages
+          <p className="text-gray-500 mt-2 text-lg">
+            Listen, Learn & Discover Languages Across Nigeria 🇳🇬
           </p>
         </div>
 
-        {/* Conditionally render Add Word button only for logged-in users */}
         {isLoggedIn && (
-          <div>
-            <a
-              href="/submit-word"
-              className="inline-flex items-center bg-primary hover:bg-primary-dark btn-outline text-white font-bold py-3 px-6 rounded-full transition-colors"
-            >
-              <i data-feather="plus" className="mr-2"></i> Add New Word
-            </a>
-          </div>
+          <a
+            href="/submit-word"
+            className="mt-6 md:mt-0 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:scale-105 hover:shadow-2xl transition-all flex items-center gap-2"
+          >
+            <i data-feather="plus"></i> Add Word
+          </a>
         )}
-      </div>
+      </header>
 
-      {/* Audio Error Display */}
-      {audioError && (
+      {/* Error Displays */}
+      {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-center">
+          {error}
+          <button 
+            onClick={() => setError("")}
+            className="float-right text-lg font-bold hover:text-gray-700"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {audioError && (
+        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 text-center">
           {audioError}
+          <button 
+            onClick={() => setAudioError("")}
+            className="float-right text-lg font-bold hover:text-gray-700"
+          >
+            ×
+          </button>
         </div>
       )}
 
-      {/* Filters */}
-      <div className="bg-white p-6 rounded-xl shadow-md mb-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Search */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search Words
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search words..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
-                disabled={loading}
-              />
-              <i
-                data-feather="search"
-                className="absolute left-3 top-3.5 text-gray-400"
-              ></i>
-              {loading && (
-                <div className="absolute right-3 top-3.5">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                </div>
-              )}
-            </div>
+      {/* SEARCH PANEL */}
+      <div className="backdrop-blur-lg bg-white/60 p-6 rounded-2xl shadow-xl border border-gray-100 mb-12">
+        <div className="flex flex-col md:flex-row gap-4">
+
+          <div className="flex-1 relative">
+            <input
+              value={search}
+              onChange={(e)=> setSearch(e.target.value)}
+              onKeyDown={(e)=> e.key === "Enter" && searchWords()}
+              placeholder="Search Igbo, Yoruba, Hausa, Pidgin..."
+              className="w-full p-4 pl-12 rounded-xl border border-gray-200 shadow-sm text-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+            />
+            <i data-feather="search" className="absolute left-4 top-4 text-gray-400"></i>
+
+            {loading && (
+              <div className="absolute right-4 top-4 animate-spin w-5 h-5 border-2 border-yellow-500 border-b-transparent rounded-full"/>
+            )}
           </div>
 
-          {/* Search Button */}
-          <div className="flex items-end">
-            <button
-              onClick={handleManualSearch}
-              disabled={loading}
-              className="w-full p-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <i data-feather="search" className="w-4 h-4"></i>
-              Search
-            </button>
-          </div>
+          <button
+            onClick={searchWords}
+            disabled={loading}
+            className="px-6 py-4 bg-yellow-500 text-white font-semibold rounded-xl hover:bg-yellow-600 transition disabled:opacity-50"
+          >
+            Search
+          </button>
 
-          {/* Clear Filters */}
-          <div className="flex items-end">
-            <button
-              onClick={clearFilters}
-              disabled={loading}
-              className="w-full p-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <i data-feather="refresh-cw" className="w-4 h-4"></i>
-              Clear
-            </button>
-          </div>
+          <button
+            onClick={() => { setSearch(""); fetchAllWords(); }}
+            className="px-6 py-4 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition"
+          >
+            Clear
+          </button>
+
         </div>
+      </div>
 
-        {/* Active Filters Indicator */}
-        {(search) && (
-          <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
-            <span>Active filters:</span>
-            {search && (
-              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                Search: "{search}"
-              </span>
-            )}
+
+      {/* COUNT */}
+      <p className="text-gray-500 mb-8 font-medium text-lg">
+        {words.length} word{words.length !== 1 && "s"} found
+      </p>
+
+
+      {/* WORDS GRID — PREMIUM CARD LAYOUT */}
+      <section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
+
+        {loading && (
+          <div className="col-span-full text-center py-16">
+            <div className="animate-spin w-14 h-14 border-4 border-yellow-500 border-b-transparent rounded-full mx-auto"></div>
           </div>
         )}
-      </div>
 
-      {/* Results Count */}
-      <div className="mb-6">
-        <p className="text-gray-600">
-          Showing {filteredWords.length} word{filteredWords.length !== 1 ? 's' : ''}
-          {search ? ' matching your filters' : ''}
-          {loading && " (loading...)"}
-        </p>
-      </div>
-
-      {/* Filtered Words Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 ">
-        {loading ? (
-          <div className="col-span-full text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-500 text-lg">Loading words...</p>
-          </div>
-        ) : filteredWords.length > 0 ? (
-          filteredWords.map((word) => {
-            // Check if audio is available for this word
-            const hasAudio = word.audio_url || word.audioUrl || word.audio;
-            
-            return (
-              <div
-                key={word.id}
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow my-10"
-              >
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-2xl font-bold text-secondary">
-                      {word.word}
-                    </h3>
-                    <span className="bg-primary text-white px-2 py-1 rounded-full text-xs font-semibold">
-                      {word.language}
-                    </span>
-                  </div>
-
-                  <p className="text-gray-600 mb-4">{word.meaning}</p>
-
-                  <div className="flex items-center justify-between">
-                    <button 
-                      onClick={() => 
-                        playingAudioId === word.id 
-                          ? handleStopAudio() 
-                          : handlePlayAudio(word)
-                      }
-                      disabled={!hasAudio}
-                      className={`flex items-center transition-colors ${
-                        playingAudioId === word.id 
-                          ? "text-red-600 hover:text-red-700" 
-                          : "text-primary hover:text-primary-dark"
-                      } ${!hasAudio ? "opacity-50 cursor-not-allowed" : ""}`}
-                    >
-                      <i 
-                        data-feather={playingAudioId === word.id ? "square" : "play-circle"} 
-                        className="mr-2"
-                      ></i> 
-                      {playingAudioId === word.id ? "Stop" : "Listen"}
-                    </button>
-
-                    {/* Audio availability indicator */}
-                    {hasAudio && (
-                      <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">
-                        Audio
-                      </span>
-                    )}
-
-                    <a
-                      href={`/word-details/${word.id}`}
-                      className="text-accent hover:underline flex items-center gap-1"
-                    >
-                      View details
-                      <i data-feather="arrow-right" className="w-4 h-4"></i>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="col-span-full text-center py-12">
-            <i data-feather="search" className="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
-            <p className="text-gray-500 text-lg mb-2">No words found</p>
-            <p className="text-gray-400 mb-4">
-              {search  
-                ? "Try adjusting your search terms to see more results." 
-                : "No words available yet."
-              }
-            </p>
-            {search && (
-              <button
-                onClick={clearFilters}
-                className="bg-primary text-white font-bold py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors"
-              >
-                Clear Search
-              </button>
-            )}
-          </div>
+        {!loading && words.length === 0 && (
+          <p className="col-span-full text-center text-gray-600 text-xl py-16">
+            No words found.
+          </p>
         )}
-      </div>
 
-      {/* Pagination - Only show if not loading and there are results */}
-      {!loading && filteredWords.length > 0 && totalPages > 1 && (
-        <div className="mt-12 flex justify-center">
-          <nav className="flex items-center gap-1 flex-wrap" aria-label="Pagination">
-            <button 
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-              className={`px-3 py-2 border rounded-md text-sm flex items-center ${
-                currentPage === 1 
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
+        {words.map((word)=>{
+
+          const hasAudio = word.audio_url || word.audio || word.audioUrl;
+
+          return (
+            <div
+              key={word.id}
+              className="group bg-white rounded-2xl p-6 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all border border-gray-100"
             >
-              <i data-feather="chevron-left" className="h-4 w-4"></i>
-              <span className="ml-1 hidden sm:inline">Previous</span>
-            </button>
+              <h2 className="text-3xl font-semibold text-gray-900">
+                {word.word}
+              </h2>
 
-            <div className="flex items-center gap-1 flex-wrap justify-center">
-              {generatePageNumbers().map((page) => (
+              <p className="text-gray-600 mt-3 min-h-[60px] leading-relaxed">
+                {word.meaning}
+              </p>
+
+              <div className="flex justify-between items-center mt-6">
+
+                {/* AUDIO BTN */}
                 <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-3 py-2 border rounded-md text-sm ${
-                    currentPage === page
-                      ? "bg-primary text-white"
-                      : "bg-white text-gray-700 hover:bg-gray-100"
-                  }`}
+                  disabled={!hasAudio}
+                  onClick={()=>
+                    playingAudioId === word.id ? stopAudio() : playAudio(word)
+                  }
+                  className={`flex items-center gap-2 font-medium
+                    ${playingAudioId === word.id 
+                      ? "text-red-600 hover:text-red-700" 
+                      : hasAudio 
+                        ? "text-yellow-600 hover:text-yellow-700" 
+                        : "opacity-50 cursor-not-allowed"
+                    }
+                  `}
                 >
-                  {page}
+                  <i data-feather={playingAudioId===word.id?"square":"play-circle"}/>
+                  {playingAudioId===word.id ? "Stop" : "Listen"}
                 </button>
-              ))}
-            </div>
 
-            <button 
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-              className={`px-3 py-2 border rounded-md text-sm flex items-center ${
-                currentPage === totalPages
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              <span className="mr-1 hidden sm:inline">Next</span>
-              <i data-feather="chevron-right" className="h-4 w-4"></i>
-            </button>
-          </nav>
-        </div>
-      )}
+                <a
+                  href={`/word-details/${word.id}`}
+                  className="text-blue-700 hover:underline font-semibold flex items-center gap-1"
+                >
+                  View <i data-feather="arrow-right"/>
+                </a>
+
+              </div>
+            </div>
+          );
+        })}
+
+      </section>
     </main>
   );
-};
-
-export default FilterForm;
+}

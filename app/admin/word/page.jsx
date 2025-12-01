@@ -76,7 +76,7 @@ const Page = () => {
 
               <a
                 href="/admin/word/add"
-                className="bg-[var(--neutral)] hover:from-primary-dark hover:to-secondary-dark text-white font-bold py-3 px-6 rounded-xl flex items-center gap-3 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="bg-[var(--neutral)] hover:from-yellow-500-dark hover:to-blue-900-dark text-white font-bold py-3 px-6 rounded-xl flex items-center gap-3 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 <i data-feather="plus" className="w-5 h-5"></i> 
                 Add New Word
@@ -85,7 +85,7 @@ const Page = () => {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 md:mb-8">
-              <div className="bg-white p-4 rounded-xl shadow-lg border-l-4 border-primary">
+              <div className="bg-white p-4 rounded-xl shadow-lg border-l-4 border-yellow-500">
                 <p className="text-gray-700 font-semibold text-sm mb-1">Total Words</p>
                 <h3 className="text-2xl font-bold text-gray-900">{words.length}</h3>
               </div>
@@ -121,7 +121,7 @@ const Page = () => {
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                    className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
                   >
                     <option value="">All Statuses</option>
                     <option value="pending">Pending Review</option>
@@ -140,7 +140,7 @@ const Page = () => {
                       placeholder="Search by word name..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      className="w-full p-3 pl-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                      className="w-full p-3 pl-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
                     />
                     <i
                       data-feather="search"
@@ -161,7 +161,7 @@ const Page = () => {
                       setStatus("");
                       setSearch("");
                     }}
-                    className="text-primary font-semibold hover:underline flex items-center gap-2"
+                    className="text-yellow-500 font-semibold hover:underline flex items-center gap-2"
                   >
                     <i data-feather="x" className="w-4 h-4"></i>
                     Clear Filters
@@ -175,7 +175,7 @@ const Page = () => {
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
                     <p className="text-gray-700 font-semibold text-lg">Loading words...</p>
                   </div>
                 </div>
@@ -211,21 +211,21 @@ const Page = () => {
                         <p className="text-gray-700 mb-3">{item.meaning}</p>
                         
                         <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
-                          <span className="font-medium">By: {item.submittedBy || item.creator || "—"}</span>
-                          <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                          <span className="font-medium">By: {item.created_by || item.creator || "—"}</span>
+                          <span>{new Date(item.created_at).toLocaleDateString()}</span>
                         </div>
                         
                         <div className="flex gap-2">
                           <a
                             href={`/admin/word/edit/${item.id}`}
-                            className="flex-1 bg-[var(--neutral)] hover:bg-gray-500 text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-primary-dark transition-colors flex items-center justify-center gap-1"
+                            className="flex-1 bg-[var(--neutral)] hover:bg-gray-500 text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-yellow-500-dark transition-colors flex items-center justify-center gap-1"
                           >
                             <i data-feather="edit" className="w-3 h-3"></i>
                             Edit
                           </a>
                           <a
                             href={`/admin/word/${item.id}`}
-                            className="flex-1 bg-blue-500 hover:bg-blue-800 text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-secondary-dark transition-colors flex items-center justify-center gap-1"
+                            className="flex-1 bg-blue-500 hover:bg-blue-800 text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-blue-900-dark transition-colors flex items-center justify-center gap-1"
                           >
                             <i data-feather="eye" className="w-3 h-3"></i>
                             Review
@@ -279,26 +279,26 @@ const Page = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className="text-gray-700 font-medium">
-                                {item.submittedBy || item.creator || "—"}
+                                {item.created_by || "—"}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className="text-gray-600 text-sm">
-                                {new Date(item.createdAt).toLocaleDateString()}
+                                {new Date(item.created_at).toLocaleDateString()}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex gap-2">
                                 <a
                                   href={`/admin/word/edit/${item.id}`}
-                                  className="bg-[var(--neutral)] hover:bg-grey-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors text-sm flex items-center gap-1"
+                                  className="bg-[var(--neutral)] hover:bg-grey-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-yellow-500-dark transition-colors text-sm flex items-center gap-1"
                                 >
                                   <i data-feather="edit" className="w-3 h-3"></i>
                                   Edit
                                 </a>
                                 <a
                                   href={`/admin/word/${item.id}`}
-                                  className="bg-blue-500 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary-dark transition-colors text-sm flex items-center gap-1"
+                                  className="bg-blue-500 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-900-dark transition-colors text-sm flex items-center gap-1"
                                 >
                                   <i data-feather="eye" className="w-3 h-3"></i>
                                   Review
@@ -325,7 +325,7 @@ const Page = () => {
                   <button className="px-4 py-2 border-2 border-gray-300 rounded-xl bg-white text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
                     Previous
                   </button>
-                  <button className="px-4 py-2 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors">
+                  <button className="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-xl hover:bg-yellow-500-dark transition-colors">
                     1
                   </button>
                   <button className="px-4 py-2 border-2 border-gray-300 rounded-xl bg-white text-gray-700 font-semibold hover:bg-gray-50 transition-colors">

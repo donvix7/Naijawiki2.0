@@ -141,7 +141,7 @@ export default function RegisterPage() {
                   required
                   value={firstname}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                  className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                   placeholder="John"
                 />
               </div>
@@ -158,7 +158,7 @@ export default function RegisterPage() {
                   required
                   value={lastname}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                  className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                   placeholder="Doe"
                 />
               </div>
@@ -178,7 +178,7 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                 placeholder="your@email.com"
               />
             </div>
@@ -197,7 +197,7 @@ export default function RegisterPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                 placeholder="Enter your password"
               />
               <p className="mt-2 text-xs text-gray-500 font-normal">
@@ -219,7 +219,7 @@ export default function RegisterPage() {
                 required
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                 placeholder="Confirm your password"
               />
             </div>
@@ -231,17 +231,17 @@ export default function RegisterPage() {
                   id="terms"
                   type="checkbox"
                   required
-                  className="h-4 w-4 text-primary focus:ring-2 focus:ring-primary border border-gray-300 rounded"
+                  className="h-4 w-4 text-yellow-500 focus:ring-2 focus:ring-yellow-500 border border-gray-300 rounded"
                 />
               </div>
               <div className="ml-3">
                 <label htmlFor="terms" className="text-sm font-normal text-gray-700 leading-relaxed">
                   I agree to the{" "}
-                  <a href="/terms" className="font-semibold text-primary hover:underline transition-colors">
+                  <a href="/terms" className="font-semibold text-yellow-500 hover:underline transition-colors">
                     Terms of Service
                   </a>{" "}
                   and{" "}
-                  <a href="/privacy" className="font-semibold text-primary hover:underline transition-colors">
+                  <a href="/privacy" className="font-semibold text-yellow-500 hover:underline transition-colors">
                     Privacy Policy
                   </a>
                 </label>
@@ -270,7 +270,7 @@ export default function RegisterPage() {
             {/* Login Link */}
             <div className="text-center text-sm font-normal text-gray-600 pt-6 border-t border-gray-200">
               Already have an account?{" "}
-              <a href="/login" className="font-semibold text-primary hover:underline transition-colors">
+              <a href="/login" className="font-semibold text-yellow-500 hover:underline transition-colors">
                 Sign in
               </a>
             </div>

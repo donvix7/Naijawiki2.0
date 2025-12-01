@@ -56,7 +56,7 @@ export default function AdminActivityPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
           <p className="text-gray-700 text-lg font-semibold">Loading activity data...</p>
         </div>
       </div>
@@ -72,7 +72,7 @@ export default function AdminActivityPage() {
           <p className="text-red-600 text-lg font-semibold">{error}</p>
           <button 
             onClick={() => window.location.reload()}
-            className="mt-4 px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+            className="mt-4 px-6 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-500-dark transition-colors"
           >
             Retry
           </button>
@@ -93,7 +93,7 @@ export default function AdminActivityPage() {
             {/* Header */}
             <div className="mb-6 md:mb-8">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-                <i data-feather="activity" className="w-6 h-6 md:w-7 md:h-7 text-primary"></i> 
+                <i data-feather="activity" className="w-6 h-6 md:w-7 md:h-7 text-yellow-500"></i> 
                 User Activity Log
               </h1>
               <p className="text-gray-600 font-medium">
@@ -103,24 +103,24 @@ export default function AdminActivityPage() {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 md:mb-8">
-              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-primary">
+              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-yellow-500">
                 <p className="text-gray-700 font-semibold text-sm md:text-base mb-2">Total Activities</p>
                 <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{words.length}</h3>
               </div>
               
-              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-secondary">
+              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-blue-900">
                 <p className="text-gray-700 font-semibold text-sm md:text-base mb-2">Pending Reviews</p>
                 <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
                   {words.filter(w => w.status === 'pending').length}
                 </h3>
               </div>
               
-              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-accent">
+              <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-red-900">
                 <p className="text-gray-700 font-semibold text-sm md:text-base mb-2">Approved Today</p>
                 <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
                   {words.filter(w => 
                     w.status === 'approved' && 
-                    new Date(w.createdAt).toDateString() === new Date().toDateString()
+                    new Date(w.created_at).toDateString() === new Date().toDateString()
                   ).length}
                 </h3>
               </div>
@@ -128,7 +128,7 @@ export default function AdminActivityPage() {
               <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-green-600">
                 <p className="text-gray-700 font-semibold text-sm md:text-base mb-2">Active Users</p>
                 <h3 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  {new Set(words.map(w => w.submittedBy)).size}
+                  {new Set(words.map(w => w.created_by)).size}
                 </h3>
               </div>
             </div>
@@ -169,7 +169,7 @@ export default function AdminActivityPage() {
                             {item.status}
                           </span>
                           <span className="text-xs text-gray-500 font-medium">
-                            {new Date(item.createdAt).toLocaleDateString()}
+                            {new Date(item.created_at).toLocaleDateString()}
                           </span>
                         </div>
                         
@@ -177,18 +177,22 @@ export default function AdminActivityPage() {
                         <p className="text-gray-700 mb-2">{item.meaning}</p>
                         
                         <div className="flex justify-between items-center text-sm text-gray-600">
-                          <span className="font-medium">By: {item.submittedBy || 'Unknown'}</span>
-                          <span>{new Date(item.createdAt).toLocaleTimeString()}</span>
+                          <span className="font-medium">By: {item.created_by || 'Unknown'}</span>
+                          <span>{new Date(item.created_at).toLocaleTimeString()}</span>
                         </div>
                         
                         <div className="mt-3 flex gap-2">
-                          <button className="flex-1 bg-primary text-white font-semibold py-2 px-3 rounded-lg text-sm hover:bg-primary-dark transition-colors">
-                            View Details
-                          </button>
-                          {item.status === 'pending' && (
-                            <button className="flex-1 bg-secondary text-white font-semibold py-2 px-3 rounded-lg text-sm hover:bg-secondary-dark transition-colors">
-                              Review
+                          <a href={`/word-details/${item.id}`}>
+                            <button className="flex-1 bg-yellow-500 text-white font-semibold py-2 px-3 rounded-lg text-sm hover:bg-yellow-500-dark transition-colors">
+                             View Details
                             </button>
+                          </a>
+                          {item.status === 'pending' && (
+                            <a href={`/review/${item.id}`}>
+                              <button className="flex-1 bg-blue-900 text-white font-semibold py-2 px-3 rounded-lg text-sm hover:bg-blue-900-dark transition-colors">
+                                Review
+                              </button>
+                            </a>
                           )}
                         </div>
                       </div>
@@ -229,7 +233,7 @@ export default function AdminActivityPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="text-gray-700 font-medium">
-                              {item.submittedBy || 'Unknown'}
+                              {item.created_by || 'Unknown'}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -254,17 +258,19 @@ export default function AdminActivityPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-700">
-                              <div className="font-medium">{new Date(item.createdAt).toLocaleDateString()}</div>
-                              <div className="text-gray-500">{new Date(item.createdAt).toLocaleTimeString()}</div>
+                              <div className="font-medium">{new Date(item.created_at).toLocaleDateString()}</div>
+                              <div className="text-gray-500">{new Date(item.created_at).toLocaleTimeString()}</div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex gap-2">
-                              <button className="bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors text-sm">
+                              <a href={`/word-details/${item.id}`}>
+                              <button className="bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-yellow-500-dark transition-colors text-sm">
                                 View
                               </button>
+                              </a>
                               {item.status === 'pending' && (
-                                <button className="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary-dark transition-colors text-sm">
+                                <button className="bg-blue-900 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-900-dark transition-colors text-sm">
                                   Review
                                 </button>
                               )}

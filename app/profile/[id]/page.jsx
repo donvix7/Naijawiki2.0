@@ -203,7 +203,7 @@ export default function UserProfilePage() {
         <CustomNavbar />
         <div className="flex-grow flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-primary mx-auto mb-5"></div>
+            <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-yellow-500 mx-auto mb-5"></div>
             <p className="text-gray-700 text-base font-semibold">Loading profile...</p>
           </div>
         </div>
@@ -223,7 +223,7 @@ export default function UserProfilePage() {
             <p className="text-gray-600 font-semibold text-base mb-6">{error || "Profile not found"}</p>
             <button
               onClick={() => router.push('/')}
-              className="bg-primary text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-primary-dark transition-colors text-sm"
+              className="bg-yellow-500 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-yellow-500-dark transition-colors text-sm"
             >
               Back to Home
             </button>
@@ -287,7 +287,7 @@ export default function UserProfilePage() {
                     {!editing && (
                       <button
                         onClick={() => setEditing(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors text-sm"
+                        className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-500-dark transition-colors text-sm"
                       >
                         <i data-feather="edit" className="w-4 h-4"></i>
                         Edit Profile
@@ -307,7 +307,7 @@ export default function UserProfilePage() {
                             name="firstname"
                             value={formData.firstname}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                            className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                             placeholder="Enter your first name"
                             required
                           />
@@ -322,7 +322,7 @@ export default function UserProfilePage() {
                             name="lastname"
                             value={formData.lastname}
                             onChange={handleInputChange}
-                            className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                            className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                             placeholder="Enter your last name"
                             required
                           />
@@ -338,7 +338,7 @@ export default function UserProfilePage() {
                           name="email"
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                          className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                           placeholder="Enter your email address"
                           required
                         />
@@ -348,7 +348,7 @@ export default function UserProfilePage() {
                         <button
                           type="submit"
                           disabled={actionLoading}
-                          className="bg-primary text-white font-semibold py-3 px-6 rounded-lg hover:bg-primary-dark transition-colors text-sm disabled:opacity-50"
+                          className="bg-yellow-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-yellow-500-dark transition-colors text-sm disabled:opacity-50"
                         >
                           {actionLoading ? "Saving..." : "Save Changes"}
                         </button>
@@ -432,7 +432,7 @@ export default function UserProfilePage() {
 
                   {wordsLoading ? (
                     <div className="text-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto mb-3"></div>
                       <p className="text-gray-600 text-sm">Loading your words...</p>
                     </div>
                   ) : submittedWords.length === 0 ? (
@@ -442,7 +442,7 @@ export default function UserProfilePage() {
                       <p className="text-gray-500 text-sm mb-4">Start contributing to the dictionary!</p>
                       <button
                         onClick={() => router.push('/submit-word')}
-                        className="bg-primary text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-primary-dark transition-colors text-sm"
+                        className="bg-yellow-500 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-yellow-500-dark transition-colors text-sm"
                       >
                         Submit Your First Word
                       </button>
@@ -472,13 +472,13 @@ export default function UserProfilePage() {
                               </p>
                             )}
                             <p className="text-gray-500 text-xs mt-2">
-                              Submitted on {new Date(word.createdAt).toLocaleDateString()}
+                              Submitted on {new Date(word.created_at).toLocaleDateString()}
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => router.push(`/word-details/${word.id}`)}
-                              className="p-2 text-gray-600 hover:text-primary transition-colors"
+                              className="p-2 text-gray-600 hover:text-yellow-500 transition-colors"
                               title="View Details"
                             >
                               <i data-feather="eye" className="w-4 h-4"></i>
@@ -536,7 +536,7 @@ export default function UserProfilePage() {
                           Member Since
                         </label>
                         <p className="text-gray-900 text-sm">
-                          {new Date(user.createdAt).toLocaleDateString('en-US', {
+                          {new Date(user.created_at).toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric'
@@ -584,7 +584,7 @@ export default function UserProfilePage() {
                   <div className="space-y-3">
                     <button
                       onClick={() => router.push('/submit-word')}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors text-sm"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-500-dark transition-colors text-sm"
                     >
                       <i data-feather="plus" className="w-4 h-4"></i>
                       Add New Word

@@ -136,7 +136,7 @@ export default function WordDetails() {
         <CustomNavbar />
         <div className="flex-grow flex items-center justify-center text-gray-500 py-24">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-primary mx-auto mb-5"></div>
+            <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-yellow-500 mx-auto mb-5"></div>
             <p className="text-base text-gray-600">Loading word details...</p>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function WordDetails() {
             <p className="text-gray-600 mb-6 text-base">{error}</p>
             <a
               href="/explore"
-              className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors text-base"
+              className="inline-flex items-center gap-2 bg-yellow-500 text-white px-5 py-2.5 rounded-lg hover:bg-yellow-500-dark transition-colors text-base"
             >
               <i data-feather="arrow-left"></i>
               Back to Explore
@@ -183,7 +183,7 @@ export default function WordDetails() {
             <p className="text-gray-600 mb-6 text-base">The word you're looking for doesn't exist or may have been removed.</p>
             <a
               href="/explore"
-              className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg hover:bg-primary-dark transition-colors text-base"
+              className="inline-flex items-center gap-2 bg-yellow-500 text-white px-5 py-2.5 rounded-lg hover:bg-yellow-500-dark transition-colors text-base"
             >
               <i data-feather="arrow-left"></i>
               Back to Explore
@@ -206,7 +206,7 @@ export default function WordDetails() {
             <div className="mb-10">
               <a
                 href="/explore"
-                className="inline-flex items-center gap-2.5 text-primary hover:text-primary-dark transition-colors text-base font-medium group"
+                className="inline-flex items-center gap-2.5 text-yellow-500 hover:text-yellow-500-dark transition-colors text-base font-medium group"
               >
                 <i data-feather="arrow-left" className="group-hover:-translate-x-0.5 transition-transform"></i>
                 Back to Explore
@@ -248,7 +248,7 @@ export default function WordDetails() {
                           className={`flex items-center gap-2.5 px-5 py-2.5 rounded-lg transition-all duration-200 font-medium text-base ${
                             isPlaying 
                               ? "bg-red-500 text-white hover:bg-red-600 shadow-sm" 
-                              : "bg-primary text-red hover:bg-primary-dark disabled:bg-gray-300 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                              : "bg-yellow-500 text-red hover:bg-yellow-500-dark disabled:bg-gray-300 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                           }`}
                         >
                           {isPlaying ? (

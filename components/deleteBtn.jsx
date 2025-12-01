@@ -47,7 +47,7 @@ const DeleteBtn = ({ id, base_url, token }) => {
     <button
       onClick={deleteWord}
       disabled={loading}
-      className={`bg-red-500 hover:bg-red-800 text-white hover:underline font-semibold py-2 px-4 rounded-lg hover:bg-secondary-dark transition-colors text-sm flex items-center gap-1 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+      className={`bg-red-500 hover:bg-red-800 text-white hover:underline font-semibold py-2 px-4 rounded-lg hover:bg-blue-900-dark transition-colors text-sm flex items-center gap-1 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
     >
       {loading ? "Deleting..." : "Delete"}
     </button>

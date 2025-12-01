@@ -222,7 +222,7 @@ export default function Page() {
             <AdminSidebar />
             <div className="flex-1 flex justify-center items-center">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-primary mx-auto mb-5"></div>
+                <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-yellow-500 mx-auto mb-5"></div>
                 <p className="text-gray-700 text-base font-semibold">Loading user...</p>
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function Page() {
                 <p className="text-gray-600 font-semibold text-base mb-6">{error || "User not found"}</p>
                 <button
                   onClick={() => router.push('/admin/users')}
-                  className="bg-primary text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-primary-dark transition-colors text-sm"
+                  className="bg-yellow-500 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-yellow-500-dark transition-colors text-sm"
                 >
                   Back to Users
                 </button>
@@ -358,8 +358,8 @@ export default function Page() {
                           Account Created
                         </label>
                         <p className="text-gray-900 text-sm">
-                          {new Date(user.createdAt).toLocaleDateString()} at{" "}
-                          {new Date(user.createdAt).toLocaleTimeString()}
+                          {new Date(user.created_at).toLocaleDateString()} at{" "}
+                          {new Date(user.created_at).toLocaleTimeString()}
                         </p>
                       </div>
 
@@ -389,7 +389,7 @@ export default function Page() {
 
                   {wordsLoading ? (
                     <div className="text-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3"></div>
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto mb-3"></div>
                       <p className="text-gray-600 text-sm">Loading user's words...</p>
                     </div>
                   ) : submittedWords.length === 0 ? (
@@ -423,13 +423,13 @@ export default function Page() {
                               </p>
                             )}
                             <p className="text-gray-500 text-xs mt-2">
-                              Submitted on {new Date(word.createdAt).toLocaleDateString()}
+                              Submitted on {new Date(word.created_at).toLocaleDateString()}
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => router.push(`/admin/word/${word.id}`)}
-                              className="p-2 text-gray-600 hover:text-primary transition-colors"
+                              className="p-2 text-gray-600 hover:text-yellow-500 transition-colors"
                               title="View Details"
                             >
                               <i data-feather="eye" className="w-4 h-4"></i>
@@ -470,7 +470,7 @@ export default function Page() {
                             disabled={actionLoading || user.role === roleOption}
                             className={`px-4 py-2.5 rounded-lg font-semibold capitalize transition-colors text-sm ${
                               user.role === roleOption
-                                ? 'bg-primary text-white cursor-default'
+                                ? 'bg-yellow-500 text-white cursor-default'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             } ${actionLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
@@ -518,7 +518,7 @@ export default function Page() {
                   <div className="space-y-3">
                     <button
                       onClick={() => router.push(`/admin/users/edit/${user.id}`)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors text-sm"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-500-dark transition-colors text-sm"
                     >
                       <i data-feather="edit" className="w-4 h-4"></i>
                       Edit User

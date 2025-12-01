@@ -144,7 +144,7 @@ const Page = () => {
                       required
                       value={word}
                       onChange={(e) => setWord(e.target.value)}
-                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
                       placeholder="Enter the word or phrase"
                     />
                   </div>
@@ -158,7 +158,7 @@ const Page = () => {
                       required
                       value={language}
                       onChange={(e) => setLanguage(e.target.value)}
-                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
                     >
                       <option value="">Select Language</option>
                       <option value="yoruba">Yoruba</option>
@@ -177,7 +177,7 @@ const Page = () => {
                     <select
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
-                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
                     >
                       <option value="">Select Category</option>
                       <option value="greeting">Greeting</option>
@@ -199,7 +199,7 @@ const Page = () => {
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value)}
-                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
                     >
                       <option value="approved">Approved</option>
                       <option value="pending">Pending Review</option>
@@ -217,7 +217,7 @@ const Page = () => {
                       required
                       value={meaning}
                       onChange={(e) => setMeaning(e.target.value)}
-                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium resize-vertical"
+                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium resize-vertical"
                       placeholder="Provide the meaning and explanation of the word"
                     ></textarea>
                   </div>
@@ -231,7 +231,7 @@ const Page = () => {
                       rows="3"
                       value={example}
                       onChange={(e) => setExample(e.target.value)}
-                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium resize-vertical"
+                      className="w-full p-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium resize-vertical"
                       placeholder="Show how the word is used in a sentence (optional)"
                     ></textarea>
                   </div>

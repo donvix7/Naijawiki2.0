@@ -105,13 +105,13 @@ const AdminPage = () => {
                   <p className="text-gray-500 text-xs md:text-sm mt-2">Awaiting review</p>
                 </div>
 
-                <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-primary">
+                <div className="bg-white p-4 md:p-6 rounded-xl shadow-lg border-l-4 border-yellow-500">
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-gray-700 font-semibold text-sm md:text-base mb-1">Total Words</p>
                       <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{stats.total}</h3>
                     </div>
-                    <i data-feather="book" className="text-primary text-xl md:text-2xl"></i>
+                    <i data-feather="book" className="text-yellow-500 text-xl md:text-2xl"></i>
                   </div>
                   <p className="text-gray-500 text-xs md:text-sm mt-2">All submissions</p>
                 </div>
@@ -147,7 +147,7 @@ const AdminPage = () => {
                   <h2 className="text-xl font-bold text-gray-900">Recent Word Submissions</h2>
                   <a 
                     href="/admin/word" 
-                    className="text-primary font-semibold hover:underline flex items-center gap-2 text-lg"
+                    className="text-yellow-500 font-semibold hover:underline flex items-center gap-2 text-lg"
                   >
                     Manage All Words
                     <i data-feather="arrow-right" className="w-4 h-4"></i>
@@ -197,18 +197,18 @@ const AdminPage = () => {
                           </div>
                           <div className="flex justify-between">
                             <span className="font-medium">Submitted By:</span>
-                            <span>{word.user?.email || word.submittedBy || "Unknown"}</span>
+                            <span>{word.user?.email || word.created_by || "Unknown"}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="font-medium">Date:</span>
-                            <span>{new Date(word.createdAt).toLocaleDateString()}</span>
+                            <span>{new Date(word.created_at).toLocaleDateString()}</span>
                           </div>
                         </div>
                         
                         <div className="flex gap-2">
                           <a
                             href={`/admin/word/edit/${word.id}`}
-                            className="flex-1 bg-secondary text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-secondary-dark transition-colors flex items-center justify-center gap-1"
+                            className="flex-1 bg-blue-900 text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-blue-900-dark transition-colors flex items-center justify-center gap-1"
                           >
                             <i data-feather="eye" className="w-3 h-3"></i>
                             Review
@@ -259,18 +259,18 @@ const AdminPage = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className="text-gray-700 font-medium">
-                                {word.user?.email || word.submittedBy || "Unknown"}
+                                {word.user?.email || word.created_by || "Unknown"}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className="text-gray-600 text-sm">
-                                {new Date(word.createdAt).toLocaleDateString()}
+                                {new Date(word.created_at).toLocaleDateString()}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <a
                                 href={`/admin/word/edit/${word.id}`}
-                                className="bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary-dark transition-colors text-sm flex items-center gap-1"
+                                className="bg-blue-900 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-900-dark transition-colors text-sm flex items-center gap-1"
                               >
                                 <i data-feather="eye" className="w-3 h-3"></i>
                                 Review
@@ -295,11 +295,11 @@ const AdminPage = () => {
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
               <a
                 href="/admin/word"
-                className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-transparent hover:border-primary/20 group"
+                className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-transparent hover:border-yellow-500/20 group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="bg-primary/10 p-3 rounded-lg group-hover:bg-primary/20 transition-colors">
-                    <i data-feather="edit" className="text-primary w-6 h-6"></i>
+                  <div className="bg-yellow-500/10 p-3 rounded-lg group-hover:bg-yellow-500/20 transition-colors">
+                    <i data-feather="edit" className="text-yellow-500 w-6 h-6"></i>
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-900 text-lg">Manage Words</h3>
@@ -310,11 +310,11 @@ const AdminPage = () => {
 
               <a
                 href="/admin/word/add"
-                className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-transparent hover:border-secondary/20 group"
+                className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-transparent hover:border-blue-900/20 group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="bg-secondary/10 p-3 rounded-lg group-hover:bg-secondary/20 transition-colors">
-                    <i data-feather="plus" className="text-secondary w-6 h-6"></i>
+                  <div className="bg-blue-900/10 p-3 rounded-lg group-hover:bg-blue-900/20 transition-colors">
+                    <i data-feather="plus" className="text-blue-900 w-6 h-6"></i>
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-900 text-lg">Add New Word</h3>
@@ -325,11 +325,11 @@ const AdminPage = () => {
 
               <a
                 href="/admin/users"
-                className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-transparent hover:border-accent/20 group"
+                className="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-transparent hover:border-red-900/20 group"
               >
                 <div className="flex items-center gap-4">
-                  <div className="bg-accent/10 p-3 rounded-lg group-hover:bg-accent/20 transition-colors">
-                    <i data-feather="users" className="text-accent w-6 h-6"></i>
+                  <div className="bg-red-900/10 p-3 rounded-lg group-hover:bg-red-900/20 transition-colors">
+                    <i data-feather="users" className="text-red-900 w-6 h-6"></i>
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-900 text-lg">User Management</h3>

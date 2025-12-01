@@ -11,8 +11,9 @@ export default function SubmitWordPage() {
   const [status, setStatus] = useState({ message: "", type: "" });
 
   useEffect(() => {
+    // Replace icons only once when component mounts
     feather.replace();
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once
 
   return (
     <RoleGuard allowedRoles={["admin", "super_admin", "moderator", "creator"]}>
@@ -40,7 +41,20 @@ export default function SubmitWordPage() {
             <div className="mt-8 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
               <div className="flex">
                 <div className="flex-shrink-0">
-                  <i data-feather="info" className="h-5 w-5 text-blue-400"></i>
+                  {/* Use a regular SVG or icon component instead of data-feather */}
+                  <svg 
+                    className="h-5 w-5 text-blue-400" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                    />
+                  </svg>
                 </div>
                 <div className="ml-3">
                   <h3 className="text-sm font-medium text-blue-800">
@@ -53,7 +67,7 @@ export default function SubmitWordPage() {
                       <li>All submissions are reviewed before publishing.</li>
                       <li>
                         By submitting, you agree to our{" "}
-                        <a href="/terms" className="text-red-600 hover:underline\">
+                        <a href="/terms" className="text-red-600 hover:underline">
                           Terms of Use
                         </a>.
                       </li>

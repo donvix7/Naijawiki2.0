@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import Cookies from "js-cookie";
 import getBaseUrl from "@/app/api/baseUrl";
 
-const SubmitWordForm = () => {
-  const [status, setStatus] = useState({ loading: false, message: "" });
+const SubmitWordForm = ({ setStatus }) => {
   const [submissionLoading, setSubmissionLoading] = useState(false);
   const base_url = getBaseUrl();
   const [audioFile, setAudioFile] = useState(null);
@@ -32,15 +31,15 @@ const SubmitWordForm = () => {
   const progressRef = useRef(null);
 
   // Format time from seconds to MM:SS
-  const formatTime = (time) => {
+  const formatTime = useCallback((time) => {
     if (!time || isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
+  }, []);
 
-  // Fetch existing words with pagination
-  const fetchExistingWords = async (page = 1, search = "") => {
+  // Fetch existing words with pagination - memoized with useCallback
+  const fetchExistingWords = useCallback(async (page = 1, search = "") => {
     setWordsLoading(true);
     try {
       const token = Cookies.get("token");
@@ -66,23 +65,23 @@ const SubmitWordForm = () => {
     } finally {
       setWordsLoading(false);
     }
-  };
+  }, [base_url, pageSize]);
 
-  // Load existing words on component mount
+  // Load existing words on component mount only
   useEffect(() => {
     fetchExistingWords(1);
-  }, []);
+  }, [fetchExistingWords]);
 
   // Handle audio time updates
-  const handleTimeUpdate = () => {
+  const handleTimeUpdate = useCallback(() => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
       setDuration(audioRef.current.duration || 0);
     }
-  };
+  }, []);
 
   // Handle progress bar click
-  const handleProgressClick = (e) => {
+  const handleProgressClick = useCallback((e) => {
     if (!audioRef.current || !progressRef.current) return;
     
     const progressBar = progressRef.current;
@@ -91,18 +90,18 @@ const SubmitWordForm = () => {
     
     audioRef.current.currentTime = newTime;
     setCurrentTime(newTime);
-  };
+  }, [duration]);
 
   // Handle volume change
-  const handleVolumeChange = (e) => {
+  const handleVolumeChange = useCallback((e) => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
     }
-  };
+  }, []);
 
-  const handleFileChange = (e) => {
+  const handleFileChange = useCallback((e) => {
     const file = e.target.files[0];
     if (file) {
       setAudioFile(file);
@@ -116,9 +115,9 @@ const SubmitWordForm = () => {
         }
       }, 100);
     }
-  };
+  }, []);
 
-  const handleRecord = async () => {
+  const handleRecord = useCallback(async () => {
     if (!isRecording) {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -152,9 +151,9 @@ const SubmitWordForm = () => {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
-  };
+  }, [isRecording]);
 
-  const handlePlayPause = () => {
+  const handlePlayPause = useCallback(() => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
@@ -165,20 +164,20 @@ const SubmitWordForm = () => {
         });
       }
     }
-  };
+  }, [isPlaying, setStatus]);
 
-  const handleAudioEnded = () => {
+  const handleAudioEnded = useCallback(() => {
     setIsPlaying(false);
     setCurrentTime(0);
-  };
+  }, []);
 
-  const handleAudioLoaded = () => {
+  const handleAudioLoaded = useCallback(() => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration || 0);
     }
-  };
+  }, []);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     if (formRef.current) {
       formRef.current.reset();
     }
@@ -191,9 +190,9 @@ const SubmitWordForm = () => {
     if (audioURL) {
       URL.revokeObjectURL(audioURL);
     }
-  };
+  }, [audioURL]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     const token = Cookies.get("token");
 
@@ -234,28 +233,28 @@ const SubmitWordForm = () => {
     } finally {
       setSubmissionLoading(false);
     }
-  };
+  }, [audioFile, base_url, fetchExistingWords, handleReset, setStatus]);
 
   // Pagination handlers
-  const handlePageChange = (page) => {
+  const handlePageChange = useCallback((page) => {
     fetchExistingWords(page, searchTerm);
-  };
+  }, [fetchExistingWords, searchTerm]);
 
-  const handleSearch = (e) => {
+  const handleSearch = useCallback((e) => {
     e.preventDefault();
     fetchExistingWords(1, searchTerm);
-  };
+  }, [fetchExistingWords, searchTerm]);
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     setSearchTerm("");
     fetchExistingWords(1);
-  };
+  }, [fetchExistingWords]);
 
   // Calculate progress percentage
   const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   // Generate page numbers for pagination
-  const generatePageNumbers = () => {
+  const generatePageNumbers = useCallback(() => {
     const pages = [];
     const maxVisiblePages = 5;
     
@@ -271,7 +270,7 @@ const SubmitWordForm = () => {
     }
     
     return pages;
-  };
+  }, [currentPage, totalPages]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -284,26 +283,10 @@ const SubmitWordForm = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {status.message && (
-        <div className={`p-4 mb-6 rounded-lg ${
-          status.message.includes("success") 
-            ? "bg-green-100 text-green-800 border border-green-200" 
-            : "bg-red-100 text-red-800 border border-red-200"
-        }`}>
-          {status.message}
-          <button 
-            onClick={() => setStatus({ loading: false, message: "" })}
-            className="float-right text-lg font-bold hover:text-gray-700"
-          >
-            ×
-          </button>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-8 mx-auto max-w-3xl">
         {/* Submission Form */}
         <div className="bg-white p-6 rounded-xl shadow-md">
-          <h2 className="text-2xl font-bold text-secondary mb-6">Submit New Word</h2>
+          <h2 className="text-2xl font-bold text-blue-900 mb-6">Submit New Word</h2>
           
           <form ref={formRef} onSubmit={handleSubmit} id="wordForm" className="space-y-6">
             {/* Word */}
@@ -316,7 +299,7 @@ const SubmitWordForm = () => {
                 name="word"
                 id="word"
                 required
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
                 placeholder="Enter word or phrase"
               />
             </div>
@@ -331,7 +314,7 @@ const SubmitWordForm = () => {
                 id="meaning"
                 rows="3"
                 required
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
                 placeholder="Enter the meaning or definition"
               ></textarea>
             </div>
@@ -345,7 +328,7 @@ const SubmitWordForm = () => {
                 name="use_case"
                 id="use_case"
                 rows="2"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
                 placeholder="E.g., 'No wahala, I go do am'"
               ></textarea>
             </div>
@@ -361,7 +344,7 @@ const SubmitWordForm = () => {
                     type="text"
                     name="pronunciation"
                     id="pronunciation"
-                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                    className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
                     placeholder="Phonetic spelling"
                   />
                   <button
@@ -462,7 +445,7 @@ const SubmitWordForm = () => {
                           onClick={handleProgressClick}
                         >
                           <div 
-                            className="h-full bg-primary rounded-full transition-all duration-100"
+                            className="h-full bg-yellow-500 rounded-full transition-all duration-100"
                             style={{ width: `${progressPercentage}%` }}
                           />
                         </div>
@@ -483,7 +466,7 @@ const SubmitWordForm = () => {
                           step="0.1"
                           value={volume}
                           onChange={handleVolumeChange}
-                          className="flex-1 accent-primary"
+                          className="flex-1 accent-yellow-500"
                         />
                         <span className="text-xs text-gray-500 w-8">
                           {Math.round(volume * 100)}%
@@ -518,7 +501,7 @@ const SubmitWordForm = () => {
               <button
                 type="submit"
                 disabled={submissionLoading}
-                className="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-fit bg-gradient-to-r from-yellow-500 to-black hover:from-black hover:to-yellow-500 text-white font-semibold text-base py-3.5 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {submissionLoading ? (
                   <>
@@ -532,8 +515,6 @@ const SubmitWordForm = () => {
             </div>
           </form>
         </div>
-
-       
       </div>
 
       {/* Audio Animation CSS */}

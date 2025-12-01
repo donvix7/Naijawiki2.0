@@ -55,16 +55,16 @@ const page = async ({ params }) => {
         <ModeratorSidebar />
         <main className="flex-1 p-8">
           <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-secondary">Review Word</h1>
-            <a href="/moderator/review" className="text-primary hover:underline flex items-center gap-2">
+            <h1 className="text-3xl font-bold text-blue-900">Review Word</h1>
+            <a href="/moderator/review" className="text-yellow-500 hover:underline flex items-center gap-2">
               <i data-feather="arrow-left"></i> Back to Review
             </a>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center gap-4 mb-6">
-              <div className="bg-primary bg-opacity-10 p-3 rounded-lg">
-                <i data-feather="alert-circle" className="text-primary"></i>
+              <div className="bg-yellow-500 bg-opacity-10 p-3 rounded-lg">
+                <i data-feather="alert-circle" className="text-yellow-500"></i>
               </div>
               <div>
                 <h2 className="font-bold">{word.word}</h2>
@@ -87,7 +87,7 @@ const page = async ({ params }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Submitted By</label>
-                <div className="p-3 bg-gray-50 rounded-lg">{word.submittedBy}</div>
+                <div className="p-3 bg-gray-50 rounded-lg">{word.created_by}</div>
               </div>
 
               <div className="border-t border-gray-200 pt-6">

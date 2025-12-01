@@ -48,7 +48,7 @@ export default function Home() {
         // Group by date and limit to 5 per day
         const grouped = {};
         words.forEach((word) => {
-          const dateKey = new Date(word.createdAt).toDateString();
+          const dateKey = new Date(word.created_at).toDateString();
           if (!grouped[dateKey]) grouped[dateKey] = [];
           if (grouped[dateKey].length < 5) grouped[dateKey].push(word);
         });
@@ -196,18 +196,18 @@ export default function Home() {
     return (
       <div
         key={word.id}
-        className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 hover:border-primary"
+        className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 hover:border-yellow-500"
       >
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-xl font-bold text-gray-900 break-words">
             <a
               href={`/word-details/${word.id}`}
-              className="hover:text-primary transition-colors duration-200"
+              className="hover:text-yellow-500 transition-colors duration-200"
             >
               {word.word}
             </a>
           </h3>
-          <span className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold min-w-[80px] text-center shrink-0 ml-2">
+          <span className="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold min-w-[80px] text-center shrink-0 ml-2">
             {word.language}
           </span>
         </div>
@@ -221,7 +221,7 @@ export default function Home() {
             className={`flex items-center font-semibold transition-colors duration-200 px-3 py-2 rounded-lg text-sm ${
               playingAudioId === word.id 
                 ? "text-red-600 hover:text-red-700 bg-red-50" 
-                : "text-primary hover:text-primary-dark hover:bg-primary-light"
+                : "text-yellow-500 hover:text-yellow-500-dark hover:bg-yellow-500-light"
             } ${!hasAudio ? "opacity-50 cursor-not-allowed" : ""}`}
             onClick={() => 
               playingAudioId === word.id 
@@ -274,29 +274,29 @@ export default function Home() {
       <CustomNavbar />
 
       {/* HERO SECTION */}
-      <section className="bg-gradient-to-r from-primary to-secondary py-16 text-white">
-        <div className="container mx-auto px-6 text-center">
+      <section className=" py-16 text-black">
+        <div className="container mx-auto px-6 text-center ">
           <h1 className="text-3xl font-bold mb-4 leading-tight tracking-tight text-black">
             Preserve Nigerian Languages & Culture
           </h1>
-          <p className="text-base font-normal mb-6 max-w-4xl mx-auto leading-relaxed text-yellow-500 px-4">
+          <p className=" text-yellow-500">
             Discover, learn, and contribute to the rich linguistic heritage of Nigeria.
           </p>
 
           {/* SEARCH BAR */}
-          <div className="max-w-2xl mx-auto relative px-4">
+          <div className="max-w-4xl mx-auto relative px-4">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search Naija words..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full py-3.5 px-6 rounded-full text-gray-900 shadow-sm border border-gray-200 focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none text-base font-normal placeholder-gray-500"
+                className="w-full py-3.5 px-6 rounded-full text-gray-900 shadow-sm border border-gray-200 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none text-base font-normal placeholder-gray-500"
                 aria-label="Search for Nigerian words"
               />
               <button
                 type="button"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary text-white p-3 rounded-full hover:bg-primary-dark transition-colors duration-200"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-yellow-500 text-white p-3 rounded-full hover:bg-yellow-500-dark transition-colors duration-200"
                 aria-label="Search"
                 onClick={() => setSearch(search.trim())}
               >
@@ -369,7 +369,7 @@ export default function Home() {
 
         {loading ? (
           <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto mb-3"></div>
             <p className="text-gray-700 font-normal text-base">Loading words...</p>
           </div>
         ) : error ? (

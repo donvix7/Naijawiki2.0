@@ -87,7 +87,7 @@ const Page = () => {
 
   const approvedToday = words.filter((w) => {
     const today = new Date();
-    const created = new Date(w.createdAt);
+    const created = new Date(w.created_at);
     return (
       w.status === "approved" &&
       created.getDate() === today.getDate() &&
@@ -116,7 +116,7 @@ const Page = () => {
             {loading ? (
               <div className="flex items-center justify-center py-16">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-primary mx-auto mb-5"></div>
+                  <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-yellow-500 mx-auto mb-5"></div>
                   <p className="text-gray-700 text-base font-semibold">Loading dashboard data...</p>
                 </div>
               </div>
@@ -151,7 +151,7 @@ const Page = () => {
                     <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
                     <a
                       href="/admin/activity"
-                      className="text-primary font-semibold hover:underline text-sm transition-colors"
+                      className="text-yellow-500 font-semibold hover:underline text-sm transition-colors"
                     >
                       View All
                     </a>
@@ -163,19 +163,19 @@ const Page = () => {
                         key={index}
                         className="flex items-start gap-4 pb-5 border-b border-gray-200 last:border-b-0 last:pb-0"
                       >
-                        <div className="bg-primary/10 p-3 rounded-full mt-1">
+                        <div className="bg-yellow-500/10 p-3 rounded-full mt-1">
                           <i
                             data-feather="plus-circle"
-                            className="text-primary w-4 h-4"
+                            className="text-yellow-500 w-4 h-4"
                           ></i>
                         </div>
                         <div className="flex-1">
                           <p className="font-semibold text-gray-900 text-sm">New word submission</p>
                           <p className="text-gray-700 font-normal text-sm mt-1">
-                            "{w.word}" by {w.submittedBy}
+                            "{w.word}" by {w.created_by}
                           </p>
                           <p className="text-gray-600 text-xs mt-2 font-medium">
-                            {new Date(w.createdAt).toLocaleTimeString()} • {new Date(w.createdAt).toLocaleDateString()}
+                            {new Date(w.created_at).toLocaleTimeString()} • {new Date(w.created_at).toLocaleDateString()}
                           </p>
                         </div>
                         <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${
@@ -197,30 +197,7 @@ const Page = () => {
                   </div>
                 </div>
 
-                {/* --- QUICK ACTIONS --- */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <a
-                      href="/admin/word"
-                      className="bg-primary hover:bg-primary-dark text-white font-semibold py-3.5 px-6 rounded-lg text-center transition-all duration-200 text-sm hover:shadow-md"
-                    >
-                      Manage Words
-                    </a>
-                    <a
-                      href="/admin/users"
-                      className="bg-secondary hover:bg-secondary-dark text-white font-semibold py-3.5 px-6 rounded-lg text-center transition-all duration-200 text-sm hover:shadow-md"
-                    >
-                      Manage Users
-                    </a>
-                    <a
-                      href="/admin/analytics"
-                      className="bg-accent hover:bg-accent-dark text-white font-semibold py-3.5 px-6 rounded-lg text-center transition-all duration-200 text-sm hover:shadow-md"
-                    >
-                      View Analytics
-                    </a>
-                  </div>
-                </div>
+               
               </>
             )}
           </main>

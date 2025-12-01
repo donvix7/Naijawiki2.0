@@ -88,7 +88,7 @@ const ModeratorDashboard = () => {
       const matchesSearch = searchTerm === "" || 
         word.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         word.meaning?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        word.submittedBy?.toLowerCase().includes(searchTerm.toLowerCase());
+        word.created_by?.toLowerCase().includes(searchTerm.toLowerCase());
 
       // Status filter
       const matchesStatus = statusFilter === "all" || word.status === statusFilter;
@@ -188,7 +188,7 @@ const ModeratorDashboard = () => {
                       placeholder="Search by word, meaning, or submitter..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                      className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     />
                     <i
                       data-feather="search"
@@ -205,7 +205,7 @@ const ModeratorDashboard = () => {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                   >
                     <option value="pending">Pending Review</option>
                     <option value="approved">Approved</option>
@@ -269,7 +269,7 @@ const ModeratorDashboard = () => {
                 </h2>
                 <a
                   href="/moderator/review"
-                  className="flex items-center gap-2 text-primary hover:text-primary-dark font-semibold transition-colors"
+                  className="flex items-center gap-2 text-yellow-500 hover:text-yellow-500-dark font-semibold transition-colors"
                 >
                   View Detailed List
                   <i data-feather="arrow-right" className="w-4 h-4"></i>
@@ -306,7 +306,7 @@ const ModeratorDashboard = () => {
                             {word.status}
                           </span>
                           {word.language && (
-                            <span className="bg-primary text-white px-2 py-1 rounded-full text-xs capitalize">
+                            <span className="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs capitalize">
                               {word.language}
                             </span>
                           )}
@@ -325,7 +325,7 @@ const ModeratorDashboard = () => {
                           </p>
                         )}
                         <div className="mt-2 text-xs text-gray-500">
-                          Submitted by: {word.submittedBy || "Anonymous"}
+                          Submitted by: {word.created_by || "Anonymous"}
                         </div>
                       </div>
                       <div className="flex gap-2 flex-wrap">
@@ -361,7 +361,7 @@ const ModeratorDashboard = () => {
                 <div className="mt-6 text-center">
                   <a
                     href="/moderator/review"
-                    className="inline-flex items-center gap-2 bg-primary text-white font-semibold py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors"
+                    className="inline-flex items-center gap-2 bg-yellow-500 text-white font-semibold py-2 px-6 rounded-lg hover:bg-yellow-500-dark transition-colors"
                   >
                     View All {filteredWords.length} Words
                     <i data-feather="arrow-right" className="w-4 h-4"></i>

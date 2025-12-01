@@ -167,7 +167,7 @@ export default function Page() {
             <AdminSidebar />
             <div className="flex-1 flex justify-center items-center">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
                 <p className="text-gray-700 font-semibold text-lg">Loading user...</p>
               </div>
             </div>
@@ -190,7 +190,7 @@ export default function Page() {
                 <p className="text-gray-600 font-semibold text-lg mb-2">{error || "User not found"}</p>
                 <button
                   onClick={() => router.push('/admin/users')}
-                  className="bg-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors"
+                  className="bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-yellow-500-dark transition-colors"
                 >
                   Back to Users
                 </button>
@@ -266,7 +266,7 @@ export default function Page() {
                         name="firstname"
                         value={form.firstname}
                         onChange={handleChange}
-                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
                       />
                     </div>
 
@@ -280,7 +280,7 @@ export default function Page() {
                         name="lastname"
                         value={form.lastname}
                         onChange={handleChange}
-                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
                       />
                     </div>
 
@@ -294,7 +294,7 @@ export default function Page() {
                         name="email"
                         value={form.email}
                         onChange={handleChange}
-                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
                       />
                     </div>
 
@@ -307,7 +307,7 @@ export default function Page() {
                         name="role"
                         value={form.role}
                         onChange={handleChange}
-                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
                       >
                         <option value="creator">Creator</option>
                         <option value="moderator">Moderator</option>
@@ -324,7 +324,7 @@ export default function Page() {
                         name="status"
                         value={form.status}
                         onChange={handleChange}
-                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-medium"
+                        className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
                       >
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
@@ -345,7 +345,7 @@ export default function Page() {
                     <button
                       onClick={saveChanges}
                       disabled={saving}
-                      className="flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark transition-all duration-200 shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      className="flex items-center justify-center gap-2 px-6 py-3 bg-yellow-500 text-white font-bold rounded-xl hover:bg-yellow-500-dark transition-all duration-200 shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                       {saving ? (
                         <>
@@ -376,7 +376,7 @@ export default function Page() {
                     <div className="flex justify-between">
                       <span className="text-gray-600">Joined:</span>
                       <span className="text-gray-900">
-                        {new Date(user.createdAt).toLocaleDateString()}
+                        {new Date(user.created_at).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex justify-between">

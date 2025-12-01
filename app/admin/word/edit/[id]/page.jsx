@@ -18,6 +18,15 @@ export default function Page() {
   const [error, setError] = useState("");
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [reason, setReason] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    word: "",
+    meaning: "",
+    pronunciation: "",
+    use_case: "",
+    language: "",
+    category: ""
+  });
 
   const token = Cookies.get("token");
   const base_url = getBaseUrl();
@@ -51,7 +60,17 @@ export default function Page() {
         }
 
         const data = await res.json();
-        setWord(data.word || data);
+        const wordData = data.word || data;
+        setWord(wordData);
+        // Initialize edit form with current data
+        setEditForm({
+          word: wordData.word || "",
+          meaning: wordData.meaning || "",
+          pronunciation: wordData.pronunciation || "",
+          use_case: wordData.use_case || "",
+          language: wordData.language || "",
+          category: wordData.category || ""
+        });
       } 
       catch (err) {
         console.error("Failed to load word:", err);
@@ -64,6 +83,76 @@ export default function Page() {
 
     fetchWord();
   }, [id, base_url, token]);
+
+  // Initialize feather icons
+  useEffect(() => {
+    feather.replace();
+  }, [isEditing]);
+
+  // Handle edit form changes
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Submit edited word
+  const submitEdit = async () => {
+    if (!word || !id) return;
+    
+    setActionLoading(true);
+    try {
+      console.log("Updating word with ID:", id);
+      
+      const res = await fetch(`${base_url}/word/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editForm)
+      });
+
+      console.log("Update response status:", res.status);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Update error response:", errorText);
+        throw new Error(`Failed to update word: ${res.status} ${errorText}`);
+      }
+
+      const data = await res.json();
+      console.log("Update success:", data);
+      
+      // Update local state with new data
+      setWord(prev => ({ ...prev, ...editForm }));
+      setIsEditing(false);
+      alert("Word updated successfully!");
+    } 
+    catch (err) {
+      console.error("Update error:", err);
+      alert("Error updating word: " + err.message);
+    }
+    finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Cancel editing
+  const cancelEdit = () => {
+    // Reset form to original values
+    setEditForm({
+      word: word?.word || "",
+      meaning: word?.meaning || "",
+      pronunciation: word?.pronunciation || "",
+      use_case: word?.use_case || "",
+      language: word?.language || "",
+      category: word?.category || ""
+    });
+    setIsEditing(false);
+  };
 
   // Approve word
   const approveWord = async () => {
@@ -125,7 +214,7 @@ export default function Page() {
     
     setActionLoading(true);
     try {
-      console.log("Rejecting word with ID:", id, "Reason:", rejectionReason);
+      console.log("Rejecting word with ID:", id, "Reason:", reason);
       
       const res = await fetch(`${base_url}/word/reject-word/${id}`, {
         method: "PUT",
@@ -152,10 +241,6 @@ export default function Page() {
       setWord(prev => ({ ...prev, status: "rejected" }));
       alert("Word rejected successfully!");
       closeRejectModal();
-      
-      // Redirect after a short delay
-      setTimeout(() => {
-      }, 1000);
     } 
     catch (err) {
       console.error("Reject error:", err);
@@ -175,7 +260,7 @@ export default function Page() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
           <p className="text-gray-700 text-lg font-semibold">Loading word details...</p>
         </div>
       </div>
@@ -198,7 +283,7 @@ export default function Page() {
           </p>
           <button 
             onClick={handleBack}
-            className="px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+            className="px-6 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-500-dark transition-colors"
           >
             Back to Words
           </button>
@@ -232,6 +317,19 @@ export default function Page() {
         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
       </svg>
     ),
+    save: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+        <polyline points="7 3 7 8 15 8"></polyline>
+      </svg>
+    ),
+    cancel: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    ),
     info: (
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10"></circle>
@@ -260,16 +358,16 @@ export default function Page() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
               <div>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                <h1 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
                   Word Details
                 </h1>
-                <p className="text-gray-600 font-medium">
+                <p className="text-gray-600 text-base font-normal">
                   Review and manage this word submission
                 </p>
               </div>
               <button
                 onClick={handleBack}
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 font-semibold hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 text-gray-700 hover:text-gray-900 font-semibold hover:bg-gray-100 rounded-lg transition-colors text-sm"
               >
                 {icons.arrowLeft}
                 Back to Words
@@ -277,117 +375,254 @@ export default function Page() {
             </div>
 
             {/* Word Information Card */}
-            <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6 md:mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 md:mb-6 pb-2 border-b border-gray-200">
-                Word Information
-              </h2>
-              
-              {/* Desktop Table View */}
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700 w-1/4">Word</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-lg font-bold text-gray-900">{word.word || "N/A"}</td>
-                    </tr>
-                    
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Language</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">{word.language || "Not specified"}</td>
-                    </tr>
-                    
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Meaning</td>
-                      <td className="px-6 py-4 text-gray-900 font-medium">{word.meaning || "No meaning provided"}</td>
-                    </tr>
-
-                    {word.use_case && (
-                      <tr className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Example Usage</td>
-                        <td className="px-6 py-4 text-gray-900 font-medium">{word.use_case}</td>
-                      </tr>
-                    )}
-
-                    {word.pronunciation && (
-                      <tr className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Pronunciation</td>
-                        <td className="px-6 py-4 text-gray-900 font-medium">{word.pronunciation}</td>
-                      </tr>
-                    )}
-                    
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Status</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                            word.status === "approved"
-                              ? "bg-green-100 text-green-800"
-                              : word.status === "rejected"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {word.status ? word.status.charAt(0).toUpperCase() + word.status.slice(1) : "Pending"}
-                        </span>
-                      </td>
-                    </tr>
-                    
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Submitted By</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">{word.creatorEmail || word.creator || word.submittedBy || "Unknown"}</td>
-                    </tr>
-                    
-                    <tr className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">Date Submitted</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">
-                        {word.createdAt ? new Date(word.createdAt).toLocaleDateString() + " at " + new Date(word.createdAt).toLocaleTimeString() : "Unknown"}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Word Information
+                </h2>
+                {!isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors text-sm"
+                  >
+                    {icons.edit}
+                    Edit Details
+                  </button>
+                )}
               </div>
+              
+              {isEditing ? (
+                // Edit Form
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Word
+                      </label>
+                      <input
+                        type="text"
+                        name="word"
+                        value={editForm.word}
+                        onChange={handleEditChange}
+                        className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                        placeholder="Enter the word"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Language
+                      </label>
+                      <input
+                        type="text"
+                        name="language"
+                        value={editForm.language}
+                        onChange={handleEditChange}
+                        className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                        placeholder="Enter language"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                      Meaning
+                    </label>
+                    <textarea
+                      name="meaning"
+                      value={editForm.meaning}
+                      onChange={handleEditChange}
+                      rows="3"
+                      className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200 resize-none"
+                      placeholder="Enter word meaning"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Pronunciation
+                      </label>
+                      <input
+                        type="text"
+                        name="pronunciation"
+                        value={editForm.pronunciation}
+                        onChange={handleEditChange}
+                        className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                        placeholder="Enter pronunciation guide"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Category
+                      </label>
+                      <input
+                        type="text"
+                        name="category"
+                        value={editForm.category}
+                        onChange={handleEditChange}
+                        className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                        placeholder="Enter category"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                      Example Usage
+                    </label>
+                    <textarea
+                      name="use_case"
+                      value={editForm.use_case}
+                      onChange={handleEditChange}
+                      rows="3"
+                      className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200 resize-none"
+                      placeholder="Enter example usage"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      onClick={submitEdit}
+                      disabled={actionLoading}
+                      className="flex items-center gap-2 bg-primary text-white font-semibold py-3 px-6 rounded-lg hover:bg-primary-dark transition-colors text-sm disabled:opacity-50"
+                    >
+                      {actionLoading ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      ) : (
+                        icons.save
+                      )}
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={cancelEdit}
+                      className="flex items-center gap-2 bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                    >
+                      {icons.cancel}
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                // Display View
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Word
+                      </label>
+                      <p className="text-base font-semibold text-gray-900">
+                        {word.word || "N/A"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Language
+                      </label>
+                      <p className="text-base font-semibold text-gray-900">
+                        {word.language || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                      Meaning
+                    </label>
+                    <p className="text-base font-normal text-gray-700 leading-relaxed">
+                      {word.meaning || "No meaning provided"}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Pronunciation
+                      </label>
+                      <p className="text-base font-normal text-gray-700">
+                        {word.pronunciation || "N/A"}
+                      </p>
+                    </div>
+
+                    
+                  </div>
+
+                  {word.use_case && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Example Usage
+                      </label>
+                      <p className="text-base font-normal text-gray-700 leading-relaxed">
+                        {word.use_case}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Status
+                      </label>
+                      <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold ${
+                        word.status === "approved"
+                          ? "bg-green-100 text-green-800"
+                          : word.status === "rejected"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}>
+                        {word.status ? word.status.charAt(0).toUpperCase() + word.status.slice(1) : "Pending"}
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Submitted By
+                      </label>
+                      <p className="text-base font-normal text-gray-700">
+                        {word.creatorEmail || word.creator || word.created_by || "Unknown"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Actions Card */}
-            <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4 md:mb-6 pb-2 border-b border-gray-200">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">
                 Quick Actions
               </h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <button
                   onClick={approveWord}
-                  disabled={actionLoading || word.status === "approved"}
-                  className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                  disabled={actionLoading || word.status === "approved" || isEditing}
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 disabled:cursor-not-allowed text-sm"
                 >
                   {actionLoading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                   ) : (
                     icons.check
                   )}
-                  <span className="text-lg">
+                  <span>
                     {word.status === "approved" ? "Already Approved" : "Approve Word"}
                   </span>
                 </button>
 
                 <button
                   onClick={openRejectModal}
-                  disabled={actionLoading || word.status === "rejected"}
-                  className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                  disabled={actionLoading || word.status === "rejected" || isEditing}
+                  className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 disabled:cursor-not-allowed text-sm"
                 >
                   {icons.x}
-                  <span className="text-lg">
+                  <span>
                     {word.status === "rejected" ? "Already Rejected" : "Reject Word"}
                   </span>
                 </button>
-
-                <a
-                  href={`/admin/word/edit/${id}`}
-                  className="bg-gradient-to-r from-primary to-secondary hover:from-primary-dark hover:to-secondary-dark text-white font-bold py-4 px-6 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
-                >
-                  {icons.edit}
-                  <span className="text-lg">Edit Word Details</span>
-                </a>
               </div>
 
               {/* Additional Information */}
@@ -396,9 +631,9 @@ export default function Page() {
                   {icons.info}
                   <div>
                     <p className="text-blue-800 font-semibold text-sm">Word Review Guidelines</p>
-                    <p className="text-blue-700 text-sm mt-1">
+                    <p className="text-blue-700 text-sm mt-1 leading-relaxed">
                       Ensure the word is appropriate, culturally relevant, and follows platform guidelines before approval.
-                      Use the "Edit Word Details" button to modify any information before approving.
+                      Use the edit functionality to modify any information before approving.
                     </p>
                   </div>
                 </div>
@@ -410,16 +645,16 @@ export default function Page() {
         {/* Rejection Modal */}
         {showRejectModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-slideDown">
+            <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="text-red-500">
                   {icons.alert}
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Reject Word</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Reject Word</h3>
               </div>
 
               <div className="mb-6">
-                <p className="text-gray-700 mb-4">
+                <p className="text-gray-700 text-sm mb-4 leading-relaxed">
                   You are about to reject the word: <strong>"{word.word}"</strong>
                 </p>
                 <label htmlFor="rejectionReason" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -431,7 +666,7 @@ export default function Page() {
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="Please provide a clear reason for rejecting this word..."
                   rows="4"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none text-sm"
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -443,14 +678,14 @@ export default function Page() {
                 <button
                   onClick={closeRejectModal}
                   disabled={actionLoading}
-                  className="px-4 py-2 text-gray-700 hover:text-gray-900 font-semibold hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-gray-700 hover:text-gray-900 font-semibold hover:bg-gray-100 rounded-lg transition-colors text-sm disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={rejectWord}
                   disabled={actionLoading || !reason.trim()}
-                  className="px-6 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold rounded-lg transition-colors flex items-center gap-2 disabled:cursor-not-allowed"
+                  className="px-6 py-2 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold rounded-lg transition-colors flex items-center gap-2 disabled:cursor-not-allowed text-sm"
                 >
                   {actionLoading ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

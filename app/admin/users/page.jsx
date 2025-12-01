@@ -84,7 +84,7 @@ const Page = () => {
               
               <a
                 href="/admin/users/add"
-                className="bg-[var(--neutral)] hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg flex items-center gap-2 transition-colors shadow-md hover:shadow-lg"
+                className="bg-[var(--neutral)] hover:bg-yellow-500-dark text-white font-bold py-3 px-6 rounded-lg flex items-center gap-2 transition-colors shadow-md hover:shadow-lg"
               >
                 <i data-feather="plus" className="w-4 h-4"></i>
                 Add New User
@@ -131,7 +131,7 @@ const Page = () => {
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
                   >
                     <option value="">All Roles</option>
                     <option value="creator">Creator</option>
@@ -151,7 +151,7 @@ const Page = () => {
                       placeholder="Search by email..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      className="w-full p-3 pl-12 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                      className="w-full p-3 pl-12 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
                     />
                     <i
                       data-feather="search"
@@ -172,7 +172,7 @@ const Page = () => {
                       setRole("");
                       setSearch("");
                     }}
-                    className="text-primary font-semibold hover:underline flex items-center gap-2"
+                    className="text-yellow-500 font-semibold hover:underline flex items-center gap-2"
                   >
                     <i data-feather="x" className="w-4 h-4"></i>
                     Clear Filters
@@ -186,7 +186,7 @@ const Page = () => {
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
                     <p className="text-gray-700 font-semibold text-lg">Loading users...</p>
                   </div>
                 </div>
@@ -199,7 +199,7 @@ const Page = () => {
                   </p>
                   <a
                     href="/admin/users/add"
-                    className="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded-lg transition-colors"
+                    className="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-500-dark text-white font-bold py-2 px-4 rounded-lg transition-colors"
                   >
                     <i data-feather="plus" className="w-4 h-4"></i>
                     Add First User
@@ -260,7 +260,7 @@ const Page = () => {
                               <div className="flex gap-3">
                                 <a
                                   href={`/admin/users/${user.id}`}
-                                  className="text-primary hover:text-primary-dark font-semibold flex items-center gap-1"
+                                  className="text-yellow-500 hover:text-yellow-500-dark font-semibold flex items-center gap-1"
                                 >
                                   <i data-feather="eye" className="w-4 h-4"></i>
                                   View
@@ -346,7 +346,7 @@ const Page = () => {
                   <button className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
                     Previous
                   </button>
-                  <button className="px-4 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors">
+                  <button className="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-500-dark transition-colors">
                     1
                   </button>
                   <button className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-semibold hover:bg-gray-50 transition-colors">

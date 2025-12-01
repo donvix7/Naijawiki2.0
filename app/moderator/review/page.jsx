@@ -51,7 +51,7 @@ export default function Page() {
       const matchesSearch = searchTerm === "" || 
         word.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         word.meaning?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        word.submittedBy?.toLowerCase().includes(searchTerm.toLowerCase());
+        word.created_by?.toLowerCase().includes(searchTerm.toLowerCase());
 
       // Language filter
       const matchesLanguage = languageFilter === "all" || word.language === languageFilter;
@@ -112,7 +112,7 @@ export default function Page() {
           <ModeratorSidebar />
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
               <p className="text-gray-600">Loading submissions...</p>
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function Page() {
                     placeholder="Search by word, meaning, or submitter..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                    className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                   />
                   <i
                     data-feather="search"
@@ -168,7 +168,7 @@ export default function Page() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                 >
                   <option value="pending">Pending Review</option>
                   <option value="approved">Approved</option>
@@ -185,7 +185,7 @@ export default function Page() {
                 <select
                   value={languageFilter}
                   onChange={(e) => setLanguageFilter(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                 >
                   <option value="all">All Languages</option>
                   <option value="yoruba">Yoruba</option>
@@ -204,7 +204,7 @@ export default function Page() {
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                 >
                   <option value="all">All Categories</option>
                   <option value="greeting">Greeting</option>
@@ -325,7 +325,7 @@ export default function Page() {
                             </div>
                           </td>
                           <td className="px-4 md:px-6 py-4 whitespace-nowrap">
-                            <span className="bg-primary text-white px-2 py-1 rounded-full text-xs capitalize">
+                            <span className="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs capitalize">
                               {word.language}
                             </span>
                           </td>
@@ -339,10 +339,10 @@ export default function Page() {
                             )}
                           </td>
                           <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {word.submittedBy || "Anonymous"}
+                            {word.created_by || "Anonymous"}
                           </td>
                           <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(word.createdAt).toLocaleDateString()}
+                            {new Date(word.created_at).toLocaleDateString()}
                           </td>
                           <td className="px-4 md:px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -398,7 +398,7 @@ export default function Page() {
                       <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 transition-colors text-sm">
                         Previous
                       </button>
-                      <button className="px-3 py-1 border border-gray-300 rounded-md bg-primary text-white text-sm">
+                      <button className="px-3 py-1 border border-gray-300 rounded-md bg-yellow-500 text-white text-sm">
                         1
                       </button>
                       <button className="px-3 py-1 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 transition-colors text-sm">

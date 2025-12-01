@@ -108,7 +108,7 @@ export default function WordDetails() {
       <CustomNavbar />
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading word details...</p>
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function WordDetails() {
         <div className="text-center">
           <i data-feather="alert-circle" className="w-16 h-16 text-red-500 mx-auto mb-4"></i>
           <p className="text-red-600 text-lg mb-4">{error}</p>
-          <a href="/explore" className="bg-primary text-white font-bold py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors">
+          <a href="/explore" className="bg-yellow-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-yellow-500-dark transition-colors">
             Back to Explore
           </a>
         </div>
@@ -139,7 +139,7 @@ export default function WordDetails() {
         <div className="text-center">
           <i data-feather="search" className="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
           <p className="text-gray-600 text-lg mb-4">Word not found.</p>
-          <a href="/explore" className="bg-primary text-white font-bold py-2 px-6 rounded-lg hover:bg-primary-dark transition-colors">
+          <a href="/explore" className="bg-yellow-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-yellow-500-dark transition-colors">
             Back to Explore
           </a>
         </div>
@@ -155,7 +155,7 @@ export default function WordDetails() {
         <div className="max-w-6xl mx-auto">
           {/* Back Button + Language */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-            <a href="/explore" className="inline-flex items-center gap-2 text-primary hover:text-primary-dark font-semibold transition-colors">
+            <a href="/explore" className="inline-flex items-center gap-2 text-yellow-500 hover:text-yellow-500-dark font-semibold transition-colors">
               <i data-feather="arrow-left" className="w-4 h-4"></i> 
               Back to Explore
             </a>
@@ -165,7 +165,7 @@ export default function WordDetails() {
                   {word.category}
                 </span>
               )}
-              <span className="bg-primary text-white px-3 py-1 rounded-full text-sm capitalize">
+              <span className="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm capitalize">
                 {word.language || "Pidgin"}
               </span>
             </div>
@@ -178,13 +178,13 @@ export default function WordDetails() {
               <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
                 <div className="p-6 md:p-8">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                    <h1 className="text-3xl md:text-4xl font-bold text-secondary">{word.word || "Unknown Word"}</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold text-blue-900">{word.word || "Unknown Word"}</h1>
                     <div className="flex items-center gap-3">
-                      <button className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors p-2 rounded-lg hover:bg-gray-50">
+                      <button className="flex items-center gap-2 text-gray-500 hover:text-yellow-500 transition-colors p-2 rounded-lg hover:bg-gray-50">
                         <i data-feather="share-2" className="w-4 h-4"></i>
                         <span className="text-sm">Share</span>
                       </button>
-                      <button className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors p-2 rounded-lg hover:bg-gray-50">
+                      <button className="flex items-center gap-2 text-gray-500 hover:text-yellow-500 transition-colors p-2 rounded-lg hover:bg-gray-50">
                         <i data-feather="bookmark" className="w-4 h-4"></i>
                         <span className="text-sm">Save</span>
                       </button>
@@ -195,7 +195,7 @@ export default function WordDetails() {
                     {/* Meaning Section */}
                     <section>
                       <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                        <i data-feather="book" className="w-5 h-5 text-primary"></i>
+                        <i data-feather="book" className="w-5 h-5 text-yellow-500"></i>
                         Meaning
                       </h2>
                       <p className="text-gray-700 text-lg leading-relaxed">{word.meaning || "—"}</p>
@@ -204,14 +204,14 @@ export default function WordDetails() {
                     {/* Pronunciation Section */}
                     <section>
                       <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                        <i data-feather="volume-2" className="w-5 h-5 text-primary"></i>
+                        <i data-feather="volume-2" className="w-5 h-5 text-yellow-500"></i>
                         Pronunciation
                       </h2>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <span className="text-gray-700 text-lg font-mono bg-gray-50 px-3 py-2 rounded-lg">
                           {word.prononciation || "N/A"}
                         </span>
-                        <button className="inline-flex items-center gap-2 bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors w-fit">
+                        <button className="inline-flex items-center gap-2 bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-yellow-500-dark transition-colors w-fit">
                           <i data-feather="play-circle" className="w-4 h-4"></i> 
                           Listen to Pronunciation
                         </button>
@@ -221,7 +221,7 @@ export default function WordDetails() {
                     {/* Example Usage Section */}
                     <section>
                       <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                        <i data-feather="message-square" className="w-5 h-5 text-primary"></i>
+                        <i data-feather="message-square" className="w-5 h-5 text-yellow-500"></i>
                         Example Usage
                       </h2>
                       <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg">
@@ -237,7 +237,7 @@ export default function WordDetails() {
                     {/* Cultural Context Section */}
                     <section>
                       <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                        <i data-feather="info" className="w-5 h-5 text-primary"></i>
+                        <i data-feather="info" className="w-5 h-5 text-yellow-500"></i>
                         Cultural Context
                       </h2>
                       <p className="text-gray-700 leading-relaxed">
@@ -252,7 +252,7 @@ export default function WordDetails() {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                       <h3 className="font-medium text-gray-700 text-sm mb-1">Submitted by:</h3>
-                      <p className="text-gray-900 font-semibold">{word.submittedBy || "Anonymous Contributor"}</p>
+                      <p className="text-gray-900 font-semibold">{word.created_by || "Anonymous Contributor"}</p>
                     </div>
                     <div className="flex items-center gap-4">
                       <button className="flex items-center gap-2 text-gray-500 hover:text-green-600 transition-colors p-2 rounded-lg hover:bg-green-50">
@@ -275,7 +275,7 @@ export default function WordDetails() {
               {/* Contribution Form */}
               <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-                  <i data-feather="edit-3" className="w-6 h-6 text-primary"></i>
+                  <i data-feather="edit-3" className="w-6 h-6 text-yellow-500"></i>
                   Add Your Contribution
                 </h2>
                 <p className="text-gray-600 mb-6">Help improve this word entry by adding your knowledge.</p>
@@ -290,7 +290,7 @@ export default function WordDetails() {
                       onChange={(e) => setAlternativeMeaning(e.target.value)} 
                       placeholder="Provide an alternative meaning or additional context..."
                       rows="3"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors"
                     ></textarea>
                   </div>
 
@@ -303,7 +303,7 @@ export default function WordDetails() {
                       onChange={(e) => setExample(e.target.value)} 
                       placeholder="Share an example sentence showing how this word is used..."
                       rows="3"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors"
                     ></textarea>
                   </div>
 
@@ -316,15 +316,15 @@ export default function WordDetails() {
                       value={contributorName} 
                       onChange={(e) => setContributorName(e.target.value)} 
                       placeholder="How would you like to be credited?"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors" 
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-colors" 
                     />
                   </div>
 
                   <button 
                     type="submit" 
                     disabled={contributing}
-                    className={`bg-primary text-white font-bold py-3 px-6 rounded-lg transition-colors ${
-                      contributing ? 'opacity-70 cursor-not-allowed' : 'hover:bg-primary-dark'
+                    className={`bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg transition-colors ${
+                      contributing ? 'opacity-70 cursor-not-allowed' : 'hover:bg-yellow-500-dark'
                     }`}
                   >
                     {contributing ? (
@@ -348,7 +348,7 @@ export default function WordDetails() {
               {/* Related Words Section with Filters */}
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <i data-feather="link" className="w-5 h-5 text-primary"></i>
+                  <i data-feather="link" className="w-5 h-5 text-yellow-500"></i>
                   Explore Related Words
                 </h2>
 
@@ -365,7 +365,7 @@ export default function WordDetails() {
                         placeholder="Search related words..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                        className="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                       />
                       <i
                         data-feather="search"
@@ -383,7 +383,7 @@ export default function WordDetails() {
                       <select
                         value={languageFilter}
                         onChange={(e) => setLanguageFilter(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm"
                       >
                         <option value="all">All</option>
                         <option value="yoruba">Yoruba</option>
@@ -402,7 +402,7 @@ export default function WordDetails() {
                       <select
                         value={categoryFilter}
                         onChange={(e) => setCategoryFilter(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-sm"
                       >
                         <option value="all">All</option>
                         <option value="greeting">Greeting</option>
@@ -439,7 +439,7 @@ export default function WordDetails() {
                       </div>
                       <button
                         onClick={clearRelatedFilters}
-                        className="flex items-center gap-1 text-primary hover:text-primary-dark text-sm font-semibold w-fit"
+                        className="flex items-center gap-1 text-yellow-500 hover:text-yellow-500-dark text-sm font-semibold w-fit"
                       >
                         <i data-feather="x" className="w-3 h-3"></i>
                         Clear Filters
@@ -463,10 +463,10 @@ export default function WordDetails() {
                         className="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors group"
                       >
                         <div className="flex justify-between items-start mb-1">
-                          <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
+                          <h3 className="font-semibold text-gray-900 group-hover:text-yellow-500 transition-colors">
                             {relatedWord.word}
                           </h3>
-                          <span className="bg-primary text-white px-2 py-1 rounded-full text-xs capitalize">
+                          <span className="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs capitalize">
                             {relatedWord.language}
                           </span>
                         </div>
@@ -487,7 +487,7 @@ export default function WordDetails() {
                   <div className="mt-4 text-center">
                     <a
                       href="/explore"
-                      className="inline-flex items-center gap-2 text-primary hover:text-primary-dark font-semibold text-sm"
+                      className="inline-flex items-center gap-2 text-yellow-500 hover:text-yellow-500-dark font-semibold text-sm"
                     >
                       Explore More Words
                       <i data-feather="arrow-right" className="w-4 h-4"></i>

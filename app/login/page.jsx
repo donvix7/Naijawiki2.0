@@ -91,7 +91,7 @@ export default function Page() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                 placeholder="Enter your email address"
               />
             </div>
@@ -110,7 +110,7 @@ export default function Page() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                 placeholder="Enter your password"
               />
             </div>
@@ -121,7 +121,7 @@ export default function Page() {
                 <input
                   id="remember"
                   type="checkbox"
-                  className="h-4 w-4 text-primary focus:ring-2 focus:ring-primary border border-gray-300 rounded"
+                  className="h-4 w-4 text-yellow-500 focus:ring-2 focus:ring-yellow-500 border border-gray-300 rounded"
                 />
                 <label
                   htmlFor="remember"
@@ -132,7 +132,7 @@ export default function Page() {
               </div>
               <a
                 href="/forgot-password"
-                className="text-sm font-semibold text-primary hover:underline transition-colors"
+                className="text-sm font-semibold text-yellow-500 hover:underline transition-colors"
               >
                 Forgot password?
               </a>
@@ -160,7 +160,7 @@ export default function Page() {
             {/* Sign Up Link */}
             <div className="text-center text-sm font-normal text-gray-600 pt-6 border-t border-gray-200">
               Don't have an account?{" "}
-              <a href="/signup" className="font-semibold text-primary hover:underline transition-colors">
+              <a href="/signup" className="font-semibold text-yellow-500 hover:underline transition-colors">
                 Create account
               </a>
             </div>

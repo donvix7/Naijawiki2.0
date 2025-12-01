@@ -13,7 +13,7 @@ const CustomFooter = () => {
         {/* About Section */}
         <div>
           <div className="text-2xl font-bold flex items-center gap-2 mb-4">
-            <BookOpen className="text-[var(--primary)]" /> 
+            <BookOpen className="text-[var(--yellow-500)]" /> 
             NaijaLingo
           </div>
 
@@ -29,7 +29,7 @@ const CustomFooter = () => {
                 href="#"
                 aria-label="Social Link"
                 className="bg-white/10 w-10 h-10 rounded-full flex items-center justify-center 
-                  hover:bg-[var(--primary)] hover:-translate-y-1 transition-all"
+                  hover:bg-[var(--yellow-500)] hover:-translate-y-1 transition-all"
               >
                 <Icon className="w-5 h-5" />
               </a>
@@ -39,14 +39,14 @@ const CustomFooter = () => {
 
         {/* Explore Links */}
         <div className="flex flex-col">
-          <h3 className="text-[var(--primary)] text-xl mb-4 font-semibold">
+          <h3 className="text-[var(--yellow-500)] text-xl mb-4 font-semibold">
             Explore
           </h3>
           <ul className="space-y-2">
             <li>
               <a
                 href="/explore"
-                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+                className="hover:text-[var(--yellow-500)] text-gray-300 transition-colors"
               >
                 All Words
               </a>
@@ -56,14 +56,14 @@ const CustomFooter = () => {
 
         {/* Community */}
         <div className="flex flex-col">
-          <h3 className="text-[var(--primary)] text-xl mb-4 font-semibold">
+          <h3 className="text-[var(--yellow-500)] text-xl mb-4 font-semibold">
             Community
           </h3>
           <ul className="space-y-2">
             <li>
               <a
                 href="/submit-word"
-                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+                className="hover:text-[var(--yellow-500)] text-gray-300 transition-colors"
               >
                 Contribute a Word
               </a>
@@ -71,7 +71,7 @@ const CustomFooter = () => {
             <li>
               <a
                 href="/about"
-                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+                className="hover:text-[var(--yellow-500)] text-gray-300 transition-colors"
               >
                 About Us
               </a>
@@ -82,7 +82,7 @@ const CustomFooter = () => {
 
         {/* Support */}
         <div className="flex flex-col">
-          <h3 className="text-[var(--primary)] text-xl mb-4 font-semibold">
+          <h3 className="text-[var(--yellow-500)] text-xl mb-4 font-semibold">
             Support
           </h3>
 
@@ -92,7 +92,7 @@ const CustomFooter = () => {
             <li>
               <a
                 href="/contact"
-                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+                className="hover:text-[var(--yellow-500)] text-gray-300 transition-colors"
               >
                 Contact Us
               </a>
@@ -101,7 +101,7 @@ const CustomFooter = () => {
             <li>
               <a
                 href="/privacy"
-                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+                className="hover:text-[var(--yellow-500)] text-gray-300 transition-colors"
               >
                 Privacy Policy
               </a>
@@ -110,7 +110,7 @@ const CustomFooter = () => {
             <li>
               <a
                 href="/terms"
-                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+                className="hover:text-[var(--yellow-500)] text-gray-300 transition-colors"
               >
                 Terms of Use
               </a>
@@ -119,7 +119,7 @@ const CustomFooter = () => {
             <li>
               <a
                 href="/donate"
-                className="hover:text-[var(--primary)] text-gray-300 transition-colors"
+                className="hover:text-[var(--yellow-500)] text-gray-300 transition-colors"
               >
                 Donate
               </a>
