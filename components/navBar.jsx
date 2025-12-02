@@ -162,10 +162,13 @@ const CustomNavbar = () => {
                 {user ? (
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg border border-gray-200">
-                      <i data-feather="user" className="w-4 h-4 text-gray-500"></i>
-                      <span className="text-gray-700 font-medium text-sm truncate flex-1">
-                        {user.email}
-                      </span>
+                      <a
+                      href={`/profile`}>
+                        <i data-feather="user" className="w-4 h-4 text-gray-500"></i>
+                        <span className="text-gray-700 font-medium text-sm truncate flex-1">
+                          {user.email}
+                        </span>
+                      </a>
                     </div>
                     <button
                       onClick={() => {
