@@ -8,17 +8,28 @@ import Cookies from "js-cookie";
 
 export default function Page() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+  const [token, setToken] = useState(null);
 
-    const token = Cookies.get('token');
-    if(token) {
-      setIsLoggedIn(!isLoggedIn);
+  // Fix hydration & cookie loading
+  useEffect(() => {
+    setHydrated(true);
+
+    const savedToken = Cookies.get("token");
+    if (savedToken) {
+      setIsLoggedIn(true);
+      setToken(savedToken);
     }
+  }, []);
+
+  // Prevent hydration mismatch
+  if (!hydrated) return null;
+
   return (
     <div className="min-h-screen flex flex-col">
       <CustomNavbar />
 
       <main className="flex-grow">
-        {/* Pass login status to FilterForm */}
         <FilterForm isLoggedIn={isLoggedIn} token={token} />
       </main>
 

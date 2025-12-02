@@ -33,7 +33,7 @@ export default function UserProfilePage() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const res = await fetch(`${base_url}/users/${id}`, {
+        const res = await fetch(`${base_url}/user/profile`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -48,6 +48,7 @@ export default function UserProfilePage() {
           firstname: data.user.firstname || "",
           lastname: data.user.lastname || "",
           email: data.user.email || "",
+          role: data.user.role
         });
       } catch (err) {
         console.error(err);

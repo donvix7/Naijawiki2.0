@@ -75,7 +75,7 @@ const Page = () => {
               </div>
 
               <a
-                href="/admin/word/add"
+                href="/submit-word"
                 className="bg-[var(--neutral)] hover:from-yellow-500-dark hover:to-blue-900-dark text-white font-bold py-3 px-6 rounded-xl flex items-center gap-3 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 <i data-feather="plus" className="w-5 h-5"></i> 
