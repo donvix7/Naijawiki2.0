@@ -1,11 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import feather from "feather-icons";
 
 const DeleteBtn = ({ id, base_url, token }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  // Initialize feather icons
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      feather.replace();
+    }
+  }, [loading]);
 
   const deleteWord = async () => {
     if (loading) return;
@@ -20,35 +28,37 @@ const DeleteBtn = ({ id, base_url, token }) => {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
-          
           "Content-Type": "application/json",
         },
       });
 
       if (!res.ok) {
-        const msg = await res.text();
-        alert("Delete failed: " + msg);
+        const errorData = await res.json().catch(() => ({}));
+        const errorMessage = errorData.message || errorData.error || "Delete failed";
+        alert(`Delete failed: ${errorMessage}`);
         setLoading(false);
         return;
       }
 
       alert("Deleted successfully");
-      router.refresh();
-
+      router.refresh(); // Refresh the page to update the list
+      
     } catch (error) {
-      console.error(error);
+      console.error("Delete error:", error);
       alert("Network or server error while deleting");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
     <button
       onClick={deleteWord}
       disabled={loading}
-      className={`bg-red-500 hover:bg-red-800 text-white hover:underline font-semibold py-2 px-4 rounded-lg hover:bg-blue-900-dark transition-colors text-sm flex items-center gap-1 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+      className="w-full bg-red-500 text-white font-semibold py-2.5 px-4 rounded-lg text-center text-sm hover:bg-red-200 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      title="Delete word"
     >
+      <i data-feather={loading ? "loader" : "trash-2"} className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}></i>
       {loading ? "Deleting..." : "Delete"}
     </button>
   );

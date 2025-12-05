@@ -10,7 +10,7 @@ import getBaseUrl from "@/app/api/baseUrl";
 
 export default function UserProfilePage() {
   const router = useRouter();
-  const [hydrated, setHydrated] = useState(false); // prevents SSR/CSR mismatch
+  const [hydrated, setHydrated] = useState(false);
   const [user, setUser] = useState(null);
   const [submittedWords, setSubmittedWords] = useState([]);
   const [wordsLoading, setWordsLoading] = useState(true);
@@ -21,16 +21,17 @@ export default function UserProfilePage() {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState({ message: "", type: "" });
 
-  // Use consistent camelCase keys for form and bank data
+  // Form data - keep firstName/lastName as they are, only change bank fields
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
   });
 
+  // Changed: accountNumber → account_number, bankName → bank_name
   const [bankData, setBankData] = useState({
-    bankName: "",
-    accountNumber: "",
+    bank_name: "",
+    account_number: "",
   });
 
   const token = typeof window !== "undefined" ? Cookies.get("token") : null;
@@ -42,23 +43,21 @@ export default function UserProfilePage() {
     setHydrated(true);
   }, []);
 
-  // Initialize feather icons on client and when relevant states change
+  // Initialize feather icons
   useEffect(() => {
     if (hydrated && typeof window !== "undefined") {
       try {
         feather.replace();
       } catch (err) {
-        // swallow icon errors (feather may be undefined in some environments)
-        // console.warn("Feather init failed", err);
+        console.warn("Feather init failed", err);
       }
     }
   }, [hydrated, loading, actionLoading, editing, editingBank, submittedWords]);
 
-  // Fetch user profile (client-only)
+  // Fetch user profile
   useEffect(() => {
     if (!hydrated) return;
     if (!token) {
-      // No token -> redirect to home (or login)
       router.push("/");
       return;
     }
@@ -81,22 +80,22 @@ export default function UserProfilePage() {
         }
 
         const data = await res.json();
-
         if (!mounted) return;
 
-        // Expect data.user shape; adjust if your API differs
         const fetchedUser = data.user || data;
         setUser(fetchedUser);
 
+        // Keep firstName/lastName as they are
         setFormData({
-          firstName: fetchedUser.firstName || "",
-          lastName: fetchedUser.lastName || "",
+          firstName: fetchedUser.firstName || fetchedUser.first_name || "",
+          lastName: fetchedUser.lastName || fetchedUser.last_name || "",
           email: fetchedUser.email || "",
         });
 
+        // Changed: Use snake_case for bank fields
         setBankData({
-          bankName: fetchedUser.bankName || "",
-          accountNumber: fetchedUser.accountNumber || "",
+          bank_name: fetchedUser.bank_name || "",
+          account_number: fetchedUser.account_number || "",
         });
       } catch (err) {
         console.error("Fetch profile error:", err);
@@ -107,13 +106,12 @@ export default function UserProfilePage() {
     };
 
     fetchUserProfile();
-
     return () => {
       mounted = false;
     };
   }, [hydrated, base_url, token, router]);
 
-  // Fetch submitted words after user is loaded
+  // Fetch submitted words
   useEffect(() => {
     if (!hydrated) return;
     if (!user) return;
@@ -151,7 +149,7 @@ export default function UserProfilePage() {
     };
   }, [hydrated, base_url, token, user]);
 
-  // Handle form input changes
+  // Handle form input changes - keep as is
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -160,10 +158,10 @@ export default function UserProfilePage() {
     }));
   };
 
-  // Handle bank data input changes
+  // Handle bank data input changes - Changed to use snake_case
   const handleBankInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "accountNumber") {
+    if (name === "account_number") {
       const formattedValue = value.replace(/\D/g, ""); // Remove non-digits
       setBankData((prev) => ({ ...prev, [name]: formattedValue }));
     } else {
@@ -171,7 +169,7 @@ export default function UserProfilePage() {
     }
   };
 
-  // Update user profile
+  // Update user profile - keep as is
   const updateProfile = async (e) => {
     e.preventDefault();
     setActionLoading(true);
@@ -179,9 +177,9 @@ export default function UserProfilePage() {
 
     try {
       const payload = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
       };
 
       const res = await fetch(`${base_url}/user/profile`, {
@@ -194,7 +192,6 @@ export default function UserProfilePage() {
       });
 
       const data = await res.json().catch(() => ({}));
-
       if (!res.ok) throw new Error(data.message || "Failed to update profile");
 
       const updatedUser = data.user || data;
@@ -209,20 +206,20 @@ export default function UserProfilePage() {
     }
   };
 
-  // Update bank details
+  // Update bank details - Changed to use snake_case
   const updateBankDetails = async (e) => {
     e.preventDefault();
     setActionLoading(true);
     setStatus({ message: "", type: "" });
 
     // Validate bank details
-    if (!bankData.bankName.trim()) {
+    if (!bankData.bank_name.trim()) {
       setStatus({ message: "Bank name is required", type: "error" });
       setActionLoading(false);
       return;
     }
 
-    if (!bankData.accountNumber.trim() || bankData.accountNumber.length < 10) {
+    if (!bankData.account_number.trim() || bankData.account_number.length < 10) {
       setStatus({
         message: "Valid account number is required (minimum 10 digits)",
         type: "error",
@@ -232,9 +229,10 @@ export default function UserProfilePage() {
     }
 
     try {
+      // Changed: Use snake_case for API payload
       const payload = {
-        bankName: bankData.bankName.trim(),
-        accountNumber: bankData.accountNumber.trim(),
+        bank_name: bankData.bank_name.trim(),
+        account_number: bankData.account_number.trim(),
       };
 
       const res = await fetch(`${base_url}/user/profile`, {
@@ -249,8 +247,12 @@ export default function UserProfilePage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || "Failed to update bank details");
 
-      // Update user state with new bank details
-      setUser((prev) => ({ ...prev, ...payload }));
+      // Update user state with new bank details using snake_case
+      setUser((prev) => ({ 
+        ...prev, 
+        bank_name: payload.bank_name,
+        account_number: payload.account_number
+      }));
       setEditingBank(false);
       setStatus({ message: "Bank details updated successfully!", type: "success" });
     } catch (err) {
@@ -261,7 +263,7 @@ export default function UserProfilePage() {
     }
   };
 
-  // Change password (still using prompt for simplicity)
+  // Change password - keep as is
   const changePassword = async () => {
     const newPassword = prompt("Enter your new password (min 8 characters):");
     if (!newPassword || newPassword.length < 8) {
@@ -294,7 +296,7 @@ export default function UserProfilePage() {
     }
   };
 
-  // Get status badge color
+  // Get status badge color - keep as is
   const getStatusColor = (statusVal) => {
     switch ((statusVal || "").toLowerCase()) {
       case "approved":
@@ -308,15 +310,25 @@ export default function UserProfilePage() {
     }
   };
 
-  // Format account number for display (groups of 4)
+  // Format account number for display - keep as is
   const formatAccountNumber = (accountNumber) => {
     if (!accountNumber) return "";
-    return accountNumber.replace(/(\d{4})(?=\d)/g, "$1 ");
+    const numStr = accountNumber.toString();
+    if (numStr.length <= 4) return numStr;
+    return numStr.replace(/(\d{4})(?=\d)/g, "$1 ");
   };
 
-  // Loading state (client-only)
+  // Format currency - keep as is
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+      minimumFractionDigits: 2
+    }).format(amount || 0);
+  };
+
+  // Loading state
   if (!hydrated) {
-    // render nothing on server -> prevents SSR/CSR mismatch
     return null;
   }
 
@@ -356,6 +368,14 @@ export default function UserProfilePage() {
       </div>
     );
   }
+
+  // Get data from user object
+  // Changed: wallet_balance instead of balance
+  const walletBalance = user.wallet_balance || 0;
+  const bankName = user.bank_name || "";
+  const accountNumber = user.account_number || "";
+  const firstName = user.firstName || user.first_name || "";
+  const lastName = user.lastName || user.last_name || "";
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -397,6 +417,37 @@ export default function UserProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Profile Information */}
               <div className="lg:col-span-2 space-y-6">
+                {/* Wallet Balance Card */}
+                <div className="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl shadow-lg p-6 text-white">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h2 className="text-lg font-semibold mb-2">Wallet Balance</h2>
+                      <p className="text-3xl font-bold mb-1">{formatCurrency(walletBalance)}</p>
+                      <p className="text-yellow-100 text-sm opacity-90">Available for withdrawal</p>
+                    </div>
+                    <div className="bg-white bg-opacity-20 p-3 rounded-full">
+                      <i data-feather="credit-card" className="w-6 h-6"></i>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex gap-3">
+                    <button
+                      onClick={() => router.push("/withdraw")}
+                      disabled={walletBalance <= 0}
+                      className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition-all ${walletBalance > 0 
+                        ? "bg-white text-yellow-600 hover:bg-gray-100" 
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+                    >
+                      Withdraw Funds
+                    </button>
+                    <button
+                      onClick={() => router.push("/transactions")}
+                      className="flex-1 py-2.5 px-4 bg-white bg-opacity-20 rounded-lg font-semibold text-sm hover:bg-opacity-30 transition-all"
+                    >
+                      View Transactions
+                    </button>
+                  </div>
+                </div>
+
                 {/* Profile Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
@@ -468,8 +519,8 @@ export default function UserProfilePage() {
                           onClick={() => {
                             setEditing(false);
                             setFormData({
-                              firstName: user.firstName || "",
-                              lastName: user.lastName || "",
+                              firstName: firstName,
+                              lastName: lastName,
                               email: user.email || "",
                             });
                           }}
@@ -484,12 +535,12 @@ export default function UserProfilePage() {
                       <div className="space-y-5">
                         <div>
                           <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">First Name</label>
-                          <p className="text-base font-semibold text-gray-900">{user.firstName || "—"}</p>
+                          <p className="text-base font-semibold text-gray-900">{firstName || "—"}</p>
                         </div>
 
                         <div>
                           <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Last Name</label>
-                          <p className="text-base font-semibold text-gray-900">{user.lastName || "—"}</p>
+                          <p className="text-base font-semibold text-gray-900">{lastName || "—"}</p>
                         </div>
                       </div>
 
@@ -524,7 +575,7 @@ export default function UserProfilePage() {
                         className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
                       >
                         <i data-feather="edit" className="w-4 h-4"></i>
-                        {user.bankName ? "Edit Bank Details" : "Add Bank Details"}
+                        {bankName ? "Edit Bank Details" : "Add Bank Details"}
                       </button>
                     )}
                   </div>
@@ -536,8 +587,8 @@ export default function UserProfilePage() {
                           <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Bank Name</label>
                           <input
                             type="text"
-                            name="bankName"
-                            value={bankData.bankName}
+                            name="bank_name" // Changed to snake_case
+                            value={bankData.bank_name}
                             onChange={handleBankInputChange}
                             className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                             placeholder="Enter your bank name (e.g., GTBank, Access Bank)"
@@ -550,8 +601,8 @@ export default function UserProfilePage() {
                           <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Account Number</label>
                           <input
                             type="text"
-                            name="accountNumber"
-                            value={bankData.accountNumber}
+                            name="account_number" // Changed to snake_case
+                            value={bankData.account_number}
                             onChange={handleBankInputChange}
                             className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
                             placeholder="Enter 10-digit account number"
@@ -575,8 +626,8 @@ export default function UserProfilePage() {
                           onClick={() => {
                             setEditingBank(false);
                             setBankData({
-                              bankName: user.bankName || "",
-                              accountNumber: user.accountNumber || "",
+                              bank_name: bankName,
+                              account_number: accountNumber,
                             });
                           }}
                           className="bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm"
@@ -590,8 +641,8 @@ export default function UserProfilePage() {
                       <div className="space-y-5">
                         <div>
                           <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Bank Name</label>
-                          {user.bankName ? (
-                            <p className="text-base font-semibold text-gray-900">{user.bankName}</p>
+                          {bankName ? (
+                            <p className="text-base font-semibold text-gray-900">{bankName}</p>
                           ) : (
                             <div className="flex items-center gap-2 text-gray-500">
                               <i data-feather="alert-circle" className="w-4 h-4"></i>
@@ -604,8 +655,8 @@ export default function UserProfilePage() {
                       <div className="space-y-5">
                         <div>
                           <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Account Number</label>
-                          {user.accountNumber ? (
-                            <p className="text-base font-semibold text-gray-900 font-mono">{formatAccountNumber(user.accountNumber)}</p>
+                          {accountNumber ? (
+                            <p className="text-base font-semibold text-gray-900 font-mono">{formatAccountNumber(accountNumber)}</p>
                           ) : (
                             <div className="flex items-center gap-2 text-gray-500">
                               <i data-feather="alert-circle" className="w-4 h-4"></i>
@@ -618,13 +669,13 @@ export default function UserProfilePage() {
                   )}
 
                   {/* Security Note */}
-                  {!editingBank && (user.bankName || user.accountNumber) && (
+                  {!editingBank && (bankName || accountNumber) && (
                     <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
                       <div className="flex items-start gap-3">
                         <i data-feather="shield" className="w-5 h-5 text-blue-600 mt-0.5"></i>
                         <div>
                           <p className="text-sm font-medium text-blue-800 mb-1">Your bank details are secure</p>
-                          <p className="text-xs text-blue-600">Your bank information is encrypted and only used for payment purposes. Never share your banking details with anyone.</p>
+                          <p className="text-xs text-blue-600">Your bank information is encrypted and only used for payment purposes.</p>
                         </div>
                       </div>
                     </div>
@@ -665,11 +716,15 @@ export default function UserProfilePage() {
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
                               <h3 className="font-semibold text-gray-900 text-base">{word.word}</h3>
-                              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(word.status)}`}>{word.status}</span>
+                              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(word.status)}`}>
+                                {word.status}
+                              </span>
                             </div>
                             <p className="text-gray-700 text-sm mb-1">{word.meaning}</p>
                             {word.language && <p className="text-gray-500 text-xs">Language: {word.language}</p>}
-                            <p className="text-gray-500 text-xs mt-2">Submitted on {word.created_at ? new Date(word.created_at).toLocaleDateString() : "—"}</p>
+                            <p className="text-gray-500 text-xs mt-2">
+                              Submitted on {word.created_at ? new Date(word.created_at).toLocaleDateString() : "—"}
+                            </p>
                           </div>
                           <div className="flex items-center gap-2">
                             <button
@@ -693,45 +748,6 @@ export default function UserProfilePage() {
                       ))}
                     </div>
                   )}
-                </div>
-
-                {/* Account Information */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">Account Information</h2>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">User ID</label>
-                        <p className="text-sm font-mono text-gray-600 bg-gray-50 p-3 rounded">{user.id}</p>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Account Status</label>
-                        <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${user.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{user.status || "active"}</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Member Since</label>
-                        <p className="text-gray-900 text-sm">
-                          {user.created_at
-                            ? new Date(user.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
-                            : "—"}
-                        </p>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-600 mb-1">Last Updated</label>
-                        <p className="text-gray-900 text-sm">
-                          {user.updated_at
-                            ? new Date(user.updated_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
-                            : "—"}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -779,6 +795,10 @@ export default function UserProfilePage() {
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">My Stats</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Wallet Balance:</span>
+                      <span className="font-semibold text-green-600">{formatCurrency(walletBalance)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Total Submitted:</span>
                       <span className="font-semibold text-gray-900">{submittedWords.length}</span>
                     </div>
@@ -792,8 +812,8 @@ export default function UserProfilePage() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Bank Details:</span>
-                      <span className={`font-semibold ${user.bankName && user.accountNumber ? "text-green-600" : "text-yellow-600"}`}>
-                        {user.bankName && user.accountNumber ? "Complete" : "Incomplete"}
+                      <span className={`font-semibold ${bankName && accountNumber ? "text-green-600" : "text-yellow-600"}`}>
+                        {bankName && accountNumber ? "Complete" : "Incomplete"}
                       </span>
                     </div>
                   </div>
