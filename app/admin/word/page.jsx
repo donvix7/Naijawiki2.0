@@ -1,44 +1,63 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
 import AdminNavbar from "@/components/adminNavbar";
 import AdminSidebar from "@/components/adminSideBar";
 import getBaseUrl from "@/app/api/baseUrl";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import feather from "feather-icons";
+import { useRouter } from "next/navigation";
 import RoleGuard from "@/utils/RoleGuard";
-import DeleteBtn from "@/components/deleteBtn";
 
-const Page = () => {
-  const base_url = getBaseUrl();
-  const token = Cookies.get("token");
+export default function Page() {
+  const router = useRouter();
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
-  // Filters
-  const [status, setStatus] = useState("");
-  const [search, setSearch] = useState("");
+  const token = Cookies.get("token");
+  const base_url = getBaseUrl();
 
-  // Fetch all words dynamically
+  // Fetch all words
   useEffect(() => {
     const fetchWords = async () => {
       try {
-        setLoading(true);
+        if (!token) {
+          setError("Authentication required");
+          setLoading(false);
+          return;
+        }
 
         const res = await fetch(`${base_url}/user/word/list`, {
-          method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!res.ok) throw new Error("Failed to fetch words");
+        if (!res.ok) {
+          if (res.status === 401) {
+            setError("Unauthorized access");
+          } else {
+            throw new Error("Failed to fetch words");
+          }
+          return;
+        }
 
         const data = await res.json();
-        setWords(data.words || []);
-      } catch (err) {
-        console.error("Error loading words:", err);
-      } finally {
+        // Handle both array response and object with words property
+        const wordsData = Array.isArray(data) ? data : (data.words || []);
+        setWords(wordsData);
+      } 
+      catch (err) {
+        console.error("Failed to load words:", err);
+        setError(err.message || "Failed to load words");
+      } 
+      finally {
         setLoading(false);
       }
     };
@@ -46,13 +65,96 @@ const Page = () => {
     fetchWords();
   }, [base_url, token]);
 
-  // Filter + Search Logic
-  const filteredWords = words.filter((w) => {
-    return (
-      (!status || w.status === status) &&
-      (!search || w.word.toLowerCase().includes(search.toLowerCase()))
-    );
+  // Initialize feather icons
+  useEffect(() => {
+    feather.replace();
+  }, [words, loading]);
+
+  // Filter words based on search and status
+  const filteredWords = words.filter(word => {
+    const matchesSearch = searchTerm === "" || 
+      word.word?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      word.meaning?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      word.creatorEmail?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus = statusFilter === "all" || word.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
   });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredWords.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedWords = filteredWords.slice(startIndex, startIndex + itemsPerPage);
+
+  // Handle word click
+  const handleWordClick = (id) => {
+    router.push(`/admin/word/edit/${id}`);
+  };
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  // Get status badge
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "approved":
+        return <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Approved</span>;
+      case "rejected":
+        return <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-semibold rounded-full">Rejected</span>;
+      default:
+        return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">Pending</span>;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
+          <p className="text-gray-700 text-lg font-semibold">Loading words...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 text-red-500 mx-auto mb-4 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <p className="text-red-600 text-lg font-semibold mb-4">
+            {error}
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <RoleGuard allowedRoles={["admin", "super_admin"]}>
@@ -63,282 +165,237 @@ const Page = () => {
           <AdminSidebar />
 
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
               <div>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-                  Manage Words
+                <h1 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
+                  Word Submissions
                 </h1>
-                <p className="text-gray-600 font-medium">
-                  Review, edit, and manage all word submissions
+                <p className="text-gray-600 text-base font-normal">
+                  Review and manage word submissions from users
                 </p>
               </div>
 
-              <a
-                href="/submit-word"
-                className="bg-[var(--neutral)] hover:from-yellow-500-dark hover:to-blue-900-dark text-white font-bold py-3 px-6 rounded-xl flex items-center gap-3 transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                <i data-feather="plus" className="w-5 h-5"></i> 
-                Add New Word
-              </a>
-            </div>
 
-            {/* Stats Overview */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 md:mb-8">
-              <div className="bg-white p-4 rounded-xl shadow-lg border-l-4 border-yellow-500">
-                <p className="text-gray-700 font-semibold text-sm mb-1">Total Words</p>
-                <h3 className="text-2xl font-bold text-gray-900">{words.length}</h3>
-              </div>
-              <div className="bg-white p-4 rounded-xl shadow-lg border-l-4 border-yellow-500">
-                <p className="text-gray-700 font-semibold text-sm mb-1">Pending</p>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {words.filter(w => w.status === 'pending').length}
-                </h3>
-              </div>
-              <div className="bg-white p-4 rounded-xl shadow-lg border-l-4 border-green-500">
-                <p className="text-gray-700 font-semibold text-sm mb-1">Approved</p>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {words.filter(w => w.status === 'approved').length}
-                </h3>
-              </div>
-              <div className="bg-white p-4 rounded-xl shadow-lg border-l-4 border-red-500">
-                <p className="text-gray-700 font-semibold text-sm mb-1">Rejected</p>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {words.filter(w => w.status === 'rejected').length}
-                </h3>
+              <div className="text-sm text-gray-500">
+                <span className="font-semibold text-gray-700">{words.length}</span> total words
               </div>
             </div>
 
-            {/* Filters Card */}
-            <div className="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Filters & Search</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i data-feather="clock" className="w-6 h-6 text-yellow-600"></i>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {words.filter(w => w.status === "pending").length}
+                    </p>
+                    <p className="text-sm text-gray-500">Pending Review</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-feather="check-circle" className="w-6 h-6 text-green-600"></i>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {words.filter(w => w.status === "approved").length}
+                    </p>
+                    <p className="text-sm text-gray-500">Approved</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <i data-feather="x-circle" className="w-6 h-6 text-red-600"></i>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {words.filter(w => w.status === "rejected").length}
+                    </p>
+                    <p className="text-sm text-gray-500">Rejected</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Filters */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="lg:col-span-2">
+                  <div className="relative">
+                    <i data-feather="search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"></i>
+                    <input
+                      type="text"
+                      placeholder="Search words, meanings, or submitter..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-gray-700 font-semibold mb-2 text-lg">
-                    Status Filter
-                  </label>
                   <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                    className="w-full p-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-white"
                   >
-                    <option value="">All Statuses</option>
-                    <option value="pending">Pending Review</option>
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
                   </select>
                 </div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-gray-700 font-semibold mb-2 text-lg">
-                    Search Words
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Search by word name..."
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      className="w-full p-3 pl-12 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-medium"
-                    />
-                    <i
-                      data-feather="search"
-                      className="absolute left-4 top-3.5 text-gray-500 w-5 h-5"
-                    ></i>
-                  </div>
-                </div>
-              </div>
-
-              {/* Results Count */}
-              <div className="mt-4 flex justify-between items-center">
-                <span className="text-gray-700 font-semibold">
-                  Showing {filteredWords.length} of {words.length} words
-                </span>
-                {(status || search) && (
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => {
-                      setStatus("");
-                      setSearch("");
+                      setSearchTerm("");
+                      setStatusFilter("all");
+                      setCurrentPage(1);
                     }}
-                    className="text-yellow-500 font-semibold hover:underline flex items-center gap-2"
+                    className="px-4 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm flex items-center gap-2"
                   >
-                    <i data-feather="x" className="w-4 h-4"></i>
-                    Clear Filters
+                    <i data-feather="refresh-cw" className="w-4 h-4"></i>
+                    Reset
                   </button>
-                )}
+                </div>
               </div>
             </div>
 
-            {/* Words Table/Cards */}
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500 mx-auto mb-4"></div>
-                    <p className="text-gray-700 font-semibold text-lg">Loading words...</p>
+            {/* Words Table */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+              {filteredWords.length === 0 ? (
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 text-gray-300 mx-auto mb-4 flex items-center justify-center">
+                    <i data-feather="file-text" className="w-16 h-16"></i>
                   </div>
-                </div>
-              ) : filteredWords.length === 0 ? (
-                <div className="text-center py-12">
-                  <i data-feather="search" className="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
-                  <p className="text-gray-600 font-semibold text-lg mb-2">No words found</p>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No words found</h3>
                   <p className="text-gray-500">
-                    {words.length === 0 ? "No words have been submitted yet." : "Try adjusting your filters."}
+                    {searchTerm || statusFilter !== "all" 
+                      ? "Try adjusting your filters" 
+                      : "No words have been submitted yet"}
                   </p>
                 </div>
               ) : (
                 <>
-                  {/* Mobile Cards View */}
-                  <div className="md:hidden space-y-4 p-4">
-                    {filteredWords.map((item) => (
-                      <div key={item.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <div className="flex justify-between items-start mb-3">
-                          <h3 className="font-bold text-gray-900 text-lg">{item.word}</h3>
-                          <span
-                            className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                              item.status === "approved"
-                                ? "bg-green-100 text-green-800"
-                                : item.status === "pending"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {item.status}
-                          </span>
-                        </div>
-                        
-                        <p className="text-gray-700 mb-3">{item.meaning}</p>
-                        
-                        <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
-                          <span className="font-medium">By: {item.created_by || item.creator || "—"}</span>
-                          <span>{new Date(item.created_at).toLocaleDateString()}</span>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <a
-                            href={`/admin/word/edit/${item.id}`}
-                            className="flex-1 bg-[var(--neutral)] hover:bg-gray-500 text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-yellow-500-dark transition-colors flex items-center justify-center gap-1"
-                          >
-                            <i data-feather="edit" className="w-3 h-3"></i>
-                            Edit
-                          </a>
-                          <a
-                            href={`/admin/word/${item.id}`}
-                            className="flex-1 bg-blue-500 hover:bg-blue-800 text-white font-semibold py-2 px-3 rounded-lg text-center text-sm hover:bg-blue-900-dark transition-colors flex items-center justify-center gap-1"
-                          >
-                            <i data-feather="eye" className="w-3 h-3"></i>
-                            Review
-                          </a>
-                          <div className="flex-1">
-                            <DeleteBtn id={item.id} base_url={base_url} token={token} />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Desktop Table View */}
-                  <div className="hidden md:block overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                          <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Word</th>
-                          <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Meaning</th>
-                          <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Status</th>
-                          <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Submitted By</th>
-                          <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Date</th>
-                          <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Word</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Meaning</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Submitted By</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                          <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredWords.map((item) => (
-                          <tr key={item.id} className="hover:bg-gray-50 transition-colors duration-150">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="font-semibold text-gray-900 text-lg">
-                                {item.word}
-                              </span>
+                      <tbody className="divide-y divide-gray-200">
+                        {paginatedWords.map((word) => (
+                          <tr 
+                            key={word._id || word.id} 
+                            className="hover:bg-gray-50 transition-colors cursor-pointer"
+                            onClick={() => handleWordClick(word._id || word.id)}
+                          >
+                            <td className="px-6 py-4">
+                              <div className="font-semibold text-gray-900">{word.word}</div>
+                              {word.pronunciation && (
+                                <div className="text-sm text-gray-500 mt-1">{word.pronunciation}</div>
+                              )}
                             </td>
-                            <td className="px-6 py-4 max-w-xs">
-                              <p className="text-gray-700 font-medium truncate">
-                                {item.meaning}
-                              </p>
+                            <td className="px-6 py-4">
+                              <div className="text-gray-700 line-clamp-2">{word.meaning}</div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span
-                                className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                                  item.status === "approved"
-                                    ? "bg-green-100 text-green-800"
-                                    : item.status === "pending"
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : "bg-red-100 text-red-800"
-                                }`}
-                              >
-                                {item.status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="text-gray-700 font-medium">
-                                {item.created_by || "—"}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="text-gray-600 text-sm">
-                                {new Date(item.created_at).toLocaleDateString()}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex gap-2">
-                                <a
-                                  href={`/admin/word/edit/${item.id}`}
-                                  className="bg-[var(--neutral)] hover:bg-grey-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-yellow-500-dark transition-colors text-sm flex items-center gap-1"
-                                >
-                                  <i data-feather="edit" className="w-3 h-3"></i>
-                                  Edit
-                                </a>
-                                <a
-                                  href={`/admin/word/${item.id}`}
-                                  className="bg-blue-500 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-900-dark transition-colors text-sm flex items-center gap-1"
-                                >
-                                  <i data-feather="eye" className="w-3 h-3"></i>
-                                  Review
-                                </a>
-                                <DeleteBtn id={item.id} base_url={base_url} token={token} />
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-gray-700">
+                                {word.created_by || word.creator || "Unknown"}
                               </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              {getStatusBadge(word.status)}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-gray-500">
+                                {formatDate(word.created_at || word.created_date)}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleWordClick(word._id || word.id);
+                                }}
+                                className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500 text-white text-xs font-semibold rounded-lg hover:bg-yellow-600 transition-colors"
+                              >
+                                <i data-feather="eye" className="w-3 h-3"></i>
+                                View
+                              </button>
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="border-t border-gray-200 px-6 py-4">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-gray-500">
+                          Showing <span className="font-semibold">{startIndex + 1}</span> to{" "}
+                          <span className="font-semibold">
+                            {Math.min(startIndex + itemsPerPage, filteredWords.length)}
+                          </span>{" "}
+                          of <span className="font-semibold">{filteredWords.length}</span> words
+                        </div>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Previous
+                          </button>
+                          {[...Array(totalPages)].map((_, index) => (
+                            <button
+                              key={index + 1}
+                              onClick={() => handlePageChange(index + 1)}
+                              className={`px-3 py-1.5 border rounded-lg text-sm font-semibold ${
+                                currentPage === index + 1
+                                  ? "bg-yellow-500 border-yellow-500 text-white"
+                                  : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                              }`}
+                            >
+                              {index + 1}
+                            </button>
+                          ))}
+                          <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </div>
 
-            {/* Pagination */}
-            {filteredWords.length > 0 && (
-              <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div className="text-gray-700 font-semibold">
-                  Showing {filteredWords.length} of {words.length} results
-                </div>
-                <div className="flex gap-2">
-                  <button className="px-4 py-2 border-2 border-gray-300 rounded-xl bg-white text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
-                    Previous
-                  </button>
-                  <button className="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-xl hover:bg-yellow-500-dark transition-colors">
-                    1
-                  </button>
-                  <button className="px-4 py-2 border-2 border-gray-300 rounded-xl bg-white text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
           </main>
         </div>
       </div>
     </RoleGuard>
   );
-};
-
-export default Page;
+}

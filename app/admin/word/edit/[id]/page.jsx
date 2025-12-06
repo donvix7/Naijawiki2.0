@@ -3,7 +3,7 @@
 import AdminNavbar from "@/components/adminNavbar";
 import AdminSidebar from "@/components/adminSideBar";
 import getBaseUrl from "@/app/api/baseUrl";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Cookies from "js-cookie";
 import feather from "feather-icons";
 import { useParams, useRouter } from "next/navigation";
@@ -18,15 +18,30 @@ export default function Page() {
   const [error, setError] = useState("");
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [reason, setReason] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({
+  const [editing, setEditing] = useState(false);
+  const [formData, setFormData] = useState({
     word: "",
     meaning: "",
     pronunciation: "",
-    use_case: "",
-    language: "",
-    category: ""
+    use_case: ""
   });
+  const [audioFile, setAudioFile] = useState(null);
+
+  // Audio playback state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const audioRef = useRef(null);
+  const previewAudioRef = useRef(null);
+
+  // Audio recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [audioChunks, setAudioChunks] = useState([]);
+  const [recordingInterval, setRecordingInterval] = useState(null);
+  const [newAudioPreview, setNewAudioPreview] = useState(null);
 
   const token = Cookies.get("token");
   const base_url = getBaseUrl();
@@ -62,15 +77,19 @@ export default function Page() {
         const data = await res.json();
         const wordData = data.word || data;
         setWord(wordData);
-        // Initialize edit form with current data
-        setEditForm({
+        // Initialize form data with current data
+        setFormData({
           word: wordData.word || "",
           meaning: wordData.meaning || "",
           pronunciation: wordData.pronunciation || "",
-          use_case: wordData.use_case || "",
-          language: wordData.language || "",
-          category: wordData.category || ""
+          use_case: wordData.use_case || ""
         });
+        
+        // Set audio URL if exists
+        if (wordData.audio_url) {
+          // Set newAudioPreview to the existing audio URL for preview purposes
+          setNewAudioPreview(wordData.audio_url);
+        }
       } 
       catch (err) {
         console.error("Failed to load word:", err);
@@ -87,32 +106,257 @@ export default function Page() {
   // Initialize feather icons
   useEffect(() => {
     feather.replace();
-  }, [isEditing]);
+  }, [editing, isPlaying, isRecording, newAudioPreview]);
 
-  // Handle edit form changes
-  const handleEditChange = (e) => {
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (recordingInterval) {
+        clearInterval(recordingInterval);
+      }
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+      }
+      // Clean up audio URLs
+      if (newAudioPreview && newAudioPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(newAudioPreview);
+      }
+    };
+  }, [recordingInterval, mediaRecorder, isRecording, newAudioPreview]);
+
+  // Reset audio state when switching between previews
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      setCurrentTime(0);
+    }
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+    }
+  }, [newAudioPreview]);
+
+  // Audio playback functions
+  const handlePlayPause = (isPreview = false) => {
+    const audioElement = isPreview ? previewAudioRef.current : audioRef.current;
+    const currentAudio = isPreview ? newAudioPreview : (word?.audio_url || newAudioPreview);
+    
+    if (!currentAudio) return;
+    
+    if (isPlaying) {
+      audioElement?.pause();
+    } else {
+      audioElement?.play().catch(err => {
+        console.error("Play error:", err);
+      });
+    }
+  };
+
+  const handleTimeUpdate = (isPreview = false) => {
+    const audioElement = isPreview ? previewAudioRef.current : audioRef.current;
+    if (audioElement) {
+      setCurrentTime(audioElement.currentTime);
+    }
+  };
+
+  const handleAudioEnded = (isPreview = false) => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const handleAudioLoaded = (isPreview = false) => {
+    const audioElement = isPreview ? previewAudioRef.current : audioRef.current;
+    if (audioElement) {
+      setDuration(audioElement.duration);
+    }
+  };
+
+  const handleVolumeChange = (e) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+    if (previewAudioRef.current) {
+      previewAudioRef.current.volume = newVolume;
+    }
+  };
+
+  const handleProgressClick = (e, isPreview = false) => {
+    const audioElement = isPreview ? previewAudioRef.current : audioRef.current;
+    if (!audioElement || !duration) return;
+    
+    const progressBar = e.currentTarget;
+    const rect = progressBar.getBoundingClientRect();
+    const clickPosition = (e.clientX - rect.left) / progressBar.offsetWidth;
+    const newTime = Math.max(0, Math.min(duration, clickPosition * duration));
+    
+    audioElement.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const formatTime = (time) => {
+    if (!time || isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  // Audio recording functions
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.ondataavailable = (e) => {
+        chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const url = URL.createObjectURL(blob);
+        
+        // Create a File object from the Blob
+        const file = new File([blob], 'recording.webm', { type: 'audio/webm' });
+        setAudioFile(file);
+        setNewAudioPreview(url);
+        setAudioChunks([]);
+        
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      // Start recording timer
+      const interval = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+      setRecordingInterval(interval);
+    } catch (err) {
+      console.error("Recording error:", err);
+      alert("Error accessing microphone. Please check permissions.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      if (recordingInterval) {
+        clearInterval(recordingInterval);
+        setRecordingInterval(null);
+      }
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check file type
+    if (!file.type.startsWith('audio/')) {
+      alert("Please upload an audio file");
+      return;
+    }
+
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert("File size too large. Maximum size is 10MB.");
+      return;
+    }
+
+    setAudioFile(file);
+    const url = URL.createObjectURL(file);
+    setNewAudioPreview(url);
+  };
+
+  const removeAudio = () => {
+    setAudioFile(null);
+    setNewAudioPreview(null);
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+    }
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setEditForm(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
+  // Start editing
+  const startEditing = () => {
+    setEditing(true);
+    setNewAudioPreview(word?.audio_url || null);
+    setAudioFile(null);
+  };
+
+  // Cancel editing
+  const cancelEdit = () => {
+    // Reset form to original values
+    setFormData({
+      word: word?.word || "",
+      meaning: word?.meaning || "",
+      pronunciation: word?.pronunciation || "",
+      use_case: word?.use_case || ""
+    });
+    // Reset audio states
+    setNewAudioPreview(word?.audio_url || null);
+    setAudioFile(null);
+    if (isRecording) {
+      stopRecording();
+    }
+    setEditing(false);
+  };
+
   // Submit edited word
-  const submitEdit = async () => {
+  const submitEdit = async (e) => {
+    e.preventDefault();
     if (!word || !id) return;
+    
+    // Validate required fields
+    if (!formData.word.trim() || !formData.meaning.trim()) {
+      alert("Word and meaning are required fields");
+      return;
+    }
     
     setActionLoading(true);
     try {
       console.log("Updating word with ID:", id);
       
-      const res = await fetch(`${base_url}/word/${id}`, {
+      // Create FormData to handle file upload
+      const submitFormData = new FormData();
+      
+      // Add text fields
+      Object.keys(formData).forEach(key => {
+        submitFormData.append(key, formData[key]);
+      });
+      
+      // Add audio file if exists
+      if (audioFile) {
+        submitFormData.append('audio', audioFile);
+      }
+      
+      const res = await fetch(`${base_url}/word/update-word/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          // Don't set Content-Type header for FormData - browser will set it with boundary
         },
-        body: JSON.stringify(editForm)
+        body: submitFormData
       });
 
       console.log("Update response status:", res.status);
@@ -127,8 +371,19 @@ export default function Page() {
       console.log("Update success:", data);
       
       // Update local state with new data
-      setWord(prev => ({ ...prev, ...editForm }));
-      setIsEditing(false);
+      setWord(prev => ({ 
+        ...prev, 
+        ...formData,
+        audio_url: data.audio_url || prev.audio_url
+      }));
+      
+      // Update preview to new audio URL if it exists
+      if (data.audio_url) {
+        setNewAudioPreview(data.audio_url);
+      }
+      
+      setEditing(false);
+      setAudioFile(null);
       alert("Word updated successfully!");
     } 
     catch (err) {
@@ -138,20 +393,6 @@ export default function Page() {
     finally {
       setActionLoading(false);
     }
-  };
-
-  // Cancel editing
-  const cancelEdit = () => {
-    // Reset form to original values
-    setEditForm({
-      word: word?.word || "",
-      meaning: word?.meaning || "",
-      pronunciation: word?.pronunciation || "",
-      use_case: word?.use_case || "",
-      language: word?.language || "",
-      category: word?.category || ""
-    });
-    setIsEditing(false);
   };
 
   // Approve word
@@ -283,7 +524,7 @@ export default function Page() {
           </p>
           <button 
             onClick={handleBack}
-            className="px-6 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-500-dark transition-colors"
+            className="px-6 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors"
           >
             Back to Words
           </button>
@@ -291,60 +532,6 @@ export default function Page() {
       </div>
     );
   }
-
-  // Manual SVG icons
-  const icons = {
-    arrowLeft: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="19" y1="12" x2="5" y2="12"></line>
-        <polyline points="12 19 5 12 12 5"></polyline>
-      </svg>
-    ),
-    check: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="20 6 9 17 4 12"></polyline>
-      </svg>
-    ),
-    x: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    ),
-    edit: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-      </svg>
-    ),
-    save: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-        <polyline points="17 21 17 13 7 13 7 21"></polyline>
-        <polyline points="7 3 7 8 15 8"></polyline>
-      </svg>
-    ),
-    cancel: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    ),
-    info: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="16" x2="12" y2="12"></line>
-        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-      </svg>
-    ),
-    alert: (
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-        <line x1="12" y1="9" x2="12" y2="13"></line>
-        <line x1="12" y1="17" x2="12.01" y2="17"></line>
-      </svg>
-    )
-  };
 
   return (
     <RoleGuard allowedRoles={["admin", "super_admin"]}>
@@ -355,8 +542,8 @@ export default function Page() {
           <AdminSidebar />
 
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
+            {/* Header - EXACT SAME FORMAT as profile page */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
                   Word Details
@@ -365,276 +552,473 @@ export default function Page() {
                   Review and manage this word submission
                 </p>
               </div>
+
               <button
                 onClick={handleBack}
-                className="flex items-center gap-2 px-4 py-2.5 text-gray-700 hover:text-gray-900 font-semibold hover:bg-gray-100 rounded-lg transition-colors text-sm"
+                className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors text-sm"
               >
-                {icons.arrowLeft}
+                <i data-feather="arrow-left" className="w-4 h-4"></i>
                 Back to Words
               </button>
             </div>
 
-            {/* Word Information Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-              <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Word Information
-                </h2>
-                {!isEditing && (
-                  <button
-                    onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors text-sm"
-                  >
-                    {icons.edit}
-                    Edit Details
-                  </button>
-                )}
-              </div>
-              
-              {isEditing ? (
-                // Edit Form
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                        Word
-                      </label>
-                      <input
-                        type="text"
-                        name="word"
-                        value={editForm.word}
-                        onChange={handleEditChange}
-                        className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
-                        placeholder="Enter the word"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                        Language
-                      </label>
-                      <input
-                        type="text"
-                        name="language"
-                        value={editForm.language}
-                        onChange={handleEditChange}
-                        className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
-                        placeholder="Enter language"
-                      />
-                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Main Content - Left Column (2/3 width) */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Word Information Card - EXACT SAME FORMAT as profile page */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Word Information
+                    </h2>
+                    {!editing && (
+                      <button
+                        onClick={startEditing}
+                        className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
+                      >
+                        <i data-feather="edit" className="w-4 h-4"></i>
+                        Edit Details
+                      </button>
+                    )}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                      Meaning
-                    </label>
-                    <textarea
-                      name="meaning"
-                      value={editForm.meaning}
-                      onChange={handleEditChange}
-                      rows="3"
-                      className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200 resize-none"
-                      placeholder="Enter word meaning"
-                      required
-                    />
-                  </div>
+                  {editing ? (
+                    // Edit Form with Audio Recording/Upload
+                    <form onSubmit={submitEdit} className="space-y-6" noValidate>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                          Word *
+                        </label>
+                        <input
+                          type="text"
+                          name="word"
+                          value={formData.word}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                          placeholder="Enter the word"
+                          required
+                        />
+                      </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                        Pronunciation
-                      </label>
-                      <input
-                        type="text"
-                        name="pronunciation"
-                        value={editForm.pronunciation}
-                        onChange={handleEditChange}
-                        className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
-                        placeholder="Enter pronunciation guide"
-                      />
-                    </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                          Meaning *
+                        </label>
+                        <textarea
+                          name="meaning"
+                          value={formData.meaning}
+                          onChange={handleInputChange}
+                          rows="3"
+                          className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200 resize-none"
+                          placeholder="Enter word meaning"
+                          required
+                        />
+                      </div>
 
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                        Category
-                      </label>
-                      <input
-                        type="text"
-                        name="category"
-                        value={editForm.category}
-                        onChange={handleEditChange}
-                        className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
-                        placeholder="Enter category"
-                      />
-                    </div>
-                  </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                          Text Pronunciation
+                        </label>
+                        <input
+                          type="text"
+                          name="pronunciation"
+                          value={formData.pronunciation}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                          placeholder="Enter pronunciation guide"
+                        />
+                      </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                      Example Usage
-                    </label>
-                    <textarea
-                      name="use_case"
-                      value={editForm.use_case}
-                      onChange={handleEditChange}
-                      rows="3"
-                      className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200 resize-none"
-                      placeholder="Enter example usage"
-                    />
-                  </div>
+                      {/* Audio Pronunciation Section - SIMPLIFIED */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                          Audio Pronunciation
+                        </label>
+                        
+                        <div className="space-y-4">
+                          {/* Audio Preview */}
+                          {newAudioPreview && (
+                            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <i data-feather="volume-2" className="w-5 h-5 text-blue-600"></i>
+                                  <span className="font-medium text-sm text-blue-800">
+                                    {audioFile || newAudioPreview.startsWith('blob:') ? "New Audio Preview" : "Current Audio"}
+                                  </span>
+                                </div>
+                                {(audioFile || newAudioPreview.startsWith('blob:')) && (
+                                  <button
+                                    type="button"
+                                    onClick={removeAudio}
+                                    className="text-red-500 hover:text-red-700 p-1"
+                                  >
+                                    <i data-feather="trash-2" className="w-4 h-4"></i>
+                                  </button>
+                                )}
+                              </div>
+                              
+                              <div className="flex items-center gap-3 p-3 bg-white rounded border">
+                                <button
+                                  type="button"
+                                  onClick={() => handlePlayPause(true)}
+                                  className={`p-3 rounded-full transition-all duration-200 ${
+                                    isPlaying
+                                      ? "bg-red-100 text-red-600 hover:bg-red-200"
+                                      : "bg-green-100 text-green-600 hover:bg-green-200"
+                                  }`}
+                                >
+                                  <i data-feather={isPlaying ? "pause" : "play"} className="w-4 h-4"></i>
+                                </button>
+                                
+                                <div className="flex-1">
+                                  <p className="font-medium text-sm">
+                                    {audioFile ? "New Audio" : "Current Audio"}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {formatTime(currentTime)} / {formatTime(duration)}
+                                  </p>
+                                  <div 
+                                    className="w-full bg-gray-200 rounded-full h-1.5 mt-1 cursor-pointer"
+                                    onClick={(e) => handleProgressClick(e, true)}
+                                  >
+                                    <div 
+                                      className="bg-blue-500 h-1.5 rounded-full transition-all duration-200"
+                                      style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
 
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      onClick={submitEdit}
-                      disabled={actionLoading}
-                      className="flex items-center gap-2 bg-primary text-white font-semibold py-3 px-6 rounded-lg hover:bg-primary-dark transition-colors text-sm disabled:opacity-50"
-                    >
-                      {actionLoading ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      ) : (
-                        icons.save
+                          {/* Audio Controls */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Record Button */}
+                            <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                              <div className="flex items-center gap-2 mb-3">
+                                <i data-feather="mic" className="w-5 h-5 text-red-600"></i>
+                                <span className="font-medium text-sm text-red-800">Record Audio</span>
+                              </div>
+                              
+                              <div className="space-y-3">
+                                <button
+                                  type="button"
+                                  onClick={isRecording ? stopRecording : startRecording}
+                                  className={`w-full py-3 px-4 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+                                    isRecording
+                                      ? "bg-red-600 text-white hover:bg-red-700"
+                                      : "bg-red-100 text-red-700 hover:bg-red-200"
+                                  }`}
+                                >
+                                  <i data-feather={isRecording ? "square" : "mic"} className="w-4 h-4"></i>
+                                  {isRecording ? `Stop Recording (${recordingTime}s)` : "Start Recording"}
+                                </button>
+                                
+                                {isRecording && (
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                                    <span className="text-sm text-red-600">Recording in progress...</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Upload Button */}
+                            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                              <div className="flex items-center gap-2 mb-3">
+                                <i data-feather="upload" className="w-5 h-5 text-blue-600"></i>
+                                <span className="font-medium text-sm text-blue-800">Upload Audio File</span>
+                              </div>
+                              
+                              <div className="space-y-3">
+                                <label className="block">
+                                  <div className="w-full py-3 px-4 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                    <i data-feather="upload" className="w-4 h-4"></i>
+                                    Choose Audio File
+                                  </div>
+                                  <input
+                                    type="file"
+                                    accept="audio/*"
+                                    onChange={handleFileUpload}
+                                    className="hidden"
+                                  />
+                                </label>
+                                
+                                <p className="text-xs text-gray-500 text-center">
+                                  Supports MP3, WAV, OGG (max 10MB)
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-sm text-gray-500">
+                            <p className="flex items-center gap-2">
+                              <i data-feather="info" className="w-4 h-4"></i>
+                              Audio will be saved when you click "Save Changes"
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                          Example Usage
+                        </label>
+                        <textarea
+                          name="use_case"
+                          value={formData.use_case}
+                          onChange={handleInputChange}
+                          rows="3"
+                          className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200 resize-none"
+                          placeholder="Enter example usage"
+                        />
+                      </div>
+
+                      <div className="flex gap-3 pt-4">
+                        <button
+                          type="submit"
+                          disabled={actionLoading}
+                          className="bg-yellow-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-yellow-600 transition-colors text-sm disabled:opacity-50"
+                        >
+                          {actionLoading ? "Saving..." : "Save Changes"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEdit}
+                          className="bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    // Display View (default view) - SAME FORMAT as profile page
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-5">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                              Word
+                            </label>
+                            <p className="text-base font-semibold text-gray-900">
+                              {word.word || "N/A"}
+                            </p>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                              Pronunciation
+                            </label>
+                            <p className="text-base font-normal text-gray-700">
+                              {word.pronunciation || "N/A"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-5">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                              Status
+                            </label>
+                            <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold ${
+                              word.status === "approved"
+                                ? "bg-green-100 text-green-800"
+                                : word.status === "rejected"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}>
+                              {word.status ? word.status.charAt(0).toUpperCase() + word.status.slice(1) : "Pending"}
+                            </span>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                              Submitted By
+                            </label>
+                            <p className="text-base font-normal text-gray-700">
+                              {word.creatorEmail || word.creator || word.created_by || "Unknown"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                          Meaning
+                        </label>
+                        <p className="text-base font-normal text-gray-700 leading-relaxed">
+                          {word.meaning || "No meaning provided"}
+                        </p>
+                      </div>
+
+                      {word.use_case && (
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                            Example Usage
+                          </label>
+                          <p className="text-base font-normal text-gray-700 leading-relaxed">
+                            {word.use_case}
+                          </p>
+                        </div>
                       )}
-                      Save Changes
-                    </button>
+
+                      {/* Audio Playback Section */}
+                      {word.audio_url && (
+                        <div className="pt-4 border-t border-gray-200">
+                          <div className="flex items-center gap-2 mb-3">
+                            <i data-feather="volume-2" className="w-5 h-5 text-blue-600"></i>
+                            <label className="block text-sm font-semibold text-gray-800 uppercase text-xs tracking-wide">
+                              Audio Pronunciation
+                            </label>
+                          </div>
+                          
+                          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-3">
+                            <div className="flex items-center justify-between p-3 bg-white rounded border">
+                              <div className="flex items-center gap-3">
+                                <button
+                                  type="button"
+                                  onClick={() => handlePlayPause(false)}
+                                  className={`p-3 rounded-full transition-all duration-200 ${
+                                    isPlaying
+                                      ? "bg-red-100 text-red-600 hover:bg-red-200"
+                                      : "bg-green-100 text-green-600 hover:bg-green-200"
+                                  }`}
+                                  disabled={!word.audio_url}
+                                >
+                                  <i data-feather={isPlaying ? "pause" : "play"} className="w-4 h-4"></i>
+                                </button>
+                                
+                                <div>
+                                  <p className="font-medium text-sm">Pronunciation Audio</p>
+                                  <p className="text-xs text-gray-500">
+                                    {formatTime(currentTime)} / {formatTime(duration)}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Progress Bar */}
+                            <div 
+                              className="w-full bg-gray-200 rounded-full h-2 cursor-pointer"
+                              onClick={(e) => handleProgressClick(e, false)}
+                            >
+                              <div 
+                                className="bg-blue-500 h-2 rounded-full transition-all duration-200"
+                                style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                              />
+                            </div>
+                            
+                            {/* Volume Control */}
+                            <div className="flex items-center gap-3">
+                              <i data-feather="volume" className="w-4 h-4 text-gray-600"></i>
+                              <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.1"
+                                value={volume}
+                                onChange={handleVolumeChange}
+                                className="flex-1 accent-blue-500"
+                              />
+                              <span className="text-xs text-gray-500 w-8">
+                                {Math.round(volume * 100)}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Sidebar Actions - Right Column (1/3 width) - SAME FORMAT as profile page */}
+              <div className="space-y-6">
+                {/* Quick Actions Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Word Actions</h3>
+                  <div className="space-y-3">
                     <button
-                      onClick={cancelEdit}
-                      className="flex items-center gap-2 bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                      onClick={approveWord}
+                      disabled={actionLoading || word.status === "approved" || editing}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {icons.cancel}
-                      Cancel
+                      <i data-feather="check-circle" className="w-4 h-4"></i>
+                      {word.status === "approved" ? "Already Approved" : "Approve Word"}
+                    </button>
+
+                    <button
+                      onClick={openRejectModal}
+                      disabled={actionLoading || word.status === "rejected" || editing}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <i data-feather="x-circle" className="w-4 h-4"></i>
+                      {word.status === "rejected" ? "Already Rejected" : "Reject Word"}
                     </button>
                   </div>
                 </div>
-              ) : (
-                // Display View
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                        Word
-                      </label>
-                      <p className="text-base font-semibold text-gray-900">
-                        {word.word || "N/A"}
-                      </p>
+
+                {/* Word Stats Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Word Information</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Word:</span>
+                      <span className="font-semibold text-gray-900">{word.word || "N/A"}</span>
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                        Language
-                      </label>
-                      <p className="text-base font-semibold text-gray-900">
-                        {word.language || "N/A"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                      Meaning
-                    </label>
-                    <p className="text-base font-normal text-gray-700 leading-relaxed">
-                      {word.meaning || "No meaning provided"}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                        Pronunciation
-                      </label>
-                      <p className="text-base font-normal text-gray-700">
-                        {word.pronunciation || "N/A"}
-                      </p>
-                    </div>
-
-                    
-                  </div>
-
-                  {word.use_case && (
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                        Example Usage
-                      </label>
-                      <p className="text-base font-normal text-gray-700 leading-relaxed">
-                        {word.use_case}
-                      </p>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                        Status
-                      </label>
-                      <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold ${
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Status:</span>
+                      <span className={`font-semibold ${
                         word.status === "approved"
-                          ? "bg-green-100 text-green-800"
+                          ? "text-green-600"
                           : word.status === "rejected"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
+                          ? "text-red-600"
+                          : "text-yellow-600"
                       }`}>
-                        {word.status ? word.status.charAt(0).toUpperCase() + word.status.slice(1) : "Pending"}
+                        {word.status || "Pending"}
                       </span>
                     </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                        Submitted By
-                      </label>
-                      <p className="text-base font-normal text-gray-700">
-                        {word.creatorEmail || word.creator || word.created_by || "Unknown"}
-                      </p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Has Audio:</span>
+                      <span className={`font-semibold ${word.audio_url ? "text-green-600" : "text-gray-500"}`}>
+                        {word.audio_url ? "Yes" : "No"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Has Example:</span>
+                      <span className={`font-semibold ${word.use_case ? "text-green-600" : "text-gray-500"}`}>
+                        {word.use_case ? "Yes" : "No"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Submitted By:</span>
+                      <span className="font-semibold text-gray-900 text-sm">
+                        {word.created_by || word.creator || "Unknown"}
+                      </span>
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
 
-            {/* Actions Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">
-                Quick Actions
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <button
-                  onClick={approveWord}
-                  disabled={actionLoading || word.status === "approved" || isEditing}
-                  className="bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 disabled:cursor-not-allowed text-sm"
-                >
-                  {actionLoading ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  ) : (
-                    icons.check
-                  )}
-                  <span>
-                    {word.status === "approved" ? "Already Approved" : "Approve Word"}
-                  </span>
-                </button>
-
-                <button
-                  onClick={openRejectModal}
-                  disabled={actionLoading || word.status === "rejected" || isEditing}
-                  className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-3 disabled:cursor-not-allowed text-sm"
-                >
-                  {icons.x}
-                  <span>
-                    {word.status === "rejected" ? "Already Rejected" : "Reject Word"}
-                  </span>
-                </button>
-              </div>
-
-              {/* Additional Information */}
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex items-start gap-3">
-                  {icons.info}
-                  <div>
-                    <p className="text-blue-800 font-semibold text-sm">Word Review Guidelines</p>
-                    <p className="text-blue-700 text-sm mt-1 leading-relaxed">
-                      Ensure the word is appropriate, culturally relevant, and follows platform guidelines before approval.
-                      Use the edit functionality to modify any information before approving.
-                    </p>
+                {/* Review Guidelines Card */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Review Guidelines</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-2">
+                      <i data-feather="check" className="w-4 h-4 text-green-500 mt-0.5"></i>
+                      <p className="text-sm text-gray-600">Check for cultural appropriateness</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <i data-feather="check" className="w-4 h-4 text-green-500 mt-0.5"></i>
+                      <p className="text-sm text-gray-600">Verify meaning accuracy</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <i data-feather="check" className="w-4 h-4 text-green-500 mt-0.5"></i>
+                      <p className="text-sm text-gray-600">Ensure proper formatting</p>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <i data-feather="check" className="w-4 h-4 text-green-500 mt-0.5"></i>
+                      <p className="text-sm text-gray-600">Review audio quality (if present)</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -647,9 +1031,7 @@ export default function Page() {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="text-red-500">
-                  {icons.alert}
-                </div>
+                <i data-feather="alert-triangle" className="w-6 h-6 text-red-500"></i>
                 <h3 className="text-lg font-semibold text-gray-900">Reject Word</h3>
               </div>
 
@@ -690,13 +1072,38 @@ export default function Page() {
                   {actionLoading ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                   ) : (
-                    icons.x
+                    <i data-feather="x" className="w-4 h-4"></i>
                   )}
                   Confirm Rejection
                 </button>
               </div>
             </div>
           </div>
+        )}
+
+        {/* Audio Players (hidden but functional) */}
+        <audio
+          ref={audioRef}
+          src={word?.audio_url}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+          onEnded={() => handleAudioEnded(false)}
+          onTimeUpdate={() => handleTimeUpdate(false)}
+          onLoadedMetadata={() => handleAudioLoaded(false)}
+          className="hidden"
+        />
+        
+        {newAudioPreview && (
+          <audio
+            ref={previewAudioRef}
+            src={newAudioPreview}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onEnded={() => handleAudioEnded(true)}
+            onTimeUpdate={() => handleTimeUpdate(true)}
+            onLoadedMetadata={() => handleAudioLoaded(true)}
+            className="hidden"
+          />
         )}
       </div>
     </RoleGuard>

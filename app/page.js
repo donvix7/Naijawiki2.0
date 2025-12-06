@@ -8,7 +8,7 @@ import feather from "feather-icons";
 import getBaseUrl from "./api/baseUrl";
 
 export default function Home() {
-  const [recentWords, setRecentWords] = useState([]);
+  const [weeklyWords, setWeeklyWords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -23,51 +23,106 @@ export default function Home() {
   const base_url = getBaseUrl();
   const token = Cookies.get("token");
 
+  // Get current week number
+  const getWeekNumber = () => {
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const pastDaysOfYear = (now - startOfYear) / 86400000;
+    return Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
+  };
+
   /* ------------------------------
      Feather Icons
   -------------------------------*/
   useEffect(() => {
     feather.replace();
-  }, [recentWords, searchResults]);
+  }, [weeklyWords, searchResults]);
 
   /* ------------------------------
-     Fetch recent words
+     Fetch 5 random words for the week
   -------------------------------*/
   useEffect(() => {
-    const fetchRecentWords = async () => {
+    const fetchWeeklyWords = async () => {
       try {
+        // Get the current week number for localStorage key
+        const currentWeek = getWeekNumber();
+        const year = new Date().getFullYear();
+        const storageKey = `weeklyWords_${year}_week_${currentWeek}`;
+        
+        // Check if we have cached words for this week
+        const cachedWords = localStorage.getItem(storageKey);
+        if (cachedWords) {
+          const parsedWords = JSON.parse(cachedWords);
+          setWeeklyWords(parsedWords);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch all approved words
         const res = await fetch(`${base_url}/words`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           cache: "no-store",
         });
+        
         if (!res.ok) throw new Error("Failed to fetch words");
 
         const data = await res.json();
         const words = data.words || [];
-
-        // Group by date and limit to 5 per day
-        const grouped = {};
-        words.forEach((word) => {
-          const dateKey = new Date(word.created_at).toDateString();
-          if (!grouped[dateKey]) grouped[dateKey] = [];
-          if (grouped[dateKey].length < 5) grouped[dateKey].push(word);
-        });
-
-        const sortedWords = Object.entries(grouped)
-          .sort((a, b) => new Date(b[0]) - new Date(a[0]))
-          .flatMap(([_, w]) => w);
-
-        setRecentWords(sortedWords);
+        
+        // Filter only approved words
+        const approvedWords = words.filter(word => word.status === "approved");
+        
+        // If we have less than 5 approved words, use what we have
+        if (approvedWords.length <= 5) {
+          setWeeklyWords(approvedWords);
+          localStorage.setItem(storageKey, JSON.stringify(approvedWords));
+          setLoading(false);
+          return;
+        }
+        
+        // Shuffle array and pick 5 random words
+        const shuffled = [...approvedWords].sort(() => 0.5 - Math.random());
+        const selectedWords = shuffled.slice(0, 5);
+        
+        setWeeklyWords(selectedWords);
+        
+        // Cache for the week
+        localStorage.setItem(storageKey, JSON.stringify(selectedWords));
+        
       } catch (err) {
         console.error(err);
-        setError("Failed to load recent words.");
+        setError("Failed to load weekly words.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRecentWords();
+    fetchWeeklyWords();
   }, [base_url, token]);
+
+  /* ------------------------------
+     Clear old weekly words cache
+  -------------------------------*/
+  useEffect(() => {
+    // Clear any old weekly words cache from previous weeks
+    const currentWeek = getWeekNumber();
+    const year = new Date().getFullYear();
+    
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('weeklyWords_')) {
+        const [_, keyYear, keyWeek] = key.match(/weeklyWords_(\d+)_week_(\d+)/) || [];
+        if (keyYear && keyWeek) {
+          const cachedYear = parseInt(keyYear);
+          const cachedWeek = parseInt(keyWeek);
+          
+          // Clear if it's from a different year or different week
+          if (cachedYear !== year || cachedWeek !== currentWeek) {
+            localStorage.removeItem(key);
+          }
+        }
+      }
+    });
+  }, []);
 
   /* ------------------------------
      SEARCH HANDLER (debounced)
@@ -121,7 +176,7 @@ export default function Home() {
       setPlayingAudioId(null);
     }
 
-    // Check for audio availability - fixed property names
+    // Check for audio availability
     const audioUrl = word.audio_url || word.audioUrl || word.audio;
     console.log("Attempting to play audio:", audioUrl);
     
@@ -349,15 +404,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RECENT WORDS SECTION */}
+      {/* WEEKLY WORDS SECTION */}
       <section className="py-12 container mx-auto px-6">
         <div className="text-center mb-10">
           <h2 className="text-2xl font-bold mb-3 tracking-tight text-gray-900">
-            Recent Words This Week
+            Featured Words This Week
           </h2>
-          <p className="text-gray-600 text-base font-normal">
-            Explore the latest additions to our dictionary
-          </p>
+        
+          
         </div>
 
         {/* Audio Error Display */}
@@ -370,7 +424,7 @@ export default function Home() {
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto mb-3"></div>
-            <p className="text-gray-700 font-normal text-base">Loading words...</p>
+            <p className="text-gray-700 font-normal text-base">Loading weekly words...</p>
           </div>
         ) : error ? (
           <div className="text-center">
@@ -378,15 +432,32 @@ export default function Home() {
               {error}
             </p>
           </div>
-        ) : recentWords.length === 0 ? (
+        ) : weeklyWords.length === 0 ? (
           <div className="text-center">
             <p className="text-gray-700 font-normal text-base break-words">
-              No words available yet.
+              No words available yet. Be the first to contribute!
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recentWords.map(renderWordCard)}
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {weeklyWords.map(renderWordCard)}
+            </div>
+            
+           
+          </>
+        )}
+        
+        {/* Explore More CTA */}
+        {!loading && weeklyWords.length > 0 && (
+          <div className="text-center mt-12">
+            <a
+              href="/explore"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors duration-200 text-sm"
+            >
+              <i data-feather="compass" className="w-4 h-4"></i>
+              Explore More Words
+            </a>
           </div>
         )}
       </section>

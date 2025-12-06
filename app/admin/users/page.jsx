@@ -83,7 +83,7 @@ const Page = () => {
               </div>
               
               <a
-                href="/admin/users/add"
+                href="/signup"
                 className="bg-[var(--neutral)] hover:bg-yellow-500-dark text-white font-bold py-3 px-6 rounded-lg flex items-center gap-2 transition-colors shadow-md hover:shadow-lg"
               >
                 <i data-feather="plus" className="w-4 h-4"></i>
@@ -320,13 +320,7 @@ const Page = () => {
                             <i data-feather="eye" className="w-3 h-3"></i>
                             View
                           </a>
-                          <a
-                            href={`/admin/users/edit/${user.id}`}
-                            className="flex-1 bg-blue-600 text-white font-semibold py-2 px-3 rounded text-center text-sm hover:bg-blue-900 transition-colors flex items-center justify-center gap-1"
-                          >
-                            <i data-feather="edit" className="w-3 h-3"></i>
-                            Edit
-                          </a>
+                          
                             <UserDelBtn id={user.id} base_url={base_url} token={token} />
                         </div>
                       </div>
