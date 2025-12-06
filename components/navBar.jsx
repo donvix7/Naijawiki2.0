@@ -100,7 +100,6 @@ const CustomNavbar = () => {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
                 <i data-feather="book-open" className="w-5 h-5 text-white"></i>
               </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-white"></div>
             </div>
             <div className="flex flex-col">
               <span className="text-2xl font-bold bg-gradient-to-r from-gray-400 to-gray-200 bg-clip-text text-transparent">
