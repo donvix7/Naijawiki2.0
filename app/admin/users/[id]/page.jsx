@@ -281,7 +281,7 @@ export default function Page() {
     setStatus({ message: "", type: "" });
 
     try {
-      const res = await fetch(`${base_url}/admin/users/${id}`, {
+      const res = await fetch(`${base_url}/manage/user/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -720,11 +720,6 @@ export default function Page() {
                             <p className="text-gray-700 text-sm mb-1 line-clamp-2">
                               {word.meaning}
                             </p>
-                            {word.language && (
-                              <p className="text-gray-500 text-xs">
-                                Language: {word.language}
-                              </p>
-                            )}
                             <p className="text-gray-500 text-xs mt-2">
                               Submitted on {formatDate(word.created_at || word.createdAt)}
                             </p>
@@ -766,7 +761,7 @@ export default function Page() {
                         Change User Role
                       </label>
                       <div className="flex flex-wrap gap-2">
-                        {['super_admin', 'creator', 'moderator', 'admin'].map((roleOption) => (
+                        {['admin','super_admin', 'creator', 'moderator'].map((roleOption) => (
                           <button
                             key={roleOption}
                             onClick={() => updateUserRole(roleOption)}
