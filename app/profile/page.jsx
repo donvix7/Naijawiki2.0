@@ -28,7 +28,7 @@ export default function UserProfilePage() {
     email: "",
   });
 
-  // Changed: accountNumber → account_number, bankName → bank_name
+  // Changed: account_number → account_number, bank_name → bank_name
   const [bankData, setBankData] = useState({
     bank_name: "",
     account_number: "",
@@ -311,9 +311,9 @@ export default function UserProfilePage() {
   };
 
   // Format account number for display - keep as is
-  const formatAccountNumber = (accountNumber) => {
-    if (!accountNumber) return "";
-    const numStr = accountNumber.toString();
+  const formataccount_number = (account_number) => {
+    if (!account_number) return "";
+    const numStr = account_number.toString();
     if (numStr.length <= 4) return numStr;
     return numStr.replace(/(\d{4})(?=\d)/g, "$1 ");
   };
@@ -372,8 +372,8 @@ export default function UserProfilePage() {
   // Get data from user object
   // Changed: wallet_balance instead of balance
   const walletBalance = user.wallet_balance || 0;
-  const bankName = user.bank_name || "";
-  const accountNumber = user.account_number || "";
+  const bank_name = user.bank_name || "";
+  const account_number = user.account_number || "";
   const firstName = user.firstName || user.first_name || "";
   const lastName = user.lastName || user.last_name || "";
 
@@ -575,7 +575,7 @@ export default function UserProfilePage() {
                         className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
                       >
                         <i data-feather="edit" className="w-4 h-4"></i>
-                        {bankName ? "Edit Bank Details" : "Add Bank Details"}
+                        {bank_name ? "Edit Bank Details" : "Add Bank Details"}
                       </button>
                     )}
                   </div>
@@ -626,8 +626,8 @@ export default function UserProfilePage() {
                           onClick={() => {
                             setEditingBank(false);
                             setBankData({
-                              bank_name: bankName,
-                              account_number: accountNumber,
+                              bank_name: bank_name,
+                              account_number: account_number,
                             });
                           }}
                           className="bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm"
@@ -641,8 +641,8 @@ export default function UserProfilePage() {
                       <div className="space-y-5">
                         <div>
                           <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Bank Name</label>
-                          {bankName ? (
-                            <p className="text-base font-semibold text-gray-900">{bankName}</p>
+                          {bank_name ? (
+                            <p className="text-base font-semibold text-gray-900">{bank_name}</p>
                           ) : (
                             <div className="flex items-center gap-2 text-gray-500">
                               <i data-feather="alert-circle" className="w-4 h-4"></i>
@@ -655,8 +655,8 @@ export default function UserProfilePage() {
                       <div className="space-y-5">
                         <div>
                           <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Account Number</label>
-                          {accountNumber ? (
-                            <p className="text-base font-semibold text-gray-900 font-mono">{formatAccountNumber(accountNumber)}</p>
+                          {account_number ? (
+                            <p className="text-base font-semibold text-gray-900 font-mono">{formataccount_number(account_number)}</p>
                           ) : (
                             <div className="flex items-center gap-2 text-gray-500">
                               <i data-feather="alert-circle" className="w-4 h-4"></i>
@@ -669,7 +669,7 @@ export default function UserProfilePage() {
                   )}
 
                   {/* Security Note */}
-                  {!editingBank && (bankName || accountNumber) && (
+                  {!editingBank && (bank_name || account_number) && (
                     <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
                       <div className="flex items-start gap-3">
                         <i data-feather="shield" className="w-5 h-5 text-blue-600 mt-0.5"></i>
@@ -812,8 +812,8 @@ export default function UserProfilePage() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Bank Details:</span>
-                      <span className={`font-semibold ${bankName && accountNumber ? "text-green-600" : "text-yellow-600"}`}>
-                        {bankName && accountNumber ? "Complete" : "Incomplete"}
+                      <span className={`font-semibold ${bank_name && account_number ? "text-green-600" : "text-yellow-600"}`}>
+                        {bank_name && account_number ? "Complete" : "Incomplete"}
                       </span>
                     </div>
                   </div>

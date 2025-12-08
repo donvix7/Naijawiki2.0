@@ -20,68 +20,260 @@ export default function Page() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState({ message: "", type: "" });
-
+  const [hydrated, setHydrated] = useState(false);
+  const [editing, setEditing] = useState(false);
+  
+  // Form data for inline editing
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+  });
+  
   const token = Cookies.get("token");
   const base_url = getBaseUrl();
 
-  // Fetch user
+  // Hydration guard
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch(`${base_url}/admin/users/${id}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) throw new Error("Failed to fetch user");
-
-        const data = await res.json();
-        setUser(data.user);
-      } catch (err) {
-        console.error(err);
-        setError("Unable to load user.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [id, base_url, token]);
-
-  // Fetch user's submitted words
-  useEffect(() => {
-    const fetchUserWords = async () => {
-      try {
-        const res = await fetch(`${base_url}/admin/users/${id}/words`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) throw new Error("Failed to fetch user words");
-
-        const data = await res.json();
-        setSubmittedWords(data.words || []);
-      } catch (err) {
-        console.error("Error fetching user words:", err);
-        setSubmittedWords([]);
-      } finally {
-        setWordsLoading(false);
-      }
-    };
-
-    if (user) {
-      fetchUserWords();
-    }
-  }, [id, base_url, token, user]);
+    setHydrated(true);
+  }, []);
 
   // Initialize feather icons
   useEffect(() => {
-    feather.replace();
-  }, [loading, actionLoading, submittedWords]);
+    if (hydrated && typeof window !== "undefined") {
+      try {
+        feather.replace();
+      } catch (err) {
+        console.warn("Feather init failed", err);
+      }
+    }
+  }, [hydrated, loading, actionLoading, submittedWords, editing]);
+
+  // Fetch user profile and their words
+  useEffect(() => {
+    if (!hydrated) return;
+    if (!token) {
+      setError("Authentication required");
+      setLoading(false);
+      return;
+    }
+
+    let mounted = true;
+    const fetchUserData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Fetch user info - using admin endpoint
+        const userRes = await fetch(`${base_url}/admin/users/${id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!userRes.ok) {
+          // Try alternative endpoint if admin endpoint fails
+          const fallbackRes = await fetch(`${base_url}/manage/user/${id}`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          
+          if (!fallbackRes.ok) {
+            const errData = await fallbackRes.json().catch(() => ({}));
+            throw new Error(errData.message || "Failed to fetch user");
+          }
+          
+          const fallbackData = await fallbackRes.json();
+          if (!mounted) return;
+          const userData = fallbackData.user || fallbackData;
+          setUser(userData);
+          
+          // Initialize form data
+          setFormData({
+            firstName: userData.firstName || userData.first_name || "",
+            lastName: userData.lastName || userData.last_name || "",
+            email: userData.email || "",
+            phone: userData.phone || userData.phoneNumber || "",
+          });
+        } else {
+          const userData = await userRes.json();
+          if (!mounted) return;
+          const userObj = userData.user || userData;
+          setUser(userObj);
+          
+          // Initialize form data
+          setFormData({
+            firstName: userObj.firstName || userObj.first_name || "",
+            lastName: userObj.lastName || userObj.last_name || "",
+            email: userObj.email || "",
+            phone: userObj.phone || userObj.phoneNumber || "",
+          });
+        }
+
+        // Fetch user's submitted words
+        setWordsLoading(true);
+        try {
+          // Try admin endpoint first
+          const wordsRes = await fetch(`${base_url}/admin/users/${id}/words`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (wordsRes.ok) {
+            const wordsData = await wordsRes.json();
+            if (!mounted) return;
+            setSubmittedWords(wordsData.words || []);
+          } else {
+            // Fallback to general user words endpoint
+            const fallbackRes = await fetch(`${base_url}/user/word/list`, {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            });
+
+            if (fallbackRes.ok) {
+              const fallbackData = await fallbackRes.json();
+              const allWords = Array.isArray(fallbackData.words) 
+                ? fallbackData.words 
+                : fallbackData || [];
+              
+              // Get current user data to filter by email
+              const currentUserRes = await fetch(`${base_url}/manage/user/${id}`, {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+              
+              if (currentUserRes.ok) {
+                const currentUserData = await currentUserRes.json();
+                const userObj = currentUserData.user || currentUserData;
+                const userEmail = userObj.email;
+                
+                // Filter to only this user's words
+                const userWords = allWords.filter(word => 
+                  word.user_id === id || 
+                  word.userId === id || 
+                  word.created_by === userEmail ||
+                  word.creatorEmail === userEmail ||
+                  word.user_email === userEmail
+                );
+                
+                if (!mounted) return;
+                setSubmittedWords(userWords);
+              } else {
+                if (!mounted) return;
+                setSubmittedWords([]);
+              }
+            } else {
+              if (!mounted) return;
+              setSubmittedWords([]);
+            }
+          }
+        } catch (wordsErr) {
+          console.error("Error fetching user words:", wordsErr);
+          if (!mounted) return;
+          setSubmittedWords([]);
+        } finally {
+          if (mounted) {
+            setWordsLoading(false);
+          }
+        }
+
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        if (mounted) setError(err.message || "Unable to load user.");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    if (id && token) {
+      fetchUserData();
+    }
+    
+    return () => {
+      mounted = false;
+    };
+  }, [hydrated, id, base_url, token]);
+
+  // Handle form input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Update user profile (inline editing)
+  const updateProfile = async (e) => {
+    e.preventDefault();
+    setActionLoading(true);
+    setStatus({ message: "", type: "" });
+
+    try {
+      const payload = {
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+      };
+
+      const res = await fetch(`${base_url}/admin/users/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update user");
+
+      // Update local state
+      setUser(prev => ({ 
+        ...prev, 
+        ...payload,
+        first_name: payload.firstName,
+        last_name: payload.lastName,
+        phoneNumber: payload.phone
+      }));
+      
+      setEditing(false);
+      setStatus({ 
+        message: "User updated successfully!", 
+        type: "success" 
+      });
+    } catch (err) {
+      console.error("Update user error:", err);
+      setStatus({ 
+        message: err.message || "Error updating user", 
+        type: "error" 
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Cancel editing
+  const cancelEdit = () => {
+    // Reset form to original values
+    setFormData({
+      firstName: user?.firstName || user?.first_name || "",
+      lastName: user?.lastName || user?.last_name || "",
+      email: user?.email || "",
+      phone: user?.phone || user?.phoneNumber || "",
+    });
+    setEditing(false);
+  };
 
   // Update user role
   const updateUserRole = async (newRole) => {
@@ -102,7 +294,7 @@ export default function Page() {
 
       if (!res.ok) throw new Error(data.message || "Failed to update user");
 
-      setUser({ ...user, role: newRole });
+      setUser(prev => ({ ...prev, role: newRole }));
       setStatus({
         message: `User role updated to ${newRole} successfully!`,
         type: "success"
@@ -128,7 +320,7 @@ export default function Page() {
     setStatus({ message: "", type: "" });
 
     try {
-      const res = await fetch(`${base_url}/admin/users/${id}/reset-password`, {
+      const res = await fetch(`${base_url}/manage/user/${id}/reset-password`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -168,7 +360,7 @@ export default function Page() {
     setStatus({ message: "", type: "" });
 
     try {
-      const res = await fetch(`${base_url}/admin/users/${id}`, {
+      const res = await fetch(`${base_url}/manage/user/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -181,7 +373,7 @@ export default function Page() {
 
       if (!res.ok) throw new Error(data.message || "Failed to update user status");
 
-      setUser({ ...user, status: newStatus });
+      setUser(prev => ({ ...prev, status: newStatus }));
       setStatus({
         message: `User ${action}d successfully!`,
         type: "success"
@@ -197,9 +389,9 @@ export default function Page() {
     }
   };
 
-  // Get status badge color
-  const getStatusColor = (status) => {
-    switch (status) {
+  // Get status badge color for words
+  const getStatusColor = (statusVal) => {
+    switch ((statusVal || "").toLowerCase()) {
       case 'approved':
         return 'bg-green-100 text-green-800';
       case 'pending':
@@ -211,7 +403,27 @@ export default function Page() {
     }
   };
 
-  // -------- STATES RENDERING -------- //
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Loading state
+  if (!hydrated) {
+    return null;
+  }
 
   if (loading) {
     return (
@@ -232,6 +444,7 @@ export default function Page() {
     );
   }
 
+  // Error or no user
   if (error || !user) {
     return (
       <RoleGuard allowedRoles={["admin", "super_admin"]}>
@@ -245,7 +458,7 @@ export default function Page() {
                 <p className="text-gray-600 font-semibold text-base mb-6">{error || "User not found"}</p>
                 <button
                   onClick={() => router.push('/admin/users')}
-                  className="bg-yellow-500 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-yellow-500-dark transition-colors text-sm"
+                  className="bg-yellow-500 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-yellow-600 transition-colors text-sm"
                 >
                   Back to Users
                 </button>
@@ -257,7 +470,10 @@ export default function Page() {
     );
   }
 
-  // -------- MAIN UI -------- //
+  // Calculate word statistics
+  const approvedCount = submittedWords.filter(w => w.status === 'approved').length;
+  const pendingCount = submittedWords.filter(w => w.status === 'pending').length;
+  const rejectedCount = submittedWords.filter(w => w.status === 'rejected').length;
 
   return (
     <RoleGuard allowedRoles={["admin", "super_admin"]}>
@@ -305,73 +521,160 @@ export default function Page() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* User Information */}
               <div className="lg:col-span-2 space-y-6">
-                {/* User Information Card */}
+                {/* User Information Card with Inline Editing */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">
-                    User Information
-                  </h2>
+                  <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      User Information
+                    </h2>
+                    {!editing && (
+                      <button
+                        onClick={() => setEditing(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
+                      >
+                        <i data-feather="edit" className="w-4 h-4"></i>
+                        Edit Details
+                      </button>
+                    )}
+                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Basic Info */}
-                    <div className="space-y-5">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                          First Name
-                        </label>
-                        <p className="text-base font-semibold text-gray-900">
-                          {user.firstname || "—"}
-                        </p>
+                  {editing ? (
+                    // Edit Form (revealed when editing)
+                    <form onSubmit={updateProfile} className="space-y-6" noValidate>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                            First Name *
+                          </label>
+                          <input
+                            type="text"
+                            name="firstName"
+                            value={formData.firstName}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                            placeholder="Enter first name"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                            Last Name *
+                          </label>
+                          <input
+                            type="text"
+                            name="lastName"
+                            value={formData.lastName}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                            placeholder="Enter last name"
+                            required
+                          />
+                        </div>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                          Last Name
+                        <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                          Email Address *
                         </label>
-                        <p className="text-base font-semibold text-gray-900">
-                          {user.lastname || "—"}
-                        </p>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                          placeholder="Enter email address"
+                          required
+                        />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                          Email Address
+                        <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
+                          Phone Number
                         </label>
-                        <p className="text-base font-semibold text-gray-900">
-                          {user.email || "—"}
-                        </p>
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                          placeholder="Enter phone number"
+                        />
+                      </div>
+
+                      <div className="flex gap-3 pt-4">
+                        <button
+                          type="submit"
+                          disabled={actionLoading}
+                          className="bg-yellow-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-yellow-600 transition-colors text-sm disabled:opacity-50"
+                        >
+                          {actionLoading ? "Saving..." : "Save Changes"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEdit}
+                          className="bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    // Display View (default view)
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-5">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                            Name
+                          </label>
+                          <p className="text-base font-semibold text-gray-900">
+                            {user.firstName || user.first_name} {user.lastName || user.last_name}
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                            Email Address
+                          </label>
+                          <p className="text-base font-semibold text-gray-900 break-all">
+                            {user.email || "—"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-5">
+                        
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                            User ID
+                          </label>
+                          <p className="text-sm font-mono text-gray-600 bg-gray-50 p-3 rounded break-all">
+                            {user.id || user._id}
+                          </p>
+                        </div>
                       </div>
                     </div>
+                  )}
 
-                    {/* Account Info */}
-                    <div className="space-y-5">
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                          User ID
-                        </label>
-                        <p className="text-sm font-mono text-gray-600 bg-gray-50 p-3 rounded">
-                          {user.id}
-                        </p>
-                      </div>
+                  {/* Account dates (always shown) */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-6 border-t border-gray-200">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Account Created
+                      </label>
+                      <p className="text-gray-900 text-sm">
+                        {formatDate(user.created_at || user.createdAt || user.created_date)}
+                      </p>
+                    </div>
 
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                          Account Created
-                        </label>
-                        <p className="text-gray-900 text-sm">
-                          {new Date(user.created_at).toLocaleDateString()} at{" "}
-                          {new Date(user.created_at).toLocaleTimeString()}
-                        </p>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
-                          Last Updated
-                        </label>
-                        <p className="text-gray-900 text-sm">
-                          {new Date(user.updatedAt).toLocaleDateString()} at{" "}
-                          {new Date(user.updatedAt).toLocaleTimeString()}
-                        </p>
-                      </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-800 mb-3 tracking-wide uppercase text-xs">
+                        Last Updated
+                      </label>
+                      <p className="text-gray-900 text-sm">
+                        {formatDate(user.updated_at || user.updatedAt || user.updated_date)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -402,7 +705,7 @@ export default function Page() {
                     <div className="space-y-4">
                       {submittedWords.map((word, index) => (
                         <div
-                          key={word.id || index}
+                          key={word.id || word._id || index}
                           className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
                         >
                           <div className="flex-1">
@@ -411,10 +714,10 @@ export default function Page() {
                                 {word.word}
                               </h3>
                               <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(word.status)}`}>
-                                {word.status}
+                                {word.status || 'pending'}
                               </span>
                             </div>
-                            <p className="text-gray-700 text-sm mb-1">
+                            <p className="text-gray-700 text-sm mb-1 line-clamp-2">
                               {word.meaning}
                             </p>
                             {word.language && (
@@ -423,20 +726,20 @@ export default function Page() {
                               </p>
                             )}
                             <p className="text-gray-500 text-xs mt-2">
-                              Submitted on {new Date(word.created_at).toLocaleDateString()}
+                              Submitted on {formatDate(word.created_at || word.createdAt)}
                             </p>
                           </div>
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => router.push(`/admin/word/${word.id}`)}
+                              onClick={() => router.push(`/admin/word/${word.id || word._id}`)}
                               className="p-2 text-gray-600 hover:text-yellow-500 transition-colors"
                               title="View Details"
                             >
                               <i data-feather="eye" className="w-4 h-4"></i>
                             </button>
-                            {word.status === 'pending' && (
+                            {(word.status === 'pending' || !word.status) && (
                               <button
-                                onClick={() => router.push(`/admin/word/review/${word.id}`)}
+                                onClick={() => router.push(`/admin/word/review/${word.id || word._id}`)}
                                 className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
                                 title="Review Word"
                               >
@@ -463,7 +766,7 @@ export default function Page() {
                         Change User Role
                       </label>
                       <div className="flex flex-wrap gap-2">
-                        {['creator', 'moderator', 'admin'].map((roleOption) => (
+                        {['super_admin', 'creator', 'moderator', 'admin'].map((roleOption) => (
                           <button
                             key={roleOption}
                             onClick={() => updateUserRole(roleOption)}
@@ -474,7 +777,7 @@ export default function Page() {
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             } ${actionLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
-                            {roleOption}
+                            {roleOption.replace('_', ' ')}
                           </button>
                         ))}
                       </div>
@@ -516,13 +819,15 @@ export default function Page() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
                   <div className="space-y-3">
-                    <button
-                      onClick={() => router.push(`/admin/users/edit/${user.id}`)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-500-dark transition-colors text-sm"
-                    >
-                      <i data-feather="edit" className="w-4 h-4"></i>
-                      Edit User
-                    </button>
+                    {!editing && (
+                      <button
+                        onClick={() => setEditing(true)}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
+                      >
+                        <i data-feather="edit" className="w-4 h-4"></i>
+                        Edit User Details
+                      </button>
+                    )}
                     
                     <button
                       onClick={resetPassword}
@@ -534,7 +839,7 @@ export default function Page() {
                     </button>
 
                     <button
-                      onClick={() => router.push(`/admin/users/${user.id}/activity`)}
+                      onClick={() => router.push(`/admin/users/${user.id || user._id}/activity`)}
                       className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-green-100 text-green-700 font-semibold rounded-lg hover:bg-green-200 transition-colors text-sm"
                     >
                       <i data-feather="activity" className="w-4 h-4"></i>
@@ -550,13 +855,13 @@ export default function Page() {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Role:</span>
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full capitalize ${
-                        user.role === 'admin' 
+                        user.role === 'admin' || user.role === 'super_admin'
                           ? 'bg-purple-100 text-purple-800'
                           : user.role === 'moderator'
                           ? 'bg-blue-100 text-blue-800'
                           : 'bg-green-100 text-green-800'
                       }`}>
-                        {user.role}
+                        {user.role?.replace('_', ' ') || 'user'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -585,19 +890,19 @@ export default function Page() {
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Approved:</span>
                       <span className="font-semibold text-green-600">
-                        {submittedWords.filter(w => w.status === 'approved').length}
+                        {approvedCount}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Pending:</span>
                       <span className="font-semibold text-yellow-600">
-                        {submittedWords.filter(w => w.status === 'pending').length}
+                        {pendingCount}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Rejected:</span>
                       <span className="font-semibold text-red-600">
-                        {submittedWords.filter(w => w.status === 'rejected').length}
+                        {rejectedCount}
                       </span>
                     </div>
                   </div>
