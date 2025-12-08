@@ -9,7 +9,7 @@ import feather from "feather-icons";
 import { useParams, useRouter } from "next/navigation";
 import RoleGuard from "@/utils/RoleGuard";
 
-export default function Page() {
+export default function ModeratorWordDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const [word, setWord] = useState(null);
@@ -87,7 +87,6 @@ export default function Page() {
         
         // Set audio URL if exists
         if (wordData.audio_url) {
-          // Set newAudioPreview to the existing audio URL for preview purposes
           setNewAudioPreview(wordData.audio_url);
         }
       } 
@@ -354,7 +353,6 @@ export default function Page() {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
-          // Don't set Content-Type header for FormData - browser will set it with boundary
         },
         body: submitFormData
       });
@@ -494,7 +492,7 @@ export default function Page() {
 
   // Handle back to words list
   const handleBack = () => {
-    router.push('/admin/word');
+    router.push('/moderator/word');
   };
 
   if (loading) {
@@ -534,7 +532,7 @@ export default function Page() {
   }
 
   return (
-    <RoleGuard allowedRoles={["admin", "super_admin"]}>
+    <RoleGuard allowedRoles={["moderator"]}>
       <div className="min-h-screen bg-gray-50">
         <AdminNavbar />
 
@@ -542,7 +540,7 @@ export default function Page() {
           <AdminSidebar />
 
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            {/* Header - EXACT SAME FORMAT as profile page */}
+            {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
@@ -565,7 +563,7 @@ export default function Page() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Main Content - Left Column (2/3 width) */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Word Information Card - EXACT SAME FORMAT as profile page */}
+                {/* Word Information Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
                     <h2 className="text-lg font-semibold text-gray-900">
@@ -629,7 +627,7 @@ export default function Page() {
                         />
                       </div>
 
-                      {/* Audio Pronunciation Section - SIMPLIFIED */}
+                      {/* Audio Pronunciation Section */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
                           Audio Pronunciation
@@ -792,7 +790,7 @@ export default function Page() {
                       </div>
                     </form>
                   ) : (
-                    // Display View (default view) - SAME FORMAT as profile page
+                    // Display View (default view)
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-5">
@@ -932,7 +930,7 @@ export default function Page() {
                 </div>
               </div>
 
-              {/* Sidebar Actions - Right Column (1/3 width) - SAME FORMAT as profile page */}
+              {/* Sidebar Actions - Right Column (1/3 width) */}
               <div className="space-y-6">
                 {/* Quick Actions Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

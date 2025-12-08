@@ -14,18 +14,40 @@ const Page = () => {
   const token = Cookies.get("token");
 
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [totalUsers, setTotalUsers] = useState(0);
 
   // Filters
   const [role, setRole] = useState("");
   const [search, setSearch] = useState("");
 
-  // Fetch all users
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Calculate total pages
+  useEffect(() => {
+    const total = Math.ceil(filteredUsers.length / usersPerPage);
+    setTotalPages(total > 0 ? total : 1);
+  }, [filteredUsers, usersPerPage]);
+
+  // Calculate paginated users
+  const getPaginatedUsers = () => {
+    const startIndex = (currentPage - 1) * usersPerPage;
+    const endIndex = startIndex + usersPerPage;
+    return filteredUsers.slice(startIndex, endIndex);
+  };
+
+  // Fetch all users with pagination support
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
 
+        // First, get total count if your API supports it
+        // Otherwise, we'll handle pagination client-side
         const res = await fetch(`${base_url}/admin/users`, {
           method: "GET",
           headers: {
@@ -37,8 +59,11 @@ const Page = () => {
         if (!res.ok) throw new Error("Failed to fetch users");
 
         const data = await res.json();
+        const allUsers = data.users || [];
 
-        setUsers(data.users || []);
+        setUsers(allUsers);
+        setFilteredUsers(allUsers);
+        setTotalUsers(allUsers.length);
       } catch (err) {
         console.error("Error loading users:", err);
       } finally {
@@ -49,18 +74,88 @@ const Page = () => {
     fetchUsers();
   }, []);
 
+  // Filter + Search Logic
+  useEffect(() => {
+    const filtered = users.filter((u) => {
+      return (
+        (!role || u.role === role) &&
+        (!search || 
+          u.email.toLowerCase().includes(search.toLowerCase()) ||
+          (u.name && u.name.toLowerCase().includes(search.toLowerCase())))
+      );
+    });
+    
+    setFilteredUsers(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [users, role, search]);
+
   // Update feather icons
   useEffect(() => {
     feather.replace();
-  }, [users]);
+  }, [filteredUsers, currentPage]);
 
-  // Filter + Search Logic
-  const filteredUsers = users.filter((u) => {
-    return (
-      (!role || u.role === role) &&
-      (!search || u.email.toLowerCase().includes(search.toLowerCase()))
-    );
-  });
+  // Pagination handlers
+  const goToPage = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Generate page numbers for pagination
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+      // Show all pages
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Show limited pages with ellipsis
+      if (currentPage <= 3) {
+        // Near start
+        for (let i = 1; i <= 4; i++) {
+          pageNumbers.push(i);
+        }
+        pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        // Near end
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pageNumbers.push(i);
+        }
+      } else {
+        // Middle
+        pageNumbers.push(1);
+        pageNumbers.push('...');
+        pageNumbers.push(currentPage - 1);
+        pageNumbers.push(currentPage);
+        pageNumbers.push(currentPage + 1);
+        pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      }
+    }
+    
+    return pageNumbers;
+  };
+
+  const paginatedUsers = getPaginatedUsers();
+  const pageNumbers = getPageNumbers();
 
   return (
     <RoleGuard allowedRoles={["admin", "super_admin"]}>
@@ -95,7 +190,7 @@ const Page = () => {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <div className="bg-white p-4 rounded-xl shadow-sm">
                 <p className="text-gray-700 font-semibold text-sm mb-1">Total Users</p>
-                <h3 className="text-2xl font-bold text-gray-900">{users.length}</h3>
+                <h3 className="text-2xl font-bold text-gray-900">{totalUsers}</h3>
               </div>
               <div className="bg-white p-4 rounded-xl shadow-sm">
                 <p className="text-gray-700 font-semibold text-sm mb-1">Creators</p>
@@ -148,7 +243,7 @@ const Page = () => {
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Search by email..."
+                      placeholder="Search by email or name..."
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       className="w-full p-3 pl-12 border border-gray-300 rounded-lg focus:ring-yellow-500 focus:border-yellow-500"
@@ -164,7 +259,7 @@ const Page = () => {
               {/* Results Count and Clear Filters */}
               <div className="flex justify-between items-center">
                 <span className="text-gray-700 font-semibold">
-                  Showing {filteredUsers.length} of {users.length} users
+                  Showing {paginatedUsers.length} of {filteredUsers.length} users (Page {currentPage} of {totalPages})
                 </span>
                 {(role || search) && (
                   <button
@@ -228,10 +323,13 @@ const Page = () => {
                       </thead>
 
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredUsers.map((user) => (
+                        {paginatedUsers.map((user) => (
                           <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="font-medium text-gray-900">{user.email}</div>
+                              {user.name && (
+                                <div className="text-sm text-gray-500">{user.name}</div>
+                              )}
                             </td>
 
                             <td className="px-6 py-4 whitespace-nowrap">
@@ -287,10 +385,15 @@ const Page = () => {
 
                   {/* Mobile Cards View */}
                   <div className="md:hidden space-y-4 p-4">
-                    {filteredUsers.map((user) => (
+                    {paginatedUsers.map((user) => (
                       <div key={user.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                         <div className="flex justify-between items-start mb-3">
-                          <h3 className="font-bold text-gray-900">{user.email}</h3>
+                          <div>
+                            <h3 className="font-bold text-gray-900">{user.email}</h3>
+                            {user.name && (
+                              <p className="text-sm text-gray-600 mt-1">{user.name}</p>
+                            )}
+                          </div>
                           <span className={`px-2 py-1 text-xs font-semibold rounded-full capitalize ${
                             user.role === "admin" 
                               ? "bg-purple-100 text-purple-800"
@@ -321,7 +424,7 @@ const Page = () => {
                             View
                           </a>
                           
-                            <UserDelBtn id={user.id} base_url={base_url} token={token} />
+                          <UserDelBtn id={user.id} base_url={base_url} token={token} />
                         </div>
                       </div>
                     ))}
@@ -331,21 +434,87 @@ const Page = () => {
             </div>
 
             {/* Pagination */}
-            {filteredUsers.length > 0 && (
+            {filteredUsers.length > 0 && totalPages > 1 && (
               <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div className="text-gray-700 font-semibold">
-                  Showing {filteredUsers.length} of {users.length} results
+                  Showing {(currentPage - 1) * usersPerPage + 1} to{" "}
+                  {Math.min(currentPage * usersPerPage, filteredUsers.length)} of{" "}
+                  {filteredUsers.length} users
                 </div>
                 <div className="flex gap-2">
-                  <button className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
+                  {/* Previous Button */}
+                  <button
+                    onClick={goToPrevPage}
+                    disabled={currentPage === 1}
+                    className={`px-4 py-2 border border-gray-300 rounded-lg font-semibold transition-colors ${
+                      currentPage === 1
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    <i data-feather="chevron-left" className="w-4 h-4 inline mr-1"></i>
                     Previous
                   </button>
-                  <button className="px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-500-dark transition-colors">
-                    1
-                  </button>
-                  <button className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
+
+                  {/* Page Numbers */}
+                  <div className="flex gap-1">
+                    {pageNumbers.map((pageNumber, index) => (
+                      <React.Fragment key={index}>
+                        {pageNumber === '...' ? (
+                          <span className="px-3 py-2 text-gray-500">...</span>
+                        ) : (
+                          <button
+                            onClick={() => goToPage(pageNumber)}
+                            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                              currentPage === pageNumber
+                                ? "bg-yellow-500 text-white"
+                                : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            {pageNumber}
+                          </button>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={goToNextPage}
+                    disabled={currentPage === totalPages}
+                    className={`px-4 py-2 border border-gray-300 rounded-lg font-semibold transition-colors ${
+                      currentPage === totalPages
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
                     Next
+                    <i data-feather="chevron-right" className="w-4 h-4 inline ml-1"></i>
                   </button>
+                </div>
+              </div>
+            )}
+
+            {/* Items Per Page Selector */}
+            {filteredUsers.length > 0 && (
+              <div className="mt-4 flex justify-end">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-700">Items per page:</label>
+                  <select
+                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-yellow-500 focus:border-yellow-500"
+                    value={usersPerPage}
+                    onChange={(e) => {
+                      // If you want to make usersPerPage configurable, you would need to:
+                      // 1. Make usersPerPage a state
+                      // 2. Update the state here
+                      // 3. Reset to page 1 when changing items per page
+                    }}
+                  >
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
                 </div>
               </div>
             )}

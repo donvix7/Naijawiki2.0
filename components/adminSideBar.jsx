@@ -78,8 +78,8 @@ const AdminSidebar = () => {
 
   const getActiveClass = (path) =>
     pathname === path
-      ? "bg-yellow-500 text-white font-semibold shadow-sm border-l-4 border-white"
-      : "text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-200";
+      ? "bg-yellow-600 text-white font-semibold shadow-sm border-l-4 border-white"
+      : "text-gray-800 hover:bg-gray-100 hover:text-gray-900 transition-all duration-200";
 
   // Close sidebar when clicking on a link (mobile only)
   const handleLinkClick = () => {
@@ -89,173 +89,197 @@ const AdminSidebar = () => {
   };
 
   return (
-    <div className="relative admin-sidebar">
-      {/* Mobile Toggle Button */}
+    <div className="relative">
+      {/* Mobile toggle button */}
       <button
         ref={toggleButtonRef}
         onClick={toggleSidebar}
-        className="admin-sidebar-toggle md:hidden fixed top-4 left-4 z-[60] bg-yellow-500 text-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+        className="md:hidden fixed top-4 left-4 z-50 bg-yellow-600 text-white p-3 rounded-lg shadow-lg hover:shadow-xl hover:bg-yellow-700 transition-all duration-200"
         aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
         aria-expanded={isOpen}
-        style={{ zIndex: 9999 }}
       >
-        <i data-feather={isOpen ? "x" : "menu"} className="w-4 h-4"></i>
+        <i data-feather={isOpen ? "x" : "menu"} className="w-5 h-5"></i>
       </button>
 
       {/* Sidebar */}
       <aside
         ref={sidebarRef}
-        className={`admin-sidebar-panel fixed top-0 left-0 h-full w-72 bg-gray-800 text-white border-r border-gray-700 shadow-lg 
-          transition-transform duration-300 ease-in-out z-50
-          ${isOpen ? "translate-x-0" : "-translate-x-full"} 
-          md:translate-x-0 md:static md:w-64`}
+        className={`fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-40
+          ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:w-64`}
         aria-hidden={!isOpen && isMobile}
-        style={{ zIndex: 9998 }}
       >
         {/* Sidebar Header */}
-        <div className="admin-sidebar-header px-6 py-5 border-b border-gray-700 bg-gray-800 text-white flex items-center justify-between">
-          <h2 className="text-lg font-semibold flex items-center gap-3">
-            <i data-feather="settings" className="w-5 h-5"></i> 
-            <span className="text-base">
-              Admin Panel
-            </span>
+        <div className="sidebar-header px-6 py-5 border-b border-gray-300 bg-white flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-900 flex items-center gap-3">
+            <i data-feather="settings" className="w-6 h-6 text-yellow-600"></i> 
+            <span className="text-lg font-bold">Admin Panel</span>
           </h2>
-          <button
-            onClick={toggleSidebar}
-            className="admin-sidebar-close md:hidden hover:bg-gray-700 p-2 rounded transition-colors duration-200"
+          <button 
+            onClick={toggleSidebar} 
+            className="md:hidden text-gray-600 hover:text-gray-900 hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200"
             aria-label="Close sidebar"
           >
-            <i data-feather="x" className="w-4 h-4"></i>
+            <i data-feather="x" className="w-5 h-5"></i>
           </button>
         </div>
 
-        {/* Sidebar Scrollable Content */}
-        <div className="admin-sidebar-content px-4 py-6 space-y-6 overflow-y-auto h-[calc(100%-5rem)]">
-          {/* MAIN */}
-          <div className="admin-sidebar-section">
-            <p className="text-gray-400 uppercase text-xs font-semibold mb-3 tracking-wider border-b border-gray-700 pb-2 admin-sidebar-section-title">
-              Main
-            </p>
-            <a
-              href="/admin/dashboard"
-              className={`admin-sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium ${getActiveClass(
-                "/admin/dashboard"
-              )}`}
-              onClick={handleLinkClick}
-            >
-              <i data-feather="home" className="w-4 h-4"></i> 
-              <span>Dashboard</span>
-            </a>
-          </div>
-
-          {/* CONTENT */}
-          <div className="admin-sidebar-section">
-            <p className="text-gray-400 uppercase text-xs font-semibold mb-3 tracking-wider border-b border-gray-700 pb-2 admin-sidebar-section-title">
-              Content Management
-            </p>
-            <a
-              href="/admin/word"
-              className={`admin-sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium ${getActiveClass(
-                "/admin/word"
-              )}`}
-              onClick={handleLinkClick}
-            >
-              <i data-feather="book" className="w-4 h-4"></i> 
-              <span>Words</span>
-            </a>
-          </div>
-
-          {/* USERS */}
-          <div className="admin-sidebar-section">
-            <p className="text-gray-400 uppercase text-xs font-semibold mb-3 tracking-wider border-b border-gray-700 pb-2 admin-sidebar-section-title">
-              User Management
-            </p>
-            <div className="space-y-2">
-              <a
-                href="/admin/users"
-                className={`admin-sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium ${getActiveClass(
-                  "/admin/users"
-                )}`}
-                onClick={handleLinkClick}
-              >
-                <i data-feather="users" className="w-4 h-4"></i> 
-                <span>Manage Users</span>
-              </a>
-              <a
-                href="/admin/roles"
-                className={`admin-sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium ${getActiveClass(
-                  "/admin/roles"
-                )}`}
-                onClick={handleLinkClick}
-              >
-                <i data-feather="shield" className="w-4 h-4"></i> 
-                <span>Roles & Permissions</span>
-              </a>
+        {/* Sidebar Menu */}
+        <div className="sidebar-menu px-4 py-6 space-y-6 overflow-y-auto h-[calc(100%-5rem)]">
+          {/* Main Section */}
+          <div className="menu-group">
+            <div className="menu-title text-gray-700 uppercase text-xs font-bold mb-3 px-2 tracking-wider border-b border-gray-200 pb-3">
+              MAIN NAVIGATION
             </div>
-          </div>
-
-          {/* SYSTEM */}
-          <div className="admin-sidebar-section">
-            <p className="text-gray-400 uppercase text-xs font-semibold mb-3 tracking-wider border-b border-gray-700 pb-2 admin-sidebar-section-title">
-              System
-            </p>
-            <a
-              href="/admin/settings"
-              className={`admin-sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium ${getActiveClass(
-                "/admin/settings"
-              )}`}
+            <a 
+              href="/admin/dashboard" 
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/dashboard")}`}
               onClick={handleLinkClick}
             >
-              <i data-feather="sliders" className="w-4 h-4"></i> 
-              <span>Settings</span>
-            </a>
-            <a
-              href="/admin/activity"
-              className={`admin-sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium ${getActiveClass(
-                "/admin/activity"
-              )}`}
-              onClick={handleLinkClick}
-            >
-              <i data-feather="activity" className="w-4 h-4"></i> 
-              <span>Activity</span>
+              <i data-feather="home" className="w-5 h-5"></i> 
+              <span className="font-medium">Dashboard</span>
             </a>
           </div>
 
-          {/* QUICK ACTIONS */}
-          <div className="admin-sidebar-section pt-4 border-t border-gray-700">
-            <p className="text-gray-400 uppercase text-xs font-semibold mb-3 tracking-wider admin-sidebar-section-title">
-              Quick Actions
-            </p>
-            <div className="space-y-2">
-              <a
-                href="/"
-                className="admin-sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium bg-gray-700 text-white hover:bg-gray-600 transition-all duration-200"
-                onClick={handleLinkClick}
-              >
-                <i data-feather="globe" className="w-4 h-4"></i>
-                <span>View Site</span>
-              </a>
-              <a
-                href="/profile"
-                className="admin-sidebar-link flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium bg-gray-700 text-white hover:bg-gray-600 transition-all duration-200"
-                onClick={handleLinkClick}
-              >
-                <i data-feather="user" className="w-4 h-4"></i>
-                <span>My Profile</span>
-              </a>
+          {/* Content Management Section */}
+          <div className="menu-group">
+            <div className="menu-title text-gray-700 uppercase text-xs font-bold mb-3 px-2 tracking-wider border-b border-gray-200 pb-3">
+              CONTENT MANAGEMENT
             </div>
+            <a 
+              href="/admin/word" 
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/words")}`}
+              onClick={handleLinkClick}
+            >
+              <i data-feather="book" className="w-5 h-5 text-blue-500"></i> 
+              <span className="font-medium">Word Management</span>
+            </a>
+            
+          </div>
+
+          {/* User Management Section */}
+          <div className="menu-group">
+            <div className="menu-title text-gray-700 uppercase text-xs font-bold mb-3 px-2 tracking-wider border-b border-gray-200 pb-3">
+              USER MANAGEMENT
+            </div>
+            <a 
+              href="/admin/users" 
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/users")}`}
+              onClick={handleLinkClick}
+            >
+              <i data-feather="users" className="w-5 h-5 text-blue-500"></i> 
+              <span className="font-medium">Manage Users</span>
+            </a>
+            <a 
+              href="/admin/roles" 
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/roles")}`}
+              onClick={handleLinkClick}
+            >
+              <i data-feather="shield" className="w-5 h-5 text-yellow-500"></i> 
+              <span className="font-medium">Roles & Permissions</span>
+            </a>
+            
+          </div>
+
+          {/* System Management Section */}
+          <div className="menu-group">
+            <div className="menu-title text-gray-700 uppercase text-xs font-bold mb-3 px-2 tracking-wider border-b border-gray-200 pb-3">
+              SYSTEM MANAGEMENT
+            </div>
+            <a 
+              href="/admin/analytics" 
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/analytics")}`}
+              onClick={handleLinkClick}
+            >
+              <i data-feather="bar-chart-2" className="w-5 h-5 text-purple-500"></i> 
+              <span className="font-medium">Analytics Dashboard</span>
+            </a>
+            <a 
+              href="/admin/settings" 
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/settings")}`}
+              onClick={handleLinkClick}
+            >
+              <i data-feather="settings" className="w-5 h-5 text-gray-600"></i> 
+              <span className="font-medium">System Settings</span>
+            </a>
+            <a 
+              href="/admin/activity" 
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/activity")}`}
+              onClick={handleLinkClick}
+            >
+              <i data-feather="activity" className="w-5 h-5 text-red-500"></i> 
+              <span className="font-medium">Activity Logs</span>
+            </a>
+          </div>
+
+          {/* Support Section */}
+          <div className="menu-group">
+            <div className="menu-title text-gray-700 uppercase text-xs font-bold mb-3 px-2 tracking-wider border-b border-gray-200 pb-3">
+              SUPPORT
+            </div>
+            <a 
+              href="/admin/help" 
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/help")}`}
+              onClick={handleLinkClick}
+            >
+              <i data-feather="help-circle" className="w-5 h-5 text-blue-600"></i> 
+              <span className="font-medium">Help & Documentation</span>
+            </a>
+            <a 
+              href="/admin/documentation" 
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/documentation")}`}
+              onClick={handleLinkClick}
+            >
+              <i data-feather="book-open" className="w-5 h-5 text-green-600"></i> 
+              <span className="font-medium">Documentation</span>
+            </a>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="menu-group pt-4 border-t border-gray-200">
+            <div className="menu-title text-gray-700 uppercase text-xs font-bold mb-3 px-2 tracking-wider border-b border-gray-200 pb-3">
+              QUICK ACTIONS
+            </div>
+            <a 
+              href="/" 
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-all duration-200"
+              onClick={handleLinkClick}
+            >
+              <i data-feather="globe" className="w-5 h-5 text-blue-500"></i> 
+              <span className="font-medium">View Live Site</span>
+            </a>
+            <a 
+              href="/profile" 
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-all duration-200"
+              onClick={handleLinkClick}
+            >
+              <i data-feather="user" className="w-5 h-5 text-yellow-500"></i> 
+              <span className="font-medium">My Profile</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="absolute bottom-0 left-0 right-0 p-5 bg-gray-50 border-t border-gray-300">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-semibold text-green-700">System Online</span>
+          </div>
+          <div className="text-center text-xs text-gray-700 font-semibold">
+            ADMINISTRATOR ACCESS LEVEL
+          </div>
+          <div className="text-center text-xs text-gray-600 mt-1">
+            Super Admin • v2.1.0
           </div>
         </div>
       </aside>
 
-      {/* Mobile Overlay */}
+      {/* Overlay for mobile */}
       {isOpen && isMobile && (
         <div
           onClick={toggleSidebar}
-          className="admin-sidebar-overlay fixed inset-0 bg-black/70 backdrop-blur-sm z-40 md:hidden transition-opacity duration-300"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden transition-opacity duration-300"
           aria-hidden="true"
-          style={{ zIndex: 9997 }}
-        />
+        ></div>
       )}
     </div>
   );

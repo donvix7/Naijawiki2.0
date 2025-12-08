@@ -43,7 +43,7 @@ export default function Page() {
       // Redirect based on role
       const role = data.user?.role;
       if (role === "admin" || role === "super_admin") {
-        router.push("/admin");
+        router.push("/admin/dashboard");
       } else if (role === "moderator") {
         router.push("/moderator");
       } else if (role === "creator") {

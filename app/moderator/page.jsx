@@ -331,22 +331,11 @@ const ModeratorDashboard = () => {
                       <div className="flex gap-2 flex-wrap">
                         {word.status === "pending" && (
                           <>
-                            <button
-                              onClick={() => handleStatusUpdate(word.id, "approved")}
-                              className="flex items-center gap-2 bg-green-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-green-600 transition-colors"
-                            >
-                              <i data-feather="check" className="w-4 h-4"></i> Approve
-                            </button>
-                            <button
-                              onClick={() => handleStatusUpdate(word.id, "rejected")}
-                              className="flex items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors"
-                            >
-                              <i data-feather="x" className="w-4 h-4"></i> Reject
-                            </button>
+                          
                           </>
                         )}
                         <a
-                          href={`/moderator/review-detail/${word.id}`}
+                          href={`/moderator/review-details/${word.id}`}
                           className="flex items-center gap-2 bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-blue-600 transition-colors"
                         >
                           <i data-feather="edit" className="w-4 h-4"></i> {word.status === "pending" ? "Review" : "View"}

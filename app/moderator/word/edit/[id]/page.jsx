@@ -492,7 +492,7 @@ export default function ModeratorWordDetailPage() {
 
   // Handle back to words list
   const handleBack = () => {
-    router.push('/moderator');
+    router.push('/moderator/word');
   };
 
   if (loading) {
@@ -569,15 +569,7 @@ export default function ModeratorWordDetailPage() {
                     <h2 className="text-lg font-semibold text-gray-900">
                       Word Information
                     </h2>
-                    {!editing && (
-                      <button
-                        onClick={startEditing}
-                        className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
-                      >
-                        <i data-feather="edit" className="w-4 h-4"></i>
-                        Edit Details
-                      </button>
-                    )}
+                    
                   </div>
 
                   {editing ? (

@@ -219,7 +219,7 @@ export default function UserProfilePage() {
       return;
     }
 
-    if (!bankData.account_number.trim() || bankData.account_number.length < 10) {
+    if (bankData.account_number.length < 10) {
       setStatus({
         message: "Valid account number is required (minimum 10 digits)",
         type: "error",
@@ -232,7 +232,7 @@ export default function UserProfilePage() {
       // Changed: Use snake_case for API payload
       const payload = {
         bank_name: bankData.bank_name.trim(),
-        account_number: bankData.account_number.trim(),
+        account_number: bankData.account_number,
       };
 
       const res = await fetch(`${base_url}/user/profile`, {

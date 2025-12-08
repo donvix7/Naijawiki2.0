@@ -224,7 +224,6 @@ const AdminPage = () => {
                       <thead className="bg-gray-50">
                         <tr>
                           <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Word</th>
-                          <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Language</th>
                           <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Status</th>
                           <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Submitted By</th>
                           <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider">Date</th>
@@ -239,11 +238,7 @@ const AdminPage = () => {
                                 {word.word}
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="text-gray-700 font-medium">
-                                {word.language || "N/A"}
-                              </span>
-                            </td>
+                           
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span
                                 className={`px-3 py-1 text-sm font-semibold rounded-full ${
