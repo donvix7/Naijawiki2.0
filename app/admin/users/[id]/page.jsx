@@ -160,7 +160,7 @@ export default function Page() {
                 const userWords = allWords.filter(word => 
                   word.user_id === id || 
                   word.userId === id || 
-                  word.created_by === userEmail ||
+                  word.created_by === id ||
                   word.creatorEmail === userEmail ||
                   word.user_email === userEmail
                 );
@@ -226,7 +226,7 @@ export default function Page() {
         phone: formData.phone.trim(),
       };
 
-      const res = await fetch(`${base_url}/admin/users/${id}`, {
+      const res = await fetch(`${base_url}/manage/user/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
