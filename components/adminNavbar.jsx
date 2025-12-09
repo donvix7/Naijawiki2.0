@@ -92,7 +92,7 @@ const AdminNavbar = () => {
                       <span className="font-medium">Profile</span>
                     </a>
                     <a 
-                      href="/admin/settings" 
+                      href="/settings" 
                       className="dropdown-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
                       onClick={() => setIsDropdownOpen(false)}
                     >

@@ -178,6 +178,14 @@ export default function Page() {
 
 
               <div className="text-sm text-gray-500">
+                <button className="flex items-center gap-2 px-3 py-1.5 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors mr-4" onClick={() => router.push('/admin/word/add')}>
+                  <a>
+                  Add New Word
+
+                    <i data-feather="plus" className="w-4 h-4 inline-block ml-1"></i>
+
+                  </a>
+                </button>
                 <span className="font-semibold text-gray-700">{words.length}</span> total words
               </div>
             </div>

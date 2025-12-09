@@ -104,7 +104,7 @@ const Page = () => {
               </div>
               
               <button
-                onClick={() => router.push('/admin/words')}
+                onClick={() => router.push('/admin/word')}
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-b from-gray-100 to-gray-200 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:from-gray-200 hover:to-gray-300 transition-colors shadow-sm"
               >
                 <i data-feather="arrow-left" className="w-4 h-4"></i>

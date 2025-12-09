@@ -10,6 +10,8 @@ const links = [
   { name: "Explore", href: "/explore", icon: "compass" },
   { name: "Contribute", href: "/submit-word", icon: "plus-circle" },
   { name: "About", href: "/about", icon: "info" },
+  { name: "Settings", href: "/settings", icon: "settings" },
+
 ];
 
 const CustomNavbar = () => {

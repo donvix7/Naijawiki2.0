@@ -8,8 +8,9 @@ import Cookies from "js-cookie";
 import feather from "feather-icons";
 import { useParams, useRouter } from "next/navigation";
 import RoleGuard from "@/utils/RoleGuard";
+import DeleteBtn from "@/components/deleteBtn";
 
-export default function ModeratorWordDetailPage() {
+export default function Page() {
   const { id } = useParams();
   const router = useRouter();
   const [word, setWord] = useState(null);
@@ -87,6 +88,7 @@ export default function ModeratorWordDetailPage() {
         
         // Set audio URL if exists
         if (wordData.audio_url) {
+          // Set newAudioPreview to the existing audio URL for preview purposes
           setNewAudioPreview(wordData.audio_url);
         }
       } 
@@ -353,6 +355,7 @@ export default function ModeratorWordDetailPage() {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
+          // Don't set Content-Type header for FormData - browser will set it with boundary
         },
         body: submitFormData
       });
@@ -492,7 +495,7 @@ export default function ModeratorWordDetailPage() {
 
   // Handle back to words list
   const handleBack = () => {
-    router.push('/moderator/word');
+    router.push('/admin/word');
   };
 
   if (loading) {
@@ -532,7 +535,7 @@ export default function ModeratorWordDetailPage() {
   }
 
   return (
-    <RoleGuard allowedRoles={["moderator"]}>
+    <RoleGuard allowedRoles={["admin", "super_admin"]}>
       <div className="min-h-screen bg-gray-50">
         <AdminNavbar />
 
@@ -540,7 +543,7 @@ export default function ModeratorWordDetailPage() {
           <AdminSidebar />
 
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            {/* Header */}
+            {/* Header - EXACT SAME FORMAT as profile page */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
@@ -563,20 +566,23 @@ export default function ModeratorWordDetailPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Main Content - Left Column (2/3 width) */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Word Information Card */}
+                {/* Word Information Card - EXACT SAME FORMAT as profile page */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
                     <h2 className="text-lg font-semibold text-gray-900">
                       Word Information
                     </h2>
                     {!editing && (
-                      <button
+                      <div className="flex gap-3">
+                        <button
                         onClick={startEditing}
                         className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
                       >
                         <i data-feather="edit" className="w-4 h-4"></i>
                         Edit Details
                       </button>
+                      <DeleteBtn id={id} base_url={base_url} token={token}/>
+                      </div>
                     )}
                   </div>
 
@@ -627,7 +633,7 @@ export default function ModeratorWordDetailPage() {
                         />
                       </div>
 
-                      {/* Audio Pronunciation Section */}
+                      {/* Audio Pronunciation Section - SIMPLIFIED */}
                       <div>
                         <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">
                           Audio Pronunciation
@@ -790,7 +796,7 @@ export default function ModeratorWordDetailPage() {
                       </div>
                     </form>
                   ) : (
-                    // Display View (default view)
+                    // Display View (default view) - SAME FORMAT as profile page
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-5">
@@ -930,7 +936,7 @@ export default function ModeratorWordDetailPage() {
                 </div>
               </div>
 
-              {/* Sidebar Actions - Right Column (1/3 width) */}
+              {/* Sidebar Actions - Right Column (1/3 width) - SAME FORMAT as profile page */}
               <div className="space-y-6">
                 {/* Quick Actions Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

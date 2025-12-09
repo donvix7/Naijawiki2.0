@@ -182,13 +182,9 @@ export default function AdminActivityPage() {
                         </div>
                         
                         <div className="mt-3 flex gap-2">
-                          <a href={`/word-details/${item.id}`}>
-                            <button className="flex-1 bg-yellow-500 text-white font-semibold py-2 px-3 rounded-lg text-sm hover:bg-yellow-500-dark transition-colors">
-                             View Details
-                            </button>
-                          </a>
+                         
                           {item.status === 'pending' && (
-                            <a href={`/review/${item.id}`}>
+                            <a href={`/admin/word/edit/${item.id}`}>
                               <button className="flex-1 bg-blue-900 text-white font-semibold py-2 px-3 rounded-lg text-sm hover:bg-blue-900-dark transition-colors">
                                 Review
                               </button>

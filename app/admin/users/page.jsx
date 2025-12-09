@@ -363,18 +363,8 @@ const Page = () => {
                                   <i data-feather="eye" className="w-4 h-4"></i>
                                   View
                                 </a>
-                                <a
-                                  href={`/admin/users/edit/${user.id}`}
-                                  className="text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1"
-                                >
-                                  <i data-feather="edit" className="w-4 h-4"></i>
-                                  Edit
-                                </a>
-                                <UserDelBtn
-                                  id={user.id}
-                                  base_url={base_url}
-                                  token={token}
-                                />
+                               
+                                
                               </div>
                             </td>
                           </tr>
@@ -424,7 +414,6 @@ const Page = () => {
                             View
                           </a>
                           
-                          <UserDelBtn id={user.id} base_url={base_url} token={token} />
                         </div>
                       </div>
                     ))}

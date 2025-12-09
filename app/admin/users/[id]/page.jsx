@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import feather from "feather-icons";
 import { useParams, useRouter } from "next/navigation";
 import RoleGuard from "@/utils/RoleGuard";
+import UserDelBtn from "@/components/userDelBtn";
 
 export default function Page() {
   const { id } = useParams();
@@ -528,6 +529,7 @@ export default function Page() {
                       User Information
                     </h2>
                     {!editing && (
+                      <div className="flex gap-3">
                       <button
                         onClick={() => setEditing(true)}
                         className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
@@ -535,6 +537,9 @@ export default function Page() {
                         <i data-feather="edit" className="w-4 h-4"></i>
                         Edit Details
                       </button>
+                      <UserDelBtn id={user.id} base_url={base_url} token={token} />
+
+                      </div>
                     )}
                   </div>
 

@@ -47,7 +47,7 @@ const UserDelBtn = ({ id, base_url, token }) => {
     <button
       onClick={deleteUser}
       disabled={loading}
-      className={`flex-1 bg-red-500 text-white font-semibold py-2 px-3 rounded text-center text-sm hover:bg-red-800 transition-colors flex items-center justify-center gap-1 : ""}`}
+      className={`flex bg-red-500 text-white font-semibold py-2 px-3 rounded text-center text-sm hover:bg-red-800 transition-colors flex items-center justify-center gap-1 : ""}`}
     >
      
         <i data-feather="trash" className="w-3 h-3"></i>

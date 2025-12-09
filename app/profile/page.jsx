@@ -21,14 +21,12 @@ export default function UserProfilePage() {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState({ message: "", type: "" });
 
-  // Form data - keep firstName/lastName as they are, only change bank fields
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
   });
 
-  // Changed: account_number → account_number, bank_name → bank_name
   const [bankData, setBankData] = useState({
     bank_name: "",
     account_number: "",
@@ -37,6 +35,9 @@ export default function UserProfilePage() {
   const token = typeof window !== "undefined" ? Cookies.get("token") : null;
   const base_url = getBaseUrl();
   const id = typeof window !== "undefined" ? Cookies.get("id") : null;
+
+  // Check if user is admin/super_admin
+  const isAdminUser = user && (user.role === "admin" || user.role === "super_admin");
 
   // Hydration guard
   useEffect(() => {
@@ -85,14 +86,12 @@ export default function UserProfilePage() {
         const fetchedUser = data.user || data;
         setUser(fetchedUser);
 
-        // Keep firstName/lastName as they are
         setFormData({
           firstName: fetchedUser.firstName || fetchedUser.first_name || "",
           lastName: fetchedUser.lastName || fetchedUser.last_name || "",
           email: fetchedUser.email || "",
         });
 
-        // Changed: Use snake_case for bank fields
         setBankData({
           bank_name: fetchedUser.bank_name || "",
           account_number: fetchedUser.account_number || "",
@@ -149,7 +148,6 @@ export default function UserProfilePage() {
     };
   }, [hydrated, base_url, token, user]);
 
-  // Handle form input changes - keep as is
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -158,18 +156,16 @@ export default function UserProfilePage() {
     }));
   };
 
-  // Handle bank data input changes - Changed to use snake_case
   const handleBankInputChange = (e) => {
     const { name, value } = e.target;
     if (name === "account_number") {
-      const formattedValue = value.replace(/\D/g, ""); // Remove non-digits
+      const formattedValue = value.replace(/\D/g, "");
       setBankData((prev) => ({ ...prev, [name]: formattedValue }));
     } else {
       setBankData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  // Update user profile - keep as is
   const updateProfile = async (e) => {
     e.preventDefault();
     setActionLoading(true);
@@ -206,13 +202,11 @@ export default function UserProfilePage() {
     }
   };
 
-  // Update bank details - Changed to use snake_case
   const updateBankDetails = async (e) => {
     e.preventDefault();
     setActionLoading(true);
     setStatus({ message: "", type: "" });
 
-    // Validate bank details
     if (!bankData.bank_name.trim()) {
       setStatus({ message: "Bank name is required", type: "error" });
       setActionLoading(false);
@@ -229,7 +223,6 @@ export default function UserProfilePage() {
     }
 
     try {
-      // Changed: Use snake_case for API payload
       const payload = {
         bank_name: bankData.bank_name.trim(),
         account_number: bankData.account_number,
@@ -247,7 +240,6 @@ export default function UserProfilePage() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || "Failed to update bank details");
 
-      // Update user state with new bank details using snake_case
       setUser((prev) => ({ 
         ...prev, 
         bank_name: payload.bank_name,
@@ -263,7 +255,6 @@ export default function UserProfilePage() {
     }
   };
 
-  // Change password - keep as is
   const changePassword = async () => {
     const newPassword = prompt("Enter your new password (min 8 characters):");
     if (!newPassword || newPassword.length < 8) {
@@ -296,7 +287,6 @@ export default function UserProfilePage() {
     }
   };
 
-  // Get status badge color - keep as is
   const getStatusColor = (statusVal) => {
     switch ((statusVal || "").toLowerCase()) {
       case "approved":
@@ -310,7 +300,6 @@ export default function UserProfilePage() {
     }
   };
 
-  // Format account number for display - keep as is
   const formataccount_number = (account_number) => {
     if (!account_number) return "";
     const numStr = account_number.toString();
@@ -318,7 +307,6 @@ export default function UserProfilePage() {
     return numStr.replace(/(\d{4})(?=\d)/g, "$1 ");
   };
 
-  // Format currency - keep as is
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-NG', {
       style: 'currency',
@@ -369,8 +357,6 @@ export default function UserProfilePage() {
     );
   }
 
-  // Get data from user object
-  // Changed: wallet_balance instead of balance
   const walletBalance = user.wallet_balance || 0;
   const bank_name = user.bank_name || "";
   const account_number = user.account_number || "";
@@ -387,8 +373,12 @@ export default function UserProfilePage() {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">My Profile</h1>
-                <p className="text-gray-600 text-base font-normal">Manage your account information and view your submissions</p>
+                <h1 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
+                  {isAdminUser ? `${user.role.charAt(0).toUpperCase() + user.role.slice(1)} Profile` : "My Profile"}
+                </h1>
+                <p className="text-gray-600 text-base font-normal">
+                  {isAdminUser ? "Manage your account information" : "Manage your account information and view your submissions"}
+                </p>
               </div>
 
               <button
@@ -417,36 +407,38 @@ export default function UserProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Profile Information */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Wallet Balance Card */}
-                <div className="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl shadow-lg p-6 text-white">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h2 className="text-lg font-semibold mb-2">Wallet Balance</h2>
-                      <p className="text-3xl font-bold mb-1">{formatCurrency(walletBalance)}</p>
-                      <p className="text-yellow-100 text-sm opacity-90">Available for withdrawal</p>
+                {/* Wallet Balance Card - Only show for non-admin users */}
+                {!isAdminUser && (
+                  <div className="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl shadow-lg p-6 text-white">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h2 className="text-lg font-semibold mb-2">Wallet Balance</h2>
+                        <p className="text-3xl font-bold mb-1">{formatCurrency(walletBalance)}</p>
+                        <p className="text-yellow-100 text-sm opacity-90">Available for withdrawal</p>
+                      </div>
+                      <div className="bg-white bg-opacity-20 p-3 rounded-full">
+                        <i data-feather="credit-card" className="w-6 h-6"></i>
+                      </div>
                     </div>
-                    <div className="bg-white bg-opacity-20 p-3 rounded-full">
-                      <i data-feather="credit-card" className="w-6 h-6"></i>
+                    <div className="mt-4 flex gap-3">
+                      <button
+                        onClick={() => router.push("/withdraw")}
+                        disabled={walletBalance <= 0}
+                        className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition-all ${walletBalance > 0 
+                          ? "bg-white text-yellow-600 hover:bg-gray-100" 
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
+                      >
+                        Withdraw Funds
+                      </button>
+                      <button
+                        onClick={() => router.push("/transactions")}
+                        className="flex-1 py-2.5 px-4 bg-white bg-opacity-20 rounded-lg font-semibold text-sm hover:bg-opacity-30 transition-all"
+                      >
+                        View Transactions
+                      </button>
                     </div>
                   </div>
-                  <div className="mt-4 flex gap-3">
-                    <button
-                      onClick={() => router.push("/withdraw")}
-                      disabled={walletBalance <= 0}
-                      className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition-all ${walletBalance > 0 
-                        ? "bg-white text-yellow-600 hover:bg-gray-100" 
-                        : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
-                    >
-                      Withdraw Funds
-                    </button>
-                    <button
-                      onClick={() => router.push("/transactions")}
-                      className="flex-1 py-2.5 px-4 bg-white bg-opacity-20 rounded-lg font-semibold text-sm hover:bg-opacity-30 transition-all"
-                    >
-                      View Transactions
-                    </button>
-                  </div>
-                </div>
+                )}
 
                 {/* Profile Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -455,7 +447,9 @@ export default function UserProfilePage() {
                     {!editing && (
                       <button
                         onClick={() => setEditing(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
+                        className={`flex items-center gap-2 px-4 py-2 text-white font-semibold rounded-lg transition-colors text-sm ${
+                          isAdminUser ? "bg-purple-500 hover:bg-purple-600" : "bg-yellow-500 hover:bg-yellow-600"
+                        }`}
                       >
                         <i data-feather="edit" className="w-4 h-4"></i>
                         Edit Profile
@@ -510,7 +504,9 @@ export default function UserProfilePage() {
                         <button
                           type="submit"
                           disabled={actionLoading}
-                          className="bg-yellow-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-yellow-600 transition-colors text-sm disabled:opacity-50"
+                          className={`text-white font-semibold py-3 px-6 rounded-lg transition-colors text-sm disabled:opacity-50 ${
+                            isAdminUser ? "bg-purple-500 hover:bg-purple-600" : "bg-yellow-500 hover:bg-yellow-600"
+                          }`}
                         >
                           {actionLoading ? "Saving..." : "Save Changes"}
                         </button>
@@ -554,7 +550,11 @@ export default function UserProfilePage() {
                           <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">User Role</label>
                           <span
                             className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold capitalize ${
-                              user.role === "admin" ? "bg-purple-100 text-purple-800" : user.role === "moderator" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"
+                              user.role === "admin" || user.role === "super_admin" 
+                                ? "bg-purple-100 text-purple-800" 
+                                : user.role === "moderator" 
+                                ? "bg-blue-100 text-blue-800" 
+                                : "bg-green-100 text-green-800"
                             }`}
                           >
                             {user.role || "user"}
@@ -565,134 +565,138 @@ export default function UserProfilePage() {
                   )}
                 </div>
 
-                {/* Bank Details Section */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
-                    <h2 className="text-lg font-semibold text-gray-900">Bank Details</h2>
-                    {!editingBank && (
-                      <button
-                        onClick={() => setEditingBank(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
-                      >
-                        <i data-feather="edit" className="w-4 h-4"></i>
-                        {bank_name ? "Edit Bank Details" : "Add Bank Details"}
-                      </button>
+                {/* Bank Details Section - Only show for non-admin users */}
+                {!isAdminUser && (
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
+                      <h2 className="text-lg font-semibold text-gray-900">Bank Details</h2>
+                      {!editingBank && (
+                        <button
+                          onClick={() => setEditingBank(true)}
+                          className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
+                        >
+                          <i data-feather="edit" className="w-4 h-4"></i>
+                          {bank_name ? "Edit Bank Details" : "Add Bank Details"}
+                        </button>
+                      )}
+                    </div>
+
+                    {editingBank ? (
+                      <form onSubmit={updateBankDetails} className="space-y-6" noValidate>
+                        <div className="space-y-6">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Bank Name</label>
+                            <input
+                              type="text"
+                              name="bank_name"
+                              value={bankData.bank_name}
+                              onChange={handleBankInputChange}
+                              className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                              placeholder="Enter your bank name (e.g., GTBank, Access Bank)"
+                              required
+                            />
+                            <p className="text-gray-500 text-xs mt-2">Enter the name of your bank as it appears on your account</p>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Account Number</label>
+                            <input
+                              type="text"
+                              name="account_number"
+                              value={bankData.account_number}
+                              onChange={handleBankInputChange}
+                              className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
+                              placeholder="Enter 10-digit account number"
+                              maxLength={10}
+                              required
+                            />
+                            <p className="text-gray-500 text-xs mt-2">Enter your 10-digit account number (numbers only)</p>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-3 pt-4">
+                          <button
+                            type="submit"
+                            disabled={actionLoading}
+                            className="bg-yellow-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-yellow-600 transition-colors text-sm disabled:opacity-50"
+                          >
+                            {actionLoading ? "Saving..." : "Save Bank Details"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingBank(false);
+                              setBankData({
+                                bank_name: bank_name,
+                                account_number: account_number,
+                              });
+                            }}
+                            className="bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-5">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Bank Name</label>
+                            {bank_name ? (
+                              <p className="text-base font-semibold text-gray-900">{bank_name}</p>
+                            ) : (
+                              <div className="flex items-center gap-2 text-gray-500">
+                                <i data-feather="alert-circle" className="w-4 h-4"></i>
+                                <span className="text-sm">No bank details added</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="space-y-5">
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Account Number</label>
+                            {account_number ? (
+                              <p className="text-base font-semibold text-gray-900 font-mono">{formataccount_number(account_number)}</p>
+                            ) : (
+                              <div className="flex items-center gap-2 text-gray-500">
+                                <i data-feather="alert-circle" className="w-4 h-4"></i>
+                                <span className="text-sm">No account number added</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Security Note */}
+                    {!editingBank && (bank_name || account_number) && (
+                      <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+                        <div className="flex items-start gap-3">
+                          <i data-feather="shield" className="w-5 h-5 text-blue-600 mt-0.5"></i>
+                          <div>
+                            <p className="text-sm font-medium text-blue-800 mb-1">Your bank details are secure</p>
+                            <p className="text-xs text-blue-600">Your bank information is encrypted and only used for payment purposes.</p>
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
-
-                  {editingBank ? (
-                    <form onSubmit={updateBankDetails} className="space-y-6" noValidate>
-                      <div className="space-y-6">
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Bank Name</label>
-                          <input
-                            type="text"
-                            name="bank_name" // Changed to snake_case
-                            value={bankData.bank_name}
-                            onChange={handleBankInputChange}
-                            className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
-                            placeholder="Enter your bank name (e.g., GTBank, Access Bank)"
-                            required
-                          />
-                          <p className="text-gray-500 text-xs mt-2">Enter the name of your bank as it appears on your account</p>
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Account Number</label>
-                          <input
-                            type="text"
-                            name="account_number" // Changed to snake_case
-                            value={bankData.account_number}
-                            onChange={handleBankInputChange}
-                            className="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-gray-900 font-normal text-base placeholder-gray-500 transition-all duration-200"
-                            placeholder="Enter 10-digit account number"
-                            maxLength={10}
-                            required
-                          />
-                          <p className="text-gray-500 text-xs mt-2">Enter your 10-digit account number (numbers only)</p>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3 pt-4">
-                        <button
-                          type="submit"
-                          disabled={actionLoading}
-                          className="bg-yellow-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-yellow-600 transition-colors text-sm disabled:opacity-50"
-                        >
-                          {actionLoading ? "Saving..." : "Save Bank Details"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingBank(false);
-                            setBankData({
-                              bank_name: bank_name,
-                              account_number: account_number,
-                            });
-                          }}
-                          className="bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors text-sm"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-5">
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Bank Name</label>
-                          {bank_name ? (
-                            <p className="text-base font-semibold text-gray-900">{bank_name}</p>
-                          ) : (
-                            <div className="flex items-center gap-2 text-gray-500">
-                              <i data-feather="alert-circle" className="w-4 h-4"></i>
-                              <span className="text-sm">No bank details added</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-5">
-                        <div>
-                          <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">Account Number</label>
-                          {account_number ? (
-                            <p className="text-base font-semibold text-gray-900 font-mono">{formataccount_number(account_number)}</p>
-                          ) : (
-                            <div className="flex items-center gap-2 text-gray-500">
-                              <i data-feather="alert-circle" className="w-4 h-4"></i>
-                              <span className="text-sm">No account number added</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Security Note */}
-                  {!editingBank && (bank_name || account_number) && (
-                    <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
-                      <div className="flex items-start gap-3">
-                        <i data-feather="shield" className="w-5 h-5 text-blue-600 mt-0.5"></i>
-                        <div>
-                          <p className="text-sm font-medium text-blue-800 mb-1">Your bank details are secure</p>
-                          <p className="text-xs text-blue-600">Your bank information is encrypted and only used for payment purposes.</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                )}
 
                 {/* Submitted Words Section */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
-                    <h2 className="text-lg font-semibold text-gray-900">My Submitted Words</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {isAdminUser ? "All Submitted Words" : "My Submitted Words"}
+                    </h2>
                     <span className="text-sm text-gray-600 font-medium">{submittedWords.length} total</span>
                   </div>
 
                   {wordsLoading ? (
                     <div className="text-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto mb-3"></div>
-                      <p className="text-gray-600 text-sm">Loading your words...</p>
+                      <p className="text-gray-600 text-sm">Loading words...</p>
                     </div>
                   ) : submittedWords.length === 0 ? (
                     <div className="text-center py-8">
@@ -722,6 +726,9 @@ export default function UserProfilePage() {
                             </div>
                             <p className="text-gray-700 text-sm mb-1">{word.meaning}</p>
                             {word.language && <p className="text-gray-500 text-xs">Language: {word.language}</p>}
+                            {isAdminUser && word.submitted_by && (
+                              <p className="text-gray-500 text-xs">Submitted by: {word.submitted_by}</p>
+                            )}
                             <p className="text-gray-500 text-xs mt-2">
                               Submitted on {word.created_at ? new Date(word.created_at).toLocaleDateString() : "—"}
                             </p>
@@ -734,7 +741,7 @@ export default function UserProfilePage() {
                             >
                               <i data-feather="eye" className="w-4 h-4"></i>
                             </button>
-                            {word.status === "pending" && (
+                            {!isAdminUser && word.status === "pending" && (
                               <button
                                 onClick={() => router.push(`/edit-word/${word.id}`)}
                                 className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
@@ -787,6 +794,27 @@ export default function UserProfilePage() {
                       <i data-feather="search" className="w-4 h-4"></i>
                       Explore Words
                     </button>
+
+                    {/* Admin-specific links */}
+                    {isAdminUser && (
+                      <>
+                        <button
+                          onClick={() => router.push("/admin/dashboard")}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-purple-500 text-white font-semibold rounded-lg hover:bg-purple-600 transition-colors text-sm"
+                        >
+                          <i data-feather="dashboard" className="w-4 h-4"></i>
+                          Admin Dashboard
+                        </button>
+
+                        <button
+                          onClick={() => router.push("/admin/users")}
+                          className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-blue-100 text-blue-700 font-semibold rounded-lg hover:bg-blue-200 transition-colors text-sm"
+                        >
+                          <i data-feather="users" className="w-4 h-4"></i>
+                          Manage Users
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -794,10 +822,13 @@ export default function UserProfilePage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">My Stats</h3>
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">Wallet Balance:</span>
-                      <span className="font-semibold text-green-600">{formatCurrency(walletBalance)}</span>
-                    </div>
+                    {/* Only show wallet balance for non-admin users */}
+                    {!isAdminUser && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Wallet Balance:</span>
+                        <span className="font-semibold text-green-600">{formatCurrency(walletBalance)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Total Submitted:</span>
                       <span className="font-semibold text-gray-900">{submittedWords.length}</span>
@@ -810,12 +841,15 @@ export default function UserProfilePage() {
                       <span className="text-gray-600 text-sm">Pending:</span>
                       <span className="font-semibold text-yellow-600">{submittedWords.filter((w) => w.status === "pending").length}</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">Bank Details:</span>
-                      <span className={`font-semibold ${bank_name && account_number ? "text-green-600" : "text-yellow-600"}`}>
-                        {bank_name && account_number ? "Complete" : "Incomplete"}
-                      </span>
-                    </div>
+                    {/* Only show bank details for non-admin users */}
+                    {!isAdminUser && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600 text-sm">Bank Details:</span>
+                        <span className={`font-semibold ${bank_name && account_number ? "text-green-600" : "text-yellow-600"}`}>
+                          {bank_name && account_number ? "Complete" : "Incomplete"}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

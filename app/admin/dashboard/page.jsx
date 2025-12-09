@@ -191,10 +191,7 @@ const AdminPage = () => {
                         </div>
                         
                         <div className="space-y-2 text-sm text-gray-600 mb-4">
-                          <div className="flex justify-between">
-                            <span className="font-medium">Language:</span>
-                            <span>{word.language || "N/A"}</span>
-                          </div>
+                         
                           <div className="flex justify-between">
                             <span className="font-medium">Submitted By:</span>
                             <span>{word.user?.email || word.created_by || "Unknown"}</span>

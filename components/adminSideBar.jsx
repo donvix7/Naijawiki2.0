@@ -169,14 +169,6 @@ const AdminSidebar = () => {
               <i data-feather="users" className="w-5 h-5 text-blue-500"></i> 
               <span className="font-medium">Manage Users</span>
             </a>
-            <a 
-              href="/admin/roles" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/roles")}`}
-              onClick={handleLinkClick}
-            >
-              <i data-feather="shield" className="w-5 h-5 text-yellow-500"></i> 
-              <span className="font-medium">Roles & Permissions</span>
-            </a>
             
           </div>
 
@@ -194,7 +186,7 @@ const AdminSidebar = () => {
               <span className="font-medium">Analytics Dashboard</span>
             </a>
             <a 
-              href="/admin/settings" 
+              href="/settings" 
               className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/settings")}`}
               onClick={handleLinkClick}
             >
@@ -217,7 +209,7 @@ const AdminSidebar = () => {
               SUPPORT
             </div>
             <a 
-              href="/admin/help" 
+              href="/help" 
               className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/help")}`}
               onClick={handleLinkClick}
             >
@@ -225,7 +217,7 @@ const AdminSidebar = () => {
               <span className="font-medium">Help & Documentation</span>
             </a>
             <a 
-              href="/admin/documentation" 
+              href="/documentation" 
               className={`flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 ${getActiveClass("/admin/documentation")}`}
               onClick={handleLinkClick}
             >
