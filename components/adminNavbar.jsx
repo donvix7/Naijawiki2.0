@@ -1,11 +1,24 @@
 "use client";
 import Cookies from 'js-cookie';
-import React, { useEffect, useState } from 'react'
-import feather from 'feather-icons';
+import React, { useEffect, useState } from 'react';
+import {
+  BookOpen,
+  User,
+  Settings,
+  LogOut,
+  ChevronDown,
+  Shield,
+  Bell,
+  Search,
+  Menu,
+  X
+} from 'lucide-react';
 
-const AdminNavbar = () => {
+const AdminNavbar = ({ onMenuToggle }) => {
   const [user, setUser] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     // Check for token and email in cookies
@@ -19,21 +32,33 @@ const AdminNavbar = () => {
       setUser(null);
     }
 
+    // Handle scroll effect
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
     // Close dropdown when clicking outside
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.dropdown')) {
+      if (!event.target.closest('.user-dropdown')) {
         setIsDropdownOpen(false);
       }
     };
 
+    window.addEventListener('scroll', handleScroll);
     document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+    
+    // Mock notifications
+    setNotifications([
+      { id: 1, text: 'New user registration', time: '5 min ago', unread: true },
+      { id: 2, text: 'Dictionary update completed', time: '1 hour ago', unread: true },
+      { id: 3, text: 'System backup successful', time: '2 hours ago', unread: false }
+    ]);
 
-  // Initialize feather icons
-  useEffect(() => {
-    feather.replace();
-  }, [isDropdownOpen]);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
     Cookies.remove("token");
@@ -47,65 +72,154 @@ const AdminNavbar = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  const unreadCount = notifications.filter(n => n.unread).length;
+
   return (
     <div className="admin">
-      <nav className="bg-gray-800 shadow-sm border-b border-gray-700">
-        <div className="w-full mx-auto px-6">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo and Brand - Left side */}
-            <a href="/admin/" className="flex items-center gap-3 text-white hover:text-gray-300 transition-colors">
-              <i data-feather="book-open" className="w-5 h-5"></i>
-              <span className="text-base font-semibold">NaijaLingo {user && `(${user.role})`}</span>
-            </a>
+      <nav className={`
+        fixed top-0 left-0 right-0 z-50 transition-all duration-300
+        ${isScrolled 
+          ? 'bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-200/50' 
+          : 'bg-white border-b border-gray-100'
+        }
+      `}>
+        <div className="w-full mx-auto px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 lg:h-20">
+            {/* Left side - Logo and Menu Toggle */}
+            <div className="flex items-center gap-6">
+              
 
-            {/* User Menu - Right side */}
-            <div className="flex items-center">
+              {/* Logo and Brand */}
+              <a 
+                href="/admin/dashboard" 
+                className="flex items-center gap-3 group"
+              >
+                <div className="relative">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                    <BookOpen size={20} className="text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-gray-900 tracking-tight">
+                    NaijaLingo
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Shield size={12} className="text-blue-600" />
+                    <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
+                      Admin Panel
+                    </span>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            
+
+            {/* Right side - User controls */}
+            <div className="flex items-center gap-4">
+           
+
+              {/* Notifications */}
+              <div className="relative">
+                <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                  <Bell size={20} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+
               {/* User dropdown */}
-              <div className="relative dropdown">
+              <div className="relative user-dropdown">
                 <button 
                   onClick={toggleDropdown}
-                  className="flex items-center gap-2 text-white hover:text-gray-300 transition-colors p-2 rounded-md"
+                  className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-gray-50 transition-colors group"
                   aria-label="User menu"
                   aria-expanded={isDropdownOpen}
                 >
-                  <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center font-semibold text-sm text-white">
-                    {user?.email?.charAt(0).toUpperCase() || 'A'}
+                  <div className="relative">
+                    <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-sm group-hover:shadow transition-shadow">
+                      <span className="text-white font-semibold text-sm">
+                        {user?.email?.charAt(0).toUpperCase() || 'A'}
+                      </span>
+                    </div>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                   </div>
-                  <span className="hidden sm:block text-sm font-medium text-white">
-                    {user?.email || user?.role || "Admin"}
-                  </span>
-                  <i 
-                    data-feather="chevron-down" 
-                    className={`w-4 h-4 transition-transform text-white ${isDropdownOpen ? 'rotate-180' : ''}`}
-                  ></i>
+                  
+                  <div className="hidden lg:block text-left">
+                    <div className="font-semibold text-gray-900 text-sm leading-tight">
+                      {user?.email?.split('@')[0] || 'Admin'}
+                    </div>
+                    <div className="text-xs text-gray-500 font-medium">
+                      {user?.role || 'Administrator'}
+                    </div>
+                  </div>
+                  
+                  <ChevronDown 
+                    className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                  />
                 </button>
 
                 {/* Dropdown menu */}
                 {isDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl py-2 z-50 border border-gray-100 overflow-hidden">
+                    {/* User info header */}
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <div className="font-semibold text-gray-900 text-sm">
+                        {user?.email || 'admin@naijalingo.com'}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-0.5">
+                        Super Administrator
+                      </div>
+                    </div>
+
+                    {/* Menu items */}
                     <a 
                       href="/profile" 
-                      className="dropdown-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 group/item"
                       onClick={() => setIsDropdownOpen(false)}
                     >
-                      <i data-feather="user" className="w-4 h-4 text-gray-500"></i>
-                      <span className="font-medium">Profile</span>
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center group-hover/item:bg-blue-100 transition-colors">
+                        <User size={16} className="text-blue-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium">My Profile</div>
+                        <div className="text-xs text-gray-500">View and edit profile</div>
+                      </div>
                     </a>
+                    
                     <a 
                       href="/settings" 
-                      className="dropdown-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 group/item"
                       onClick={() => setIsDropdownOpen(false)}
                     >
-                      <i data-feather="settings" className="w-4 h-4 text-gray-500"></i>
-                      <span className="font-medium">Settings</span>
+                      <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center group-hover/item:bg-purple-100 transition-colors">
+                        <Settings size={16} className="text-purple-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Settings</div>
+                        <div className="text-xs text-gray-500">System preferences</div>
+                      </div>
                     </a>
-                    <div className="border-t border-gray-200 my-1"></div>
+
+                    {/* Divider */}
+                    <div className="border-t border-gray-100 my-1"></div>
+
+                    {/* Logout */}
                     <button
                       onClick={handleLogout}
-                      className="dropdown-item flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
+                      className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200 group/item"
                     >
-                      <i data-feather="log-out" className="w-4 h-4"></i>
-                      <span className="font-medium">Logout</span>
+                      <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center group-hover/item:bg-red-100 transition-colors">
+                        <LogOut size={16} className="text-red-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Logout</div>
+                        <div className="text-xs text-red-500">Sign out of admin panel</div>
+                      </div>
                     </button>
                   </div>
                 )}
@@ -114,8 +228,11 @@ const AdminNavbar = () => {
           </div>
         </div>
       </nav>
+      
+      {/* Spacer to prevent content from hiding under fixed navbar */}
+      <div className="h-16 lg:h-20"></div>
     </div>
-  )
-}
+  );
+};
 
-export default AdminNavbar
+export default AdminNavbar;

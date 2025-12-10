@@ -23,6 +23,7 @@ import {
   Target,
   Settings
 } from 'lucide-react';
+import CustomNavbar from '@/components/navBar';
 
 const DocumentationPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,9 +33,7 @@ const DocumentationPage = () => {
     { id: 'getting-started', label: 'Getting Started', icon: Zap },
     { id: 'dictionary', label: 'Dictionary Features', icon: BookOpen },
     { id: 'pronunciation', label: 'Pronunciation', icon: Volume2 },
-    { id: 'languages', label: 'Languages', icon: Globe },
     { id: 'account', label: 'Account & Settings', icon: Settings },
-    { id: 'technical', label: 'Technical', icon: Code }
   ];
   
   const documentation = {
@@ -92,20 +91,7 @@ const DocumentationPage = () => {
         icon: Mic
       }
     ],
-    'languages': [
-      {
-        id: 'supported',
-        title: 'Supported Languages',
-        content: `**Available Dictionaries**:\n\n**Major Languages**:\n- English, Spanish, French, German, Italian\n- Chinese, Japanese, Korean, Arabic, Russian\n\n**African Languages**:\n- Yoruba, Igbo, Hausa, Swahili\n\n**Additional Languages**:\n- Portuguese, Hindi, Turkish, Vietnamese`,
-        icon: Languages
-      },
-      {
-        id: 'language-tools',
-        title: 'Language-Specific Tools',
-        content: `**Special Features by Language**:\n\n**Non-Latin Scripts**:\n- Character writing guides\n- Stroke order animations\n- Radical breakdowns\n\n**Tonal Languages**:\n- Tone contour visualization\n- Tone comparison exercises\n\n**Complex Grammar**:\n- Conjugation tables\n- Declension guides\n- Case system explanations`,
-        icon: Globe
-      }
-    ],
+    
     'account': [
       {
         id: 'profile',
@@ -120,20 +106,7 @@ const DocumentationPage = () => {
         icon: Star
       }
     ],
-    'technical': [
-      {
-        id: 'requirements',
-        title: 'System Requirements',
-        content: `**Web Version**:\n- Modern web browser (Chrome, Firefox, Safari, Edge)\n- Microphone for speech practice\n- Internet connection (or offline mode with Premium)\n\n**Mobile Apps**:\n- iOS 13+ or Android 8+\n- 50MB free space for offline content\n- Recommended: headphones for best audio quality`,
-        icon: Phone
-      },
-      {
-        id: 'troubleshooting',
-        title: 'Troubleshooting',
-        content: `**Common Issues**:\n\n**Audio not playing**:\n1. Check volume and mute settings\n2. Try different headphones/speakers\n3. Clear browser cache\n\n**Search not working**:\n1. Check internet connection\n2. Try simpler search terms\n3. Clear app cache\n\n**Sync issues**:\n1. Ensure you're logged in\n2. Check internet connection\n3. Update to latest app version`,
-        icon: HelpCircle
-      }
-    ]
+    
   };
   
   const faqs = [
@@ -162,7 +135,6 @@ const DocumentationPage = () => {
   const resources = [
     { title: 'Dictionary API', icon: Code, link: '#' },
     { title: 'Mobile App Guide', icon: Phone, link: '#' },
-    { title: 'Teacher Resources', icon: BookOpen, link: '#' },
     { title: 'Content Guidelines', icon: FileText, link: '#' }
   ];
 
@@ -173,6 +145,7 @@ const DocumentationPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <CustomNavbar/>
       {/* Header */}
       <div className="bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -180,7 +153,7 @@ const DocumentationPage = () => {
             <div className="inline-flex items-center justify-center p-3 bg-blue-100 rounded-full mb-4">
               <BookOpen size={32} className="text-blue-600" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Dictionary Documentation</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Naijawiki Documentation</h1>
             <p className="text-gray-600">
               Complete guide to using the language dictionary
             </p>

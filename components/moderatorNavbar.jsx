@@ -1,15 +1,47 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import feather from "feather-icons";
+import {
+  BookOpen,
+  User,
+  Settings,
+  LogOut,
+  ChevronDown,
+  Shield,
+  Bell,
+  Search,
+  Menu,
+  Filter,
+  CheckCircle,
+  AlertCircle
+} from "lucide-react";
 
-const ModeratorNavbar = () => {
+const ModeratorNavbar = ({ onMenuToggle }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [pendingReviews, setPendingReviews] = useState(5);
+  const [notifications, setNotifications] = useState([]);
   const dropdownRef = useRef(null);
 
-  // Initialize feather icons whenever dropdown changes
   useEffect(() => {
-    feather.replace();
-  }, [dropdownOpen]);
+    // Handle scroll effect
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    // Mock notifications for moderator
+    setNotifications([
+      { id: 1, text: 'New word submission awaiting review', time: '2 min ago', unread: true, type: 'warning' },
+      { id: 2, text: 'User report requires attention', time: '15 min ago', unread: true, type: 'alert' },
+      { id: 3, text: '3 translations approved', time: '1 hour ago', unread: false, type: 'success' },
+      { id: 4, text: 'System maintenance scheduled', time: '3 hours ago', unread: false, type: 'info' }
+    ]);
+
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -22,72 +54,197 @@ const ModeratorNavbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Toggle dropdown visibility
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
 
+  const unreadNotifications = notifications.filter(n => n.unread).length;
+
   return (
-    <div className="admin">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="w-full mx-auto px-6">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo and Brand */}
-            <div className="flex items-center">
-              <a href="/moderator" className="flex items-center gap-3 text-gray-400 hover:text-gray-700 transition-colors">
-                <i data-feather="book-open" className="w-5 h-5"></i>
-                <span className="text-base font-semibold">NaijaLingo Moderator</span>
+    <div className="moderator">
+      <nav className={`
+        fixed top-0 left-0 right-0 z-50 transition-all duration-300
+        ${isScrolled 
+          ? 'bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-200/50' 
+          : 'bg-gradient-to-r from-gray-50 to-white border-b border-gray-100'
+        }
+      `}>
+        <div className="w-full mx-auto px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 lg:h-20">
+            {/* Left side - Logo and Menu Toggle */}
+            <div className="flex items-center gap-6">
+              
+
+              {/* Logo and Brand */}
+              <a 
+                href="/moderator" 
+                className="flex items-center gap-3 group"
+              >
+                <div className="relative">
+                  <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                    <BookOpen size={20} className="text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-gray-900 tracking-tight">
+                    NaijaLingo
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Shield size={12} className="text-amber-600" />
+                    <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                      Moderator Panel
+                    </span>
+                  </div>
+                </div>
               </a>
             </div>
 
-            {/* User Menu */}
-            <div className="flex items-center">
+            {/* Center - Stats and Search */}
+            <div className="hidden lg:flex items-center gap-8 flex-1 justify-center">
+              {/* Pending Reviews Badge */}
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-100 rounded-lg">
+                <AlertCircle size={16} className="text-orange-600" />
+                <span className="text-sm font-semibold text-orange-700">
+                  {unreadNotifications} pending
+                </span>
+                <span className="text-xs text-orange-600">reviews</span>
+              </div>
+
+              
+            </div>
+
+            {/* Right side - User controls */}
+            <div className="flex items-center gap-4">
+            
+
+              {/* Pending badge (Mobile) */}
+              <div className="lg:hidden relative">
+                <div className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-bold rounded-full">
+                  {unreadNotifications}
+                </div>
+              </div>
+
+              {/* Notifications */}
+              <div className="relative">
+                <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                  <Bell size={20} />
+                  {unreadNotifications > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                      {unreadNotifications}
+                    </span>
+                  )}
+                  {unreadNotifications > 0 && (
+                    <span className="absolute -top-1 right-3 w-2 h-2 bg-red-500 rounded-full"></span>
+                  )}
+                </button>
+              </div>
+
               {/* User dropdown */}
-              <div className="relative dropdown" ref={dropdownRef}>
+              <div className="relative" ref={dropdownRef}>
                 <button 
                   onClick={toggleDropdown}
-                  className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors p-2 rounded-md"
-                  aria-label="User menu"
+                  className="flex items-center gap-3 p-1.5 rounded-xl hover:bg-gray-50 transition-colors group"
+                  aria-label="Moderator menu"
                   aria-expanded={dropdownOpen}
                 >
-                  <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center font-semibold text-sm text-white">
-                    MO
+                  <div className="relative">
+                    <div className="w-9 h-9 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-sm group-hover:shadow transition-shadow">
+                      <span className="text-white font-bold text-sm">
+                        MO
+                      </span>
+                    </div>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                   </div>
-                  <span className="hidden sm:block text-sm font-medium">
-                    Moderator
-                  </span>
-                  <i 
-                    data-feather="chevron-down" 
-                    className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
-                  ></i>
+                  
+                  <div className="hidden lg:block text-left">
+                    <div className="font-semibold text-gray-900 text-sm leading-tight">
+                      Moderator
+                    </div>
+                    <div className="text-xs text-amber-600 font-medium">
+                      Content Management
+                    </div>
+                  </div>
+                  
+                  <ChevronDown 
+                    className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
+                  />
                 </button>
 
                 {/* Dropdown menu */}
                 {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl py-2 z-50 border border-gray-100 overflow-hidden">
+                    {/* Moderator info header */}
+                    <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
+                      <div className="font-bold text-gray-900 text-sm">
+                        Content Moderator
+                      </div>
+                      <div className="text-xs text-amber-600 mt-0.5 font-medium">
+                        {unreadNotifications} items pending review
+                      </div>
+                    </div>
+
+                    {/* Menu items */}
                     <a 
-                      href="/profile" 
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                      href="/moderator" 
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 group/item"
                       onClick={() => setDropdownOpen(false)}
                     >
-                      <i data-feather="user" className="w-4 h-4 text-gray-500"></i>
-                      <span className="font-medium">Profile</span>
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center group-hover/item:bg-blue-100 transition-colors">
+                        <User size={16} className="text-blue-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Dashboard</div>
+                        <div className="text-xs text-gray-500">Overview & statistics</div>
+                      </div>
                     </a>
+                    <a href="/profile"
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 group/item"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center group-hover/item:bg-green-100 transition-colors">
+                        <Shield size={16} className="text-green-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium">My Profile</div>
+                        <div className="text-xs text-gray-500">View & edit profile</div>
+                      </div>
+                    </a>
+
+                    
+                    
+                    
                     <a 
-                      href="/moderator/settings" 
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                      href="/settings" 
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 group/item"
                       onClick={() => setDropdownOpen(false)}
                     >
-                      <i data-feather="settings" className="w-4 h-4 text-gray-500"></i>
-                      <span className="font-medium">Settings</span>
+                      <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center group-hover/item:bg-purple-100 transition-colors">
+                        <Settings size={16} className="text-purple-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Settings</div>
+                        <div className="text-xs text-gray-500">Rules & preferences</div>
+                      </div>
                     </a>
-                    <div className="border-t border-gray-200 my-1"></div>
-                    <a
-                      href="/logout"
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
-                      onClick={() => setDropdownOpen(false)}
+
+                    {/* Divider */}
+                    <div className="border-t border-gray-100 my-1"></div>
+
+                    {/* Logout */}
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        window.location.href = "/logout";
+                      }}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200 group/item"
                     >
-                      <i data-feather="log-out" className="w-4 h-4"></i>
-                      <span className="font-medium">Logout</span>
-                    </a>
+                      <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center group-hover/item:bg-red-100 transition-colors">
+                        <LogOut size={16} className="text-red-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Logout</div>
+                        <div className="text-xs text-red-500">Sign out of moderator panel</div>
+                      </div>
+                    </button>
                   </div>
                 )}
               </div>
@@ -95,6 +252,9 @@ const ModeratorNavbar = () => {
           </div>
         </div>
       </nav>
+      
+      {/* Spacer to prevent content from hiding under fixed navbar */}
+      <div className="h-16 lg:h-20"></div>
     </div>
   );
 };
