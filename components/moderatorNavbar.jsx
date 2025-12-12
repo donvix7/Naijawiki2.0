@@ -144,9 +144,7 @@ const ModeratorNavbar = ({ onMenuToggle }) => {
                       <div className="font-bold text-gray-900 text-sm">
                         Content Moderator
                       </div>
-                      <div className="text-xs text-amber-600 mt-0.5 font-medium">
-                        {unreadNotifications} items pending review
-                      </div>
+                      
                     </div>
 
                     {/* Menu items */}

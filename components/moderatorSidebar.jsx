@@ -94,7 +94,7 @@ const ModeratorSidebar = ({ onToggle }) => {
       { href: "/moderator", label: "Dashboard", icon: Home, active: pathname === "/moderator" }
     ],
     content: [
-      { href: "/moderator/word", label: "Word Reviews", icon: Book, badge: "12" },
+      { href: "/moderator/word", label: "Word Reviews", icon: Book, },
     ],
     support: [
       { href: "/help", label: "Help Center", icon: HelpCircle },
@@ -190,15 +190,7 @@ const ModeratorSidebar = ({ onToggle }) => {
                   <item.icon size={20} className={pathname === item.href ? "text-white" : "text-blue-600"} />
                   <span className="font-medium">{item.label}</span>
                 </div>
-                {item.badge && (
-                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                    pathname === item.href 
-                      ? "bg-white/20 text-white" 
-                      : "bg-red-100 text-red-800"
-                  }`}>
-                    {item.badge}
-                  </span>
-                )}
+                
               </a>
             ))}
           </div>
