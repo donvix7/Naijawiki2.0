@@ -82,14 +82,12 @@ const ModeratorNavbar = ({ onMenuToggle }) => {
                   <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
                     <BookOpen size={20} className="text-white" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-lg font-bold text-gray-900 tracking-tight">
                     NaijaLingo
                   </span>
                   <div className="flex items-center gap-2">
-                    <Shield size={12} className="text-amber-600" />
                     <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
                       Moderator Panel
                     </span>
@@ -98,45 +96,14 @@ const ModeratorNavbar = ({ onMenuToggle }) => {
               </a>
             </div>
 
-            {/* Center - Stats and Search */}
-            <div className="hidden lg:flex items-center gap-8 flex-1 justify-center">
-              {/* Pending Reviews Badge */}
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-100 rounded-lg">
-                <AlertCircle size={16} className="text-orange-600" />
-                <span className="text-sm font-semibold text-orange-700">
-                  {unreadNotifications} pending
-                </span>
-                <span className="text-xs text-orange-600">reviews</span>
-              </div>
-
-              
-            </div>
+        
 
             {/* Right side - User controls */}
             <div className="flex items-center gap-4">
             
 
-              {/* Pending badge (Mobile) */}
-              <div className="lg:hidden relative">
-                <div className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-bold rounded-full">
-                  {unreadNotifications}
-                </div>
-              </div>
 
-              {/* Notifications */}
-              <div className="relative">
-                <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-                  <Bell size={20} />
-                  {unreadNotifications > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                      {unreadNotifications}
-                    </span>
-                  )}
-                  {unreadNotifications > 0 && (
-                    <span className="absolute -top-1 right-3 w-2 h-2 bg-red-500 rounded-full"></span>
-                  )}
-                </button>
-              </div>
+              
 
               {/* User dropdown */}
               <div className="relative" ref={dropdownRef}>
@@ -211,20 +178,6 @@ const ModeratorNavbar = ({ onMenuToggle }) => {
 
                     
                     
-                    
-                    <a 
-                      href="/settings" 
-                      className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 group/item"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center group-hover/item:bg-purple-100 transition-colors">
-                        <Settings size={16} className="text-purple-600" />
-                      </div>
-                      <div>
-                        <div className="font-medium">Settings</div>
-                        <div className="text-xs text-gray-500">Rules & preferences</div>
-                      </div>
-                    </a>
 
                     {/* Divider */}
                     <div className="border-t border-gray-100 my-1"></div>

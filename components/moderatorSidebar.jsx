@@ -96,10 +96,6 @@ const ModeratorSidebar = ({ onToggle }) => {
     content: [
       { href: "/moderator/word", label: "Word Reviews", icon: Book, badge: "12" },
     ],
-    tools: [
-      { href: "/moderator/analytics", label: "Analytics", icon: BarChart2 },
-      { href: "/moderator/settings", label: "Settings", icon: Settings }
-    ],
     support: [
       { href: "/help", label: "Help Center", icon: HelpCircle },
       { href: "/documentation", label: "Documentation", icon: FileText }
@@ -207,25 +203,7 @@ const ModeratorSidebar = ({ onToggle }) => {
             ))}
           </div>
 
-          {/* Tools Section */}
-          <div className="menu-group">
-            <div className="menu-title text-gray-700 uppercase text-xs font-bold mb-3 px-2 tracking-wider border-b border-gray-200 pb-3">
-              TOOLS & ANALYTICS
-            </div>
-            {menuItems.tools.map((item) => (
-              <a 
-                key={item.href}
-                href={item.href} 
-                className={`flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 ${getActiveClass(item.href)}`}
-                onClick={handleLinkClick}
-              >
-                <div className="flex items-center gap-3">
-                  <item.icon size={20} className={pathname === item.href ? "text-white" : "text-purple-600"} />
-                  <span className="font-medium">{item.label}</span>
-                </div>
-              </a>
-            ))}
-          </div>
+         
 
           {/* Support Section */}
           <div className="menu-group">
@@ -246,7 +224,24 @@ const ModeratorSidebar = ({ onToggle }) => {
               </a>
             ))}
           </div>
+          {/* Quick Actions */}
+          <div className="menu-group pt-4 border-t border-gray-200">
+            <div className="menu-title text-gray-700 uppercase text-xs font-bold mb-3 px-2 tracking-wider border-b border-gray-200 pb-3">
+              QUICK ACTIONS
+            </div>
+            <a 
+              href="/" 
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-all duration-200"
+              onClick={handleLinkClick}
+            >
+              <i data-feather="globe" className="w-5 h-5 text-blue-500"></i> 
+              <span className="font-medium">View Live Site</span>
+            </a>
+            
+          </div>
+          
         </div>
+        
 
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-r from-gray-50 to-white border-t border-gray-200">

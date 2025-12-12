@@ -535,7 +535,7 @@ export default function Page() {
   }
 
   return (
-    <RoleGuard allowedRoles={["admin", "super_admin"]}>
+    <RoleGuard allowedRoles={["admin", "super_admin", "moderator"]}>
       <div className="min-h-screen bg-gray-50">
         <AdminNavbar />
 

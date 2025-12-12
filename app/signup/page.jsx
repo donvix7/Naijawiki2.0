@@ -37,10 +37,6 @@ export default function RegisterPage() {
       return;
     }
 
-    if (password.length < 8) {
-      setStatus({ message: "Password must be at least 8 characters.", type: "error" });
-      return;
-    }
 
     if (password !== confirm) {
       setStatus({ message: "Passwords do not match.", type: "error" });
@@ -66,7 +62,7 @@ export default function RegisterPage() {
 
       if (!res.ok) {
         setStatus({
-          message: data.message || "Registration failed. Please try again.",
+          message: data.message || "Registration failed. Please check the deatils or change email and  try again.",
           type: "error",
         });
       } else {

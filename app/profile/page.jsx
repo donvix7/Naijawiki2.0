@@ -675,7 +675,7 @@ export default function UserProfilePage() {
                         <div className="flex items-start gap-3">
                           <i data-feather="shield" className="w-5 h-5 text-blue-600 mt-0.5"></i>
                           <div>
-                            <p className="text-sm font-medium text-blue-800 mb-1">Your bank details are secure</p>
+                            <p className="text-sm font-medium text-green-500 mb-1">Your bank details are updated and secure</p>
                             <p className="text-xs text-blue-600">Your bank information is encrypted and only used for payment purposes.</p>
                           </div>
                         </div>
@@ -684,78 +684,108 @@ export default function UserProfilePage() {
                   </div>
                 )}
 
-                {/* Submitted Words Section */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
-                    <h2 className="text-lg font-semibold text-gray-900">
-                      {isAdminUser ? "All Submitted Words" : "My Submitted Words"}
-                    </h2>
-                    <span className="text-sm text-gray-600 font-medium">{submittedWords.length} total</span>
-                  </div>
+               {/* Submitted Words Section */}
+<div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+  <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
+    <h2 className="text-lg font-semibold text-gray-900">
+      {isAdminUser ? "All Submitted Words" : "My Submitted Words"}
+    </h2>
+    <span className="text-sm text-gray-600 font-medium">{submittedWords.length} total</span>
+  </div>
 
-                  {wordsLoading ? (
-                    <div className="text-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto mb-3"></div>
-                      <p className="text-gray-600 text-sm">Loading words...</p>
-                    </div>
-                  ) : submittedWords.length === 0 ? (
-                    <div className="text-center py-8">
-                      <i data-feather="book" className="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
-                      <p className="text-gray-600 font-medium text-base mb-2">No words submitted yet</p>
-                      <p className="text-gray-500 text-sm mb-4">Start contributing to the dictionary!</p>
-                      <button
-                        onClick={() => router.push("/submit-word")}
-                        className="bg-yellow-500 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-yellow-600 transition-colors text-sm"
-                      >
-                        Submit Your First Word
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {submittedWords.map((word, index) => (
-                        <div
-                          key={word.id ?? index}
-                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
-                        >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="font-semibold text-gray-900 text-base">{word.word}</h3>
-                              <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(word.status)}`}>
-                                {word.status}
-                              </span>
-                            </div>
-                            <p className="text-gray-700 text-sm mb-1">{word.meaning}</p>
-                            {word.language && <p className="text-gray-500 text-xs">Language: {word.language}</p>}
-                            {isAdminUser && word.submitted_by && (
-                              <p className="text-gray-500 text-xs">Submitted by: {word.submitted_by}</p>
-                            )}
-                            <p className="text-gray-500 text-xs mt-2">
-                              Submitted on {word.created_at ? new Date(word.created_at).toLocaleDateString() : "—"}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => router.push(`/word-details/${word.id}`)}
-                              className="p-2 text-gray-600 hover:text-yellow-500 transition-colors"
-                              title="View Details"
-                            >
-                              <i data-feather="eye" className="w-4 h-4"></i>
-                            </button>
-                            {!isAdminUser && word.status === "pending" && (
-                              <button
-                                onClick={() => router.push(`/edit-word/${word.id}`)}
-                                className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
-                                title="Edit Word"
-                              >
-                                <i data-feather="edit" className="w-4 h-4"></i>
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+  {wordsLoading ? (
+    <div className="text-center py-8">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto mb-3"></div>
+      <p className="text-gray-600 text-sm">Loading words...</p>
+    </div>
+  ) : submittedWords.length === 0 ? (
+    <div className="text-center py-8">
+      <i data-feather="book" className="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
+      <p className="text-gray-600 font-medium text-base mb-2">No words submitted yet</p>
+      <p className="text-gray-500 text-sm mb-4">Start contributing to the dictionary!</p>
+      <button
+        onClick={() => router.push("/submit-word")}
+        className="bg-yellow-500 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-yellow-600 transition-colors text-sm"
+      >
+        Submit Your First Word
+      </button>
+    </div>
+  ) : (
+    <div className="space-y-4">
+      {submittedWords.map((word, index) => {
+        // Check if current user can edit this word
+        const canEditWord = () => {
+          // Only moderators, admins, and super_admins can edit
+          const hasEditPermission = ['moderator', 'admin', 'super_admin'].includes(user?.role);
+          
+          if (!hasEditPermission) return false;
+          
+          // If user is a moderator, they can only edit their own submitted words
+          if (user?.role === 'moderator') {
+            // Check if word was submitted by this moderator
+            return word.submitted_by_id === user.id || word.submitted_by === user.username;
+          }
+          
+          // Admin and super_admin can edit all words
+          return true;
+        };
+        
+        // Check if user can view edit button
+        const showEditButton = canEditWord() && word.status === "pending";
+        
+        return (
+          <div
+            key={word.id ?? index}
+            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+          >
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className="font-semibold text-gray-900 text-base">{word.word}</h3>
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(word.status)}`}>
+                  {word.status}
+                </span>
+              </div>
+              <p className="text-gray-700 text-sm mb-1">{word.meaning}</p>
+              {word.language && <p className="text-gray-500 text-xs">Language: {word.language}</p>}
+              {isAdminUser && word.submitted_by && (
+                <p className="text-gray-500 text-xs">Submitted by: {word.submitted_by}</p>
+              )}
+              <p className="text-gray-500 text-xs mt-2">
+                Submitted on {word.created_at ? new Date(word.created_at).toLocaleDateString() : "—"}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => router.push(`/word-details/${word.id}`)}
+                className="p-2 text-gray-600 hover:text-yellow-500 transition-colors"
+                title="View Details"
+              >
+                <i data-feather="eye" className="w-4 h-4"></i>
+              </button>
+              
+              {/* Edit button - only shown to authorized users for pending words */}
+              {showEditButton && (
+                <button
+                  onClick={() => {
+                    // Determine the correct edit route based on user role
+                    const editRoute = user?.role === 'moderator' 
+                      ? `/moderator/word/edit/${word.id}`
+                      : `/admin/word/edit/${word.id}`;
+                    router.push(editRoute);
+                  }}
+                  className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                  title="Edit Word"
+                >
+                  <i data-feather="edit" className="w-4 h-4"></i>
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  )}
+</div>
               </div>
 
               {/* Sidebar Actions */}

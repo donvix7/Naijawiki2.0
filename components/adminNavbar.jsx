@@ -98,14 +98,12 @@ const AdminNavbar = ({ onMenuToggle }) => {
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
                     <BookOpen size={20} className="text-white" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-lg font-bold text-gray-900 tracking-tight">
                     NaijaLingo
                   </span>
                   <div className="flex items-center gap-2">
-                    <Shield size={12} className="text-blue-600" />
                     <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
                       Admin Panel
                     </span>
@@ -120,17 +118,7 @@ const AdminNavbar = ({ onMenuToggle }) => {
             <div className="flex items-center gap-4">
            
 
-              {/* Notifications */}
-              <div className="relative">
-                <button className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
-                  <Bell size={20} />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                      {unreadCount}
-                    </span>
-                  )}
-                </button>
-              </div>
+              
 
               {/* User dropdown */}
               <div className="relative user-dropdown">
@@ -196,13 +184,7 @@ const AdminNavbar = ({ onMenuToggle }) => {
                       className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 group/item"
                       onClick={() => setIsDropdownOpen(false)}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center group-hover/item:bg-purple-100 transition-colors">
-                        <Settings size={16} className="text-purple-600" />
-                      </div>
-                      <div>
-                        <div className="font-medium">Settings</div>
-                        <div className="text-xs text-gray-500">System preferences</div>
-                      </div>
+                      
                     </a>
 
                     {/* Divider */}
