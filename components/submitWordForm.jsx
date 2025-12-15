@@ -527,7 +527,7 @@ export default function SubmitWordForm() {
                   className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 ${
                     isRecording
                       ? "bg-red-500 hover:bg-red-600 text-white animate-pulse"
-                      : "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-md hover:shadow-lg"
+                      : "bg-gradient-to-r from-yellow-500 to-yellow-500 hover:from-yellow-600 hover:to-yellow-600 text-white shadow-md hover:shadow-lg"
                   }`}
                   disabled={loading}
                 >

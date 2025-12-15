@@ -432,7 +432,7 @@ export default function WordDetails() {
                           </span>
                         )}
                         {categoryFilter !== "all" && (
-                          <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs capitalize">
+                          <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs capitalize">
                             {categoryFilter}
                           </span>
                         )}

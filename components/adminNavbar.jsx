@@ -166,25 +166,29 @@ const AdminNavbar = ({ onMenuToggle }) => {
 
                     {/* Menu items */}
                     <a 
-                      href="/profile" 
+                      href="/admin/dashboard" 
                       className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 group/item"
-                      onClick={() => setIsDropdownOpen(false)}
+                      onClick={() => setDropdownOpen(false)}
                     >
                       <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center group-hover/item:bg-blue-100 transition-colors">
                         <User size={16} className="text-blue-600" />
                       </div>
                       <div>
-                        <div className="font-medium">My Profile</div>
-                        <div className="text-xs text-gray-500">View and edit profile</div>
+                        <div className="font-medium">Dashboard</div>
+                        <div className="text-xs text-gray-500">Overview & statistics</div>
                       </div>
                     </a>
-                    
-                    <a 
-                      href="/settings" 
+                    <a href="/profile"
                       className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200 group/item"
-                      onClick={() => setIsDropdownOpen(false)}
+                      onClick={() => setDropdownOpen(false)}
                     >
-                      
+                      <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center group-hover/item:bg-green-100 transition-colors">
+                        <Shield size={16} className="text-green-600" />
+                      </div>
+                      <div>
+                        <div className="font-medium">My Profile</div>
+                        <div className="text-xs text-gray-500">View & edit profile</div>
+                      </div>
                     </a>
 
                     {/* Divider */}

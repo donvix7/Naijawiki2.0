@@ -171,7 +171,7 @@ export default function FilterForm({ isLoggedIn }) {
         {isLoggedIn && (
           <a
             href="/submit-word"
-            className="mt-6 md:mt-0 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:scale-105 hover:shadow-2xl transition-all flex items-center gap-2"
+            className="mt-6 md:mt-0 bg-gradient-to-r from-yellow-500 to-yellow-500 text-white font-semibold px-6 py-3 rounded-full shadow-lg hover:scale-105 hover:shadow-2xl transition-all flex items-center gap-2"
           >
             <i data-feather="plus"></i> Add Word
           </a>

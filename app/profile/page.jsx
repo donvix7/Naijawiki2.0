@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import feather from "feather-icons";
@@ -32,28 +32,70 @@ export default function UserProfilePage() {
     account_number: "",
   });
 
+  // Store the feather replacement instance
+  const featherInstanceRef = useRef(null);
+  // Track if icons have been initialized
+  const iconsInitializedRef = useRef(false);
+
   const token = typeof window !== "undefined" ? Cookies.get("token") : null;
   const base_url = getBaseUrl();
-  const id = typeof window !== "undefined" ? Cookies.get("id") : null;
 
-  // Check if user is admin/super_admin
-  const isAdminUser = user && (user.role === "admin" || user.role === "super_admin");
+  // Helper to check if user is staff (admin/moderator/super_admin)
+  const isStaffUser = user && ['admin', 'super_admin', 'moderator'].includes(user.role);
+  
+  // Helper to check if user is regular user (not staff)
+  const isRegularUser = user && !isStaffUser;
 
   // Hydration guard
   useEffect(() => {
     setHydrated(true);
+    
+    return () => {
+      // Cleanup feather icons on unmount
+      if (featherInstanceRef.current) {
+        try {
+          // Feather doesn't have a proper cleanup method, but we can
+          // clear any scheduled replacements
+          featherInstanceRef.current = null;
+        } catch (err) {
+          // Ignore cleanup errors
+        }
+      }
+      iconsInitializedRef.current = false;
+    };
   }, []);
 
-  // Initialize feather icons
+  // Initialize feather icons - with better cleanup
   useEffect(() => {
-    if (hydrated && typeof window !== "undefined") {
+    if (!hydrated || typeof window === "undefined") return;
+    
+    // Clear any previous instance
+    if (featherInstanceRef.current) {
       try {
-        feather.replace();
+        featherInstanceRef.current = null;
       } catch (err) {
-        console.warn("Feather init failed", err);
+        // Ignore
       }
     }
-  }, [hydrated, loading, actionLoading, editing, editingBank, submittedWords]);
+    
+    // Use a timeout to avoid running during React updates
+    const timer = setTimeout(() => {
+      try {
+        // Replace icons
+        feather.replace();
+        iconsInitializedRef.current = true;
+      } catch (err) {
+        // Ignore feather errors - they're usually harmless
+        if (!err.message?.includes('removeChild') && !err.message?.includes('Node')) {
+          console.warn("Feather icons update failed:", err);
+        }
+      }
+    }, 100);
+    
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [hydrated, loading, actionLoading, editing, editingBank]);
 
   // Fetch user profile
   useEffect(() => {
@@ -63,10 +105,10 @@ export default function UserProfilePage() {
       return;
     }
 
-    let mounted = true;
     const fetchUserProfile = async () => {
       setLoading(true);
       setError(null);
+      
       try {
         const res = await fetch(`${base_url}/user/profile`, {
           headers: {
@@ -81,8 +123,6 @@ export default function UserProfilePage() {
         }
 
         const data = await res.json();
-        if (!mounted) return;
-
         const fetchedUser = data.user || data;
         setUser(fetchedUser);
 
@@ -92,22 +132,22 @@ export default function UserProfilePage() {
           email: fetchedUser.email || "",
         });
 
-        setBankData({
-          bank_name: fetchedUser.bank_name || "",
-          account_number: fetchedUser.account_number || "",
-        });
+        // Only set bank data for regular users
+        if (!['admin', 'super_admin', 'moderator'].includes(fetchedUser.role)) {
+          setBankData({
+            bank_name: fetchedUser.bank_name || "",
+            account_number: fetchedUser.account_number || "",
+          });
+        }
       } catch (err) {
         console.error("Fetch profile error:", err);
-        if (mounted) setError("Unable to load profile.");
+        setError("Unable to load profile.");
       } finally {
-        if (mounted) setLoading(false);
+        setLoading(false);
       }
     };
 
     fetchUserProfile();
-    return () => {
-      mounted = false;
-    };
   }, [hydrated, base_url, token, router]);
 
   // Fetch submitted words
@@ -115,11 +155,12 @@ export default function UserProfilePage() {
     if (!hydrated) return;
     if (!user) return;
 
-    let mounted = true;
     const fetchSubmittedWords = async () => {
       setWordsLoading(true);
       try {
-        const res = await fetch(`${base_url}/user/word/list`, {
+        const endpoint =  `${base_url}/user/word/list`;  // Regular users see only their words
+        
+        const res = await fetch(endpoint, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -132,21 +173,17 @@ export default function UserProfilePage() {
         }
 
         const data = await res.json();
-        if (!mounted) return;
         setSubmittedWords(Array.isArray(data.words) ? data.words : data || []);
       } catch (err) {
         console.error("Error fetching words:", err);
-        if (mounted) setSubmittedWords([]);
+        setSubmittedWords([]);
       } finally {
-        if (mounted) setWordsLoading(false);
+        setWordsLoading(false);
       }
     };
 
     fetchSubmittedWords();
-    return () => {
-      mounted = false;
-    };
-  }, [hydrated, base_url, token, user]);
+  }, [hydrated, base_url, token, user, isStaffUser]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -168,6 +205,7 @@ export default function UserProfilePage() {
 
   const updateProfile = async (e) => {
     e.preventDefault();
+    
     setActionLoading(true);
     setStatus({ message: "", type: "" });
 
@@ -177,6 +215,12 @@ export default function UserProfilePage() {
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
       };
+
+      // Only include bank details for regular users
+      if (isRegularUser) {
+        payload.bank_name = bankData.bank_name.trim();
+        payload.account_number = bankData.account_number;
+      }
 
       const res = await fetch(`${base_url}/user/profile`, {
         method: "PUT",
@@ -188,12 +232,19 @@ export default function UserProfilePage() {
       });
 
       const data = await res.json().catch(() => ({}));
+      
       if (!res.ok) throw new Error(data.message || "Failed to update profile");
 
       const updatedUser = data.user || data;
       setUser((prev) => ({ ...prev, ...updatedUser }));
       setEditing(false);
       setStatus({ message: "Profile updated successfully!", type: "success" });
+      
+      // Force a full page reload instead of router.refresh()
+      // This ensures feather icons are properly re-initialized
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (err) {
       console.error("Update profile error:", err);
       setStatus({ message: err.message || "Error updating profile", type: "error" });
@@ -204,6 +255,7 @@ export default function UserProfilePage() {
 
   const updateBankDetails = async (e) => {
     e.preventDefault();
+    
     setActionLoading(true);
     setStatus({ message: "", type: "" });
 
@@ -238,6 +290,7 @@ export default function UserProfilePage() {
       });
 
       const data = await res.json().catch(() => ({}));
+      
       if (!res.ok) throw new Error(data.message || "Failed to update bank details");
 
       setUser((prev) => ({ 
@@ -247,6 +300,11 @@ export default function UserProfilePage() {
       }));
       setEditingBank(false);
       setStatus({ message: "Bank details updated successfully!", type: "success" });
+      
+      // Force a full page reload instead of router.refresh()
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (err) {
       console.error("Update bank error:", err);
       setStatus({ message: err.message || "Error updating bank details", type: "error" });
@@ -276,9 +334,15 @@ export default function UserProfilePage() {
       });
 
       const data = await res.json().catch(() => ({}));
+      
       if (!res.ok) throw new Error(data.message || "Failed to change password");
 
       setStatus({ message: "Password changed successfully!", type: "success" });
+      
+      // Force a full page reload instead of router.refresh()
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (err) {
       console.error("Password change error:", err);
       setStatus({ message: err.message || "Error changing password", type: "error" });
@@ -363,6 +427,26 @@ export default function UserProfilePage() {
   const firstName = user.firstName || user.first_name || "";
   const lastName = user.lastName || user.last_name || "";
 
+  // Get role display name
+  const getRoleDisplay = (role) => {
+    switch (role) {
+      case 'super_admin': return 'Super Admin';
+      case 'admin': return 'Admin';
+      case 'moderator': return 'Moderator';
+      default: return 'User';
+    }
+  };
+
+  // Get role color
+  const getRoleColor = (role) => {
+    switch (role) {
+      case 'super_admin': return 'bg-red-100 text-red-800';
+      case 'admin': return 'bg-purple-100 text-purple-800';
+      case 'moderator': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-green-100 text-green-800';
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <CustomNavbar />
@@ -374,10 +458,12 @@ export default function UserProfilePage() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-3 tracking-tight">
-                  {isAdminUser ? `${user.role.charAt(0).toUpperCase() + user.role.slice(1)} Profile` : "My Profile"}
+                  {getRoleDisplay(user.role)} Profile
                 </h1>
                 <p className="text-gray-600 text-base font-normal">
-                  {isAdminUser ? "Manage your account information" : "Manage your account information and view your submissions"}
+                  {isStaffUser 
+                    ? "Manage your account information and view all submissions" 
+                    : "Manage your account information and view your submissions"}
                 </p>
               </div>
 
@@ -407,9 +493,9 @@ export default function UserProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Profile Information */}
               <div className="lg:col-span-2 space-y-6">
-                {/* Wallet Balance Card - Only show for non-admin users */}
-                {!isAdminUser && (
-                  <div className="bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl shadow-lg p-6 text-white">
+                {/* Wallet Balance Card - Only show for regular users */}
+                {isRegularUser && (
+                  <div className="bg-gradient-to-r from-yellow-500 to-yellow-500 rounded-xl shadow-lg p-6 text-white">
                     <div className="flex justify-between items-start">
                       <div>
                         <h2 className="text-lg font-semibold mb-2">Wallet Balance</h2>
@@ -432,13 +518,15 @@ export default function UserProfilePage() {
                       </button>
                       <button
                         onClick={() => router.push("/transactions")}
-                        className="flex-1 py-2.5 px-4 bg-white bg-opacity-20 rounded-lg font-semibold text-sm hover:bg-opacity-30 transition-all"
+                        className=" text-gray-500 flex-1 py-2.5 px-4 bg-white bg-opacity-20 rounded-lg font-semibold text-sm hover:bg-opacity-30 transition-all"
                       >
                         View Transactions
                       </button>
                     </div>
                   </div>
                 )}
+
+                
 
                 {/* Profile Card */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -448,7 +536,7 @@ export default function UserProfilePage() {
                       <button
                         onClick={() => setEditing(true)}
                         className={`flex items-center gap-2 px-4 py-2 text-white font-semibold rounded-lg transition-colors text-sm ${
-                          isAdminUser ? "bg-purple-500 hover:bg-purple-600" : "bg-yellow-500 hover:bg-yellow-600"
+                          isStaffUser ? "bg-purple-500 hover:bg-purple-600" : "bg-yellow-500 hover:bg-yellow-600"
                         }`}
                       >
                         <i data-feather="edit" className="w-4 h-4"></i>
@@ -505,7 +593,7 @@ export default function UserProfilePage() {
                           type="submit"
                           disabled={actionLoading}
                           className={`text-white font-semibold py-3 px-6 rounded-lg transition-colors text-sm disabled:opacity-50 ${
-                            isAdminUser ? "bg-purple-500 hover:bg-purple-600" : "bg-yellow-500 hover:bg-yellow-600"
+                            isStaffUser ? "bg-purple-500 hover:bg-purple-600" : "bg-yellow-500 hover:bg-yellow-600"
                           }`}
                         >
                           {actionLoading ? "Saving..." : "Save Changes"}
@@ -549,15 +637,9 @@ export default function UserProfilePage() {
                         <div>
                           <label className="block text-sm font-semibold text-gray-800 mb-3 uppercase text-xs tracking-wide">User Role</label>
                           <span
-                            className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold capitalize ${
-                              user.role === "admin" || user.role === "super_admin" 
-                                ? "bg-purple-100 text-purple-800" 
-                                : user.role === "moderator" 
-                                ? "bg-blue-100 text-blue-800" 
-                                : "bg-green-100 text-green-800"
-                            }`}
+                            className={`inline-block px-3 py-1.5 rounded-full text-xs font-semibold capitalize ${getRoleColor(user.role)}`}
                           >
-                            {user.role || "user"}
+                            {getRoleDisplay(user.role)}
                           </span>
                         </div>
                       </div>
@@ -565,8 +647,8 @@ export default function UserProfilePage() {
                   )}
                 </div>
 
-                {/* Bank Details Section - Only show for non-admin users */}
-                {!isAdminUser && (
+                {/* Bank Details Section - Only show for regular users */}
+                {isRegularUser && (
                   <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
                       <h2 className="text-lg font-semibold text-gray-900">Bank Details</h2>
@@ -684,108 +766,116 @@ export default function UserProfilePage() {
                   </div>
                 )}
 
-               {/* Submitted Words Section */}
-<div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-  <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
-    <h2 className="text-lg font-semibold text-gray-900">
-      {isAdminUser ? "All Submitted Words" : "My Submitted Words"}
-    </h2>
-    <span className="text-sm text-gray-600 font-medium">{submittedWords.length} total</span>
-  </div>
+                {/* Submitted Words Section */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                  <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {isStaffUser ? "All Submitted Words" : "My Submitted Words"}
+                    </h2>
+                    <span className="text-sm text-gray-600 font-medium">{submittedWords.length} total</span>
+                  </div>
 
-  {wordsLoading ? (
-    <div className="text-center py-8">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto mb-3"></div>
-      <p className="text-gray-600 text-sm">Loading words...</p>
-    </div>
-  ) : submittedWords.length === 0 ? (
-    <div className="text-center py-8">
-      <i data-feather="book" className="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
-      <p className="text-gray-600 font-medium text-base mb-2">No words submitted yet</p>
-      <p className="text-gray-500 text-sm mb-4">Start contributing to the dictionary!</p>
-      <button
-        onClick={() => router.push("/submit-word")}
-        className="bg-yellow-500 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-yellow-600 transition-colors text-sm"
-      >
-        Submit Your First Word
-      </button>
-    </div>
-  ) : (
-    <div className="space-y-4">
-      {submittedWords.map((word, index) => {
-        // Check if current user can edit this word
-        const canEditWord = () => {
-          // Only moderators, admins, and super_admins can edit
-          const hasEditPermission = ['moderator', 'admin', 'super_admin'].includes(user?.role);
-          
-          if (!hasEditPermission) return false;
-          
-          // If user is a moderator, they can only edit their own submitted words
-          if (user?.role === 'moderator') {
-            // Check if word was submitted by this moderator
-            return word.submitted_by_id === user.id || word.submitted_by === user.username;
-          }
-          
-          // Admin and super_admin can edit all words
-          return true;
-        };
-        
-        // Check if user can view edit button
-        const showEditButton = canEditWord() && word.status === "pending";
-        
-        return (
-          <div
-            key={word.id ?? index}
-            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
-          >
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className="font-semibold text-gray-900 text-base">{word.word}</h3>
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(word.status)}`}>
-                  {word.status}
-                </span>
-              </div>
-              <p className="text-gray-700 text-sm mb-1">{word.meaning}</p>
-              {word.language && <p className="text-gray-500 text-xs">Language: {word.language}</p>}
-              {isAdminUser && word.submitted_by && (
-                <p className="text-gray-500 text-xs">Submitted by: {word.submitted_by}</p>
-              )}
-              <p className="text-gray-500 text-xs mt-2">
-                Submitted on {word.created_at ? new Date(word.created_at).toLocaleDateString() : "—"}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => router.push(`/word-details/${word.id}`)}
-                className="p-2 text-gray-600 hover:text-yellow-500 transition-colors"
-                title="View Details"
-              >
-                <i data-feather="eye" className="w-4 h-4"></i>
-              </button>
-              
-              {/* Edit button - only shown to authorized users for pending words */}
-              {showEditButton && (
-                <button
-                  onClick={() => {
-                    // Determine the correct edit route based on user role
-                    const editRoute = user?.role === 'moderator' 
-                      ? `/moderator/word/edit/${word.id}`
-                      : `/admin/word/edit/${word.id}`;
-                    router.push(editRoute);
-                  }}
-                  className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
-                  title="Edit Word"
-                >
-                  <i data-feather="edit" className="w-4 h-4"></i>
-                </button>
-              )}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  )}
-</div>
+                  {wordsLoading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500 mx-auto mb-3"></div>
+                      <p className="text-gray-600 text-sm">Loading words...</p>
+                    </div>
+                  ) : submittedWords.length === 0 ? (
+                    <div className="text-center py-8">
+                      <i data-feather="book" className="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
+                      <p className="text-gray-600 font-medium text-base mb-2">
+                        {isStaffUser ? "No words submitted yet" : "No words submitted yet"}
+                      </p>
+                      <p className="text-gray-500 text-sm mb-4">
+                        {isStaffUser 
+                          ? "Users will appear here when they submit words" 
+                          : "Start contributing to the dictionary!"}
+                      </p>
+                      {!isStaffUser && (
+                        <button
+                          onClick={() => router.push("/submit-word")}
+                          className="bg-yellow-500 text-white font-semibold py-2.5 px-6 rounded-lg hover:bg-yellow-600 transition-colors text-sm"
+                        >
+                          Submit Your First Word
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {submittedWords.map((word, index) => {
+                        // Check if current user can edit this word
+                        const canEditWord = () => {
+                          // Only moderators, admins, and super_admins can edit
+                          const hasEditPermission = ['moderator', 'admin', 'super_admin'].includes(user?.role);
+                          
+                          if (!hasEditPermission) return false;
+                          
+                          // If user is a moderator, they can only edit their own submitted words
+                          if (user?.role === 'moderator') {
+                            // Check if word was submitted by this moderator
+                            return word.submitted_by_id === user.id || word.submitted_by === user.username;
+                          }
+                          
+                          // Admin and super_admin can edit all words
+                          return true;
+                        };
+                        
+                        // Check if user can view edit button
+                        const showEditButton = canEditWord() && word.status === "pending";
+                        
+                        return (
+                          <div
+                            key={word.id ?? index}
+                            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+                          >
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <h3 className="font-semibold text-gray-900 text-base">{word.word}</h3>
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(word.status)}`}>
+                                  {word.status}
+                                </span>
+                              </div>
+                              <p className="text-gray-700 text-sm mb-1">{word.meaning}</p>
+                              {word.language && <p className="text-gray-500 text-xs">Language: {word.language}</p>}
+                              {isStaffUser && word.submitted_by && (
+                                <p className="text-gray-500 text-xs">Submitted by: {word.submitted_by}</p>
+                              )}
+                              <p className="text-gray-500 text-xs mt-2">
+                                Submitted on {word.created_at ? new Date(word.created_at).toLocaleDateString() : "—"}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => router.push(`/word-details/${word.id}`)}
+                                className="p-2 text-gray-600 hover:text-yellow-500 transition-colors"
+                                title="View Details"
+                              >
+                                <i data-feather="eye" className="w-4 h-4"></i>
+                              </button>
+                              
+                              {/* Edit button - only shown to authorized users for pending words */}
+                              {showEditButton && (
+                                <button
+                                  onClick={() => {
+                                    // Determine the correct edit route based on user role
+                                    const editRoute = user?.role === 'moderator' 
+                                      ? `/moderator/word/edit/${word.id}`
+                                      : `/admin/word/edit/${word.id}`;
+                                    router.push(editRoute);
+                                  }}
+                                  className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                                  title="Edit Word"
+                                >
+                                  <i data-feather="edit" className="w-4 h-4"></i>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Sidebar Actions */}
@@ -809,13 +899,15 @@ export default function UserProfilePage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
                   <div className="space-y-3">
-                    <button
-                      onClick={() => router.push("/submit-word")}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
-                    >
-                      <i data-feather="plus" className="w-4 h-4"></i>
-                      Add New Word
-                    </button>
+                    {!isStaffUser && (
+                      <button
+                        onClick={() => router.push("/submit-word")}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
+                      >
+                        <i data-feather="plus" className="w-4 h-4"></i>
+                        Add New Word
+                      </button>
+                    )}
 
                     <button
                       onClick={() => router.push("/explore")}
@@ -825,8 +917,8 @@ export default function UserProfilePage() {
                       Explore Words
                     </button>
 
-                    {/* Admin-specific links */}
-                    {isAdminUser && (
+                    {/* Staff-specific links */}
+                    {isStaffUser && (
                       <>
                         <button
                           onClick={() => router.push("/admin/dashboard")}
@@ -843,6 +935,8 @@ export default function UserProfilePage() {
                           <i data-feather="users" className="w-4 h-4"></i>
                           Manage Users
                         </button>
+
+                        
                       </>
                     )}
                   </div>
@@ -850,29 +944,44 @@ export default function UserProfilePage() {
 
                 {/* Stats Summary */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">My Stats</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
                   <div className="space-y-3">
-                    {/* Only show wallet balance for non-admin users */}
-                    {!isAdminUser && (
+                    {/* Show wallet balance only for regular users */}
+                    {isRegularUser && (
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm">Wallet Balance:</span>
                         <span className="font-semibold text-green-600">{formatCurrency(walletBalance)}</span>
                       </div>
                     )}
+                    
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600 text-sm">Total Submitted:</span>
+                      <span className="text-gray-600 text-sm">Total Words:</span>
                       <span className="font-semibold text-gray-900">{submittedWords.length}</span>
                     </div>
+                    
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Approved:</span>
-                      <span className="font-semibold text-green-600">{submittedWords.filter((w) => w.status === "approved").length}</span>
+                      <span className="font-semibold text-green-600">
+                        {submittedWords.filter((w) => w.status === "approved").length}
+                      </span>
                     </div>
+                    
                     <div className="flex justify-between items-center">
                       <span className="text-gray-600 text-sm">Pending:</span>
-                      <span className="font-semibold text-yellow-600">{submittedWords.filter((w) => w.status === "pending").length}</span>
+                      <span className="font-semibold text-yellow-600">
+                        {submittedWords.filter((w) => w.status === "pending").length}
+                      </span>
                     </div>
-                    {/* Only show bank details for non-admin users */}
-                    {!isAdminUser && (
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600 text-sm">Rejected:</span>
+                      <span className="font-semibold text-red-600">
+                        {submittedWords.filter((w) => w.status === "rejected").length}
+                      </span>
+                    </div>
+                    
+                    {/* Only show bank details for regular users */}
+                    {isRegularUser && (
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600 text-sm">Bank Details:</span>
                         <span className={`font-semibold ${bank_name && account_number ? "text-green-600" : "text-yellow-600"}`}>

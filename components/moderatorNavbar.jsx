@@ -79,7 +79,7 @@ const ModeratorNavbar = ({ onMenuToggle }) => {
                 className="flex items-center gap-3 group"
               >
                 <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                  <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
                     <BookOpen size={20} className="text-white" />
                   </div>
                 </div>
@@ -114,7 +114,7 @@ const ModeratorNavbar = ({ onMenuToggle }) => {
                   aria-expanded={dropdownOpen}
                 >
                   <div className="relative">
-                    <div className="w-9 h-9 bg-gradient-to-br from-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-sm group-hover:shadow transition-shadow">
+                    <div className="w-9 h-9 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-full flex items-center justify-center shadow-sm group-hover:shadow transition-shadow">
                       <span className="text-white font-bold text-sm">
                         MO
                       </span>
@@ -140,7 +140,7 @@ const ModeratorNavbar = ({ onMenuToggle }) => {
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl py-2 z-50 border border-gray-100 overflow-hidden">
                     {/* Moderator info header */}
-                    <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
+                    <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-yellow-50">
                       <div className="font-bold text-gray-900 text-sm">
                         Content Moderator
                       </div>

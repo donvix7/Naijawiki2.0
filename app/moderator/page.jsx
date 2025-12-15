@@ -29,13 +29,13 @@ const fetchModeratorStats = async () => {
 
     const pending = words.filter(w => w.status === "pending").length;
     const reviewed = words.filter(w => ["approved", "rejected"].includes(w.status)).length;
-    const flagged = words.filter(w => w.flagged).length;
+    const rejected = words.filter(w => w.status === "rejected").length;
     const wordsNeedingReview = words.filter(w => w.status === "pending").slice(0, 5);
 
-    return { pending, reviewed, flagged, wordsNeedingReview, allWords: words };
+    return { pending, reviewed, rejected, wordsNeedingReview, allWords: words };
   } catch (err) {
     console.error("❌ Error fetching moderator stats:", err);
-    return { pending: 0, reviewed: 0, flagged: 0, wordsNeedingReview: [], allWords: [] };
+    return { pending: 0, reviewed: 0, rejected: 0, wordsNeedingReview: [], allWords: [] };
   }
 };
 
@@ -58,7 +58,7 @@ const updateWordStatus = async (wordId, status) => {
 
     return await res.json();
   } catch (err) {
-    console.error("❌ Error updating word status:", err);
+    console.error("Error updating word status:", err);
     throw err;
   }
 };
@@ -67,7 +67,7 @@ const ModeratorDashboard = () => {
   const [stats, setStats] = useState({
     pending: 0,
     reviewed: 0,
-    flagged: 0,
+    rejected: 0,
     wordsNeedingReview: [],
     allWords: [],
   });
@@ -155,7 +155,7 @@ const ModeratorDashboard = () => {
               {[
                 { label: "Pending Words", value: stats.pending, icon: "clock", color: "border-yellow-500 text-yellow-600", bgColor: "bg-yellow-50" },
                 { label: "Words Reviewed", value: stats.reviewed, icon: "check-circle", color: "border-green-500 text-green-600", bgColor: "bg-green-50" },
-                { label: "Flagged Words", value: stats.flagged, icon: "flag", color: "border-red-500 text-red-600", bgColor: "bg-red-50" },
+                { label: "Rejected Words", value: stats.rejected, icon: "x", color: "border-red-500 text-red-600", bgColor: "bg-red-50" },
               ].map((card, idx) => (
                 <div
                   key={idx}

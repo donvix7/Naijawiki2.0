@@ -56,8 +56,8 @@ const ModeratorSidebar = ({ onToggle }) => {
     // Check if current path starts with the given path for nested routes
     const isActive = pathname === path || pathname.startsWith(`${path}/`);
     return isActive
-      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-lg border-l-4 border-white"
-      : "text-gray-800 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 hover:text-gray-900 hover:shadow-sm transition-all duration-200";
+      ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-white font-semibold shadow-lg border-l-4 border-white"
+      : "text-gray-800 hover:bg-gradient-to-r hover:from-amber-50 hover:to-yellow-50 hover:text-gray-900 hover:shadow-sm transition-all duration-200";
   };
 
   // Close sidebar when clicking on a link (mobile only)
@@ -107,7 +107,7 @@ const ModeratorSidebar = ({ onToggle }) => {
       {/* Mobile toggle button */}
       <button
         onClick={toggleSidebar}
-        className="sidebar-toggle lg:hidden fixed top-4 left-4 z-50 bg-gradient-to-r from-amber-600 to-orange-600 text-white p-3 rounded-xl shadow-lg hover:shadow-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-200"
+        className="sidebar-toggle lg:hidden fixed top-4 left-4 z-50 bg-gradient-to-r from-amber-600 to-yellow-600 text-white p-3 rounded-xl shadow-lg hover:shadow-xl hover:from-amber-700 hover:to-yellow-700 transition-all duration-200"
         aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
         aria-expanded={isOpen}
       >
@@ -130,9 +130,9 @@ const ModeratorSidebar = ({ onToggle }) => {
         aria-hidden={!isOpen && isMobile}
       >
         {/* Sidebar Header */}
-        <div className="sidebar-header px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-orange-50 flex items-center justify-between">
+        <div className="sidebar-header px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-amber-50 to-yellow-50 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-yellow-500 rounded-xl flex items-center justify-center shadow-md">
               <Shield size={22} className="text-white" />
             </div>
             <div>

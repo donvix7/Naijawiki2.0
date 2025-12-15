@@ -97,7 +97,7 @@ const ModeratorAnalyticsPage = () => {
       change: '-12.5%',
       trend: 'down',
       icon: AlertCircle,
-      color: 'bg-orange-500'
+      color: 'bg-yellow-500'
     },
     {
       title: 'Reviewed Today',
@@ -233,7 +233,7 @@ const ModeratorAnalyticsPage = () => {
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">Language Queue Status</h3>
-                <button className="flex items-center space-x-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition text-sm">
+                <button className="flex items-center space-x-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition text-sm">
                   <Eye size={16} />
                   <span>View All</span>
                 </button>
@@ -256,7 +256,7 @@ const ModeratorAnalyticsPage = () => {
                         <tr key={index} className="border-b hover:bg-gray-50">
                           <td className="py-4">
                             <div className="flex items-center space-x-3">
-                              <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-lg flex items-center justify-center">
+                              <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 to-yellow-500 rounded-lg flex items-center justify-center">
                                 <span className="text-white font-bold text-sm">
                                   {item.language.charAt(0)}
                                 </span>
@@ -332,7 +332,7 @@ const ModeratorAnalyticsPage = () => {
                             <span className={`w-8 h-8 flex items-center justify-center rounded-full font-bold ${
                               moderator.rank === 1 ? 'bg-yellow-100 text-yellow-800' :
                               moderator.rank === 2 ? 'bg-gray-100 text-gray-800' :
-                              'bg-orange-100 text-orange-800'
+                              'bg-yellow-100 text-yellow-800'
                             }`}>
                               {moderator.rank}
                             </span>
@@ -419,7 +419,7 @@ const ModeratorAnalyticsPage = () => {
       <ModeratorNavbar/>
       
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-600 to-orange-700 text-white">
+      <div className="bg-gradient-to-r from-amber-600 to-yellow-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div>
@@ -433,7 +433,7 @@ const ModeratorAnalyticsPage = () => {
               </div>
               <a 
                 href='/moderator/dashboard'
-                className="flex items-center space-x-2 px-4 py-2 bg-white text-orange-800 rounded-lg hover:bg-amber-100 transition"
+                className="flex items-center space-x-2 px-4 py-2 bg-white text-yellow-800 rounded-lg hover:bg-amber-100 transition"
               >
                 <ArrowRight size={16} />
                 <span>Back to dashboard</span>
@@ -487,11 +487,11 @@ const ModeratorAnalyticsPage = () => {
                   onClick={() => setActiveView(id)}
                   className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition ${
                     activeView === id
-                      ? 'bg-white shadow-md text-orange-600 border border-orange-200'
+                      ? 'bg-white shadow-md text-yellow-600 border border-yellow-200'
                       : 'text-gray-700 hover:bg-white/50 hover:border hover:border-gray-200'
                   }`}
                 >
-                  <Icon size={20} className={activeView === id ? 'text-orange-500' : 'text-gray-500'} />
+                  <Icon size={20} className={activeView === id ? 'text-yellow-500' : 'text-gray-500'} />
                   <span className="font-medium">{label}</span>
                 </button>
               ))}
@@ -506,7 +506,7 @@ const ModeratorAnalyticsPage = () => {
                       onClick={() => setTimeRange(option.value)}
                       className={`w-full text-left px-3 py-2 rounded-lg transition ${
                         timeRange === option.value
-                          ? 'bg-orange-100 text-orange-600'
+                          ? 'bg-yellow-100 text-yellow-600'
                           : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
@@ -548,9 +548,9 @@ const ModeratorAnalyticsPage = () => {
             {renderModeratorChart()}
             
             {/* Moderator Insights */}
-            <div className="mt-8 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
+            <div className="mt-8 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-6 border border-amber-200">
               <div className="flex items-center space-x-3 mb-4">
-                <TrendingUp size={24} className="text-orange-600" />
+                <TrendingUp size={24} className="text-yellow-600" />
                 <h3 className="text-lg font-semibold text-gray-900">Performance Insights</h3>
               </div>
               
@@ -567,7 +567,7 @@ const ModeratorAnalyticsPage = () => {
                 
                 <div className="bg-white rounded-lg p-4 border border-gray-200">
                   <div className="flex items-center space-x-2 mb-2">
-                    <AlertCircle size={18} className="text-orange-500" />
+                    <AlertCircle size={18} className="text-yellow-500" />
                     <span className="font-medium text-gray-900">Queue Alert</span>
                   </div>
                   <p className="text-sm text-gray-600">
