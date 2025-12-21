@@ -218,7 +218,7 @@ const CustomNavbar = () => {
               <>
                 <a
                   href="/login"
-                  className="px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-all duration-200 text-sm group"
+                  className="px-4 py-2.5 border border-gray-300 text-gray-200 font-medium rounded-lg hover:bg-gray-50 transition-all duration-200 text-sm group"
                 >
                   <div className="flex items-center gap-2">
                     <i data-feather="log-in" className="w-4 h-4 transition-transform group-hover:translate-x-0.5"></i>

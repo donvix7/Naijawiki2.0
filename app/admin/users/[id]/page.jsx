@@ -731,7 +731,7 @@ export default function Page() {
                           </div>
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => router.push(`/admin/word/${word.id || word._id}`)}
+                              onClick={() => router.push(`/word-details/${word.id || word._id}`)}
                               className="p-2 text-gray-600 hover:text-yellow-500 transition-colors"
                               title="View Details"
                             >
@@ -739,7 +739,7 @@ export default function Page() {
                             </button>
                             {(word.status === 'pending' || !word.status) && (
                               <button
-                                onClick={() => router.push(`/admin/word/review/${word.id || word._id}`)}
+                                onClick={() => router.push(`//word/edit/${word.id || word._id}`)}
                                 className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
                                 title="Review Word"
                               >
@@ -815,38 +815,7 @@ export default function Page() {
 
               {/* Sidebar Actions */}
               <div className="space-y-6">
-                {/* Quick Actions */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-                  <div className="space-y-3">
-                    {!editing && (
-                      <button
-                        onClick={() => setEditing(true)}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-yellow-500 text-white font-semibold rounded-lg hover:bg-yellow-600 transition-colors text-sm"
-                      >
-                        <i data-feather="edit" className="w-4 h-4"></i>
-                        Edit User Details
-                      </button>
-                    )}
-                    
-                    <button
-                      onClick={resetPassword}
-                      disabled={actionLoading}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-blue-100 text-blue-700 font-semibold rounded-lg hover:bg-blue-200 transition-colors text-sm disabled:opacity-50"
-                    >
-                      <i data-feather="refresh-cw" className="w-4 h-4"></i>
-                      Reset Password
-                    </button>
-
-                    <button
-                      onClick={() => router.push(`/admin/users/${user.id || user._id}/activity`)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-green-100 text-green-700 font-semibold rounded-lg hover:bg-green-200 transition-colors text-sm"
-                    >
-                      <i data-feather="activity" className="w-4 h-4"></i>
-                      View Activity
-                    </button>
-                  </div>
-                </div>
+                
 
                 {/* Current Status */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

@@ -253,23 +253,25 @@ export default function Home() {
         key={word.id}
         className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 hover:border-yellow-500"
       >
-        <div className="flex justify-between items-start mb-4">
-          <h3 className="text-xl font-bold text-gray-900 break-words">
-            <a
+        <a
               href={`/word-details/${word.id}`}
               className="hover:text-yellow-500 transition-colors duration-200"
-            >
+        >
+        <div className="flex justify-between items-start mb-4">
+          
+
+           
+          <h3 className="text-xl font-bold text-gray-900 break-words">
+            
               {word.word}
-            </a>
           </h3>
-          <span className="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold min-w-[80px] text-center shrink-0 ml-2">
-            {word.language}
-          </span>
+          
         </div>
 
         <p className="text-gray-700 mb-4 leading-relaxed font-normal text-base break-words">
           {word.meaning}
         </p>
+        </a>
 
         <div className="flex items-center gap-2">
           <button
@@ -334,7 +336,7 @@ export default function Home() {
           <h1 className="text-3xl font-bold mb-4 leading-tight tracking-tight text-black">
             Preserve Nigerian Languages & Culture
           </h1>
-          <p className=" text-yellow-500">
+          <p className=" text-yellow-500 my-2 text-lg">
             Discover, learn, and contribute to the rich linguistic heritage of Nigeria.
           </p>
 

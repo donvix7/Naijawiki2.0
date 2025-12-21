@@ -160,7 +160,7 @@ export default function FilterForm({ isLoggedIn }) {
       {/* HEADER */}
       <header className="flex flex-col md:flex-row items-start md:items-center justify-between mb-16">
         <div>
-          <h1 className="text-5xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-3xl font-bold mb-4 leading-tight tracking-tight text-black">
             Nigerian Word Explorer
           </h1>
           <p className="text-gray-500 mt-2 text-lg">
@@ -203,7 +203,9 @@ export default function FilterForm({ isLoggedIn }) {
         </div>
       )}
 
+
       {/* SEARCH PANEL */}
+       
       <div className="backdrop-blur-lg bg-white/60 p-6 rounded-2xl shadow-xl border border-gray-100 mb-12">
         <div className="flex flex-col md:flex-row gap-4">
 
@@ -213,9 +215,9 @@ export default function FilterForm({ isLoggedIn }) {
               onChange={(e)=> setSearch(e.target.value)}
               onKeyDown={(e)=> e.key === "Enter" && searchWords()}
               placeholder="Search Igbo, Yoruba, Hausa, Pidgin..."
-              className="w-full p-4 pl-12 rounded-xl border border-gray-200 shadow-sm text-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+              className="w-full py-3.5 px-6 rounded-full text-gray-900 shadow-sm border border-gray-200 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 focus:outline-none text-base font-normal placeholder-gray-500"
             />
-            <i data-feather="search" className="absolute left-4 top-4 text-gray-400"></i>
+            <i data-feather="search" className="absolute right-4 top-4 text-gray-400"></i>
 
             {loading && (
               <div className="absolute right-4 top-4 animate-spin w-5 h-5 border-2 border-yellow-500 border-b-transparent rounded-full"/>
@@ -248,7 +250,7 @@ export default function FilterForm({ isLoggedIn }) {
 
 
       {/* WORDS GRID — PREMIUM CARD LAYOUT */}
-      <section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
 
         {loading && (
           <div className="col-span-full text-center py-16">
@@ -268,47 +270,65 @@ export default function FilterForm({ isLoggedIn }) {
 
           return (
             <div
-              key={word.id}
-              className="group bg-white rounded-2xl p-6 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all border border-gray-100"
-            >
-              <h2 className="text-3xl font-semibold text-gray-900">
-                {word.word}
-              </h2>
+        key={word.id}
+        className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-300 hover:border-yellow-500"
+      >
+        <a
+              href={`/word-details/${word.id}`}
+              className="hover:text-yellow-500 transition-colors duration-200"
+        >
+        <div className="flex justify-between items-start mb-4">
+          
 
-              <p className="text-gray-600 mt-3 min-h-[60px] leading-relaxed">
-                {word.meaning}
-              </p>
+           
+          <h3 className="text-xl font-bold text-gray-900 break-words">
+            
+              {word.word}
+          </h3>
+          
+        </div>
 
-              <div className="flex justify-between items-center mt-6">
+        <p className="text-gray-700 mb-4 leading-relaxed font-normal text-base break-words">
+          {word.meaning}
+        </p>
+        </a>
 
-                {/* AUDIO BTN */}
-                <button
-                  disabled={!hasAudio}
-                  onClick={()=>
-                    playingAudioId === word.id ? stopAudio() : playAudio(word)
-                  }
-                  className={`flex items-center gap-2 font-medium
-                    ${playingAudioId === word.id 
-                      ? "text-red-600 hover:text-red-700" 
-                      : hasAudio 
-                        ? "text-yellow-600 hover:text-yellow-700" 
-                        : "opacity-50 cursor-not-allowed"
-                    }
-                  `}
-                >
-                  <i data-feather={playingAudioId===word.id?"square":"play-circle"}/>
-                  {playingAudioId===word.id ? "Stop" : "Listen"}
-                </button>
-
-                <a
-                  href={`/word-details/${word.id}`}
-                  className="text-blue-700 hover:underline font-semibold flex items-center gap-1"
-                >
-                  View <i data-feather="arrow-right"/>
-                </a>
-
-              </div>
-            </div>
+        <div className="flex items-center gap-2">
+          <button
+            className={`flex items-center font-semibold transition-colors duration-200 px-3 py-2 rounded-lg text-sm ${
+              playingAudioId === word.id 
+                ? "text-red-600 hover:text-red-700 bg-red-50" 
+                : "text-yellow-500 hover:text-yellow-500-dark hover:bg-yellow-500-light"
+            } ${!hasAudio ? "opacity-50 cursor-not-allowed" : ""}`}
+            onClick={() => 
+              playingAudioId === word.id 
+                ? stopAudio() 
+                : playAudio(word)
+            }
+            disabled={!hasAudio}
+            aria-label={
+              playingAudioId === word.id 
+                ? `Stop pronunciation of ${word.word}` 
+                : `Listen to pronunciation of ${word.word}`
+            }
+          >
+            <i 
+              data-feather={playingAudioId === word.id ? "square" : "play"} 
+              className="mr-2 w-4 h-4" 
+              aria-hidden="true"
+            ></i>
+            {playingAudioId === word.id ? "Stop" : "Listen"}
+          </button>
+          
+          {/* Audio format indicator */}
+          {hasAudio && (
+            <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-200">
+              Audio
+            </span>
+          )}
+        </div>
+      </div>
+    
           );
         })}
 
